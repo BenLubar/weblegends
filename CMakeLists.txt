@@ -1,0 +1,19 @@
+PROJECT (weblegends)
+
+SET(PROJECT_SRCS
+    weblegends.cpp
+    server.cpp
+    http.cpp
+)
+
+SET(PROJECT_HDRS
+    weblegends.h
+)
+
+SET_SOURCE_FILES_PROPERTIES( ${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
+
+LIST(APPEND PROJECT_SRCS ${PROJECT_HDRS})
+
+LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread)
+
+DFHACK_PLUGIN(weblegends ${PROJECT_SRCS} LINK_LIBRARIES ${PROJECT_LIBS} COMPILE_FLAGS_GCC "-Wall -Wextra -Werror" COMPILE_FLAGS_MSVC "/W3")
