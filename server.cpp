@@ -51,11 +51,13 @@ void WebLegends::run(void *wl)
 
 void WebLegends::run()
 {
+    sock.SetNonblocking();
+
     while (true)
     {
         cleanup();
 
-        CActiveSocket *client = sock.Accept();
+        CActiveSocket *client = sock.Select(1, 0) ? sock.Accept() : nullptr;
         if (!client)
         {
             if (!sock.IsSocketValid())
@@ -90,7 +92,6 @@ void WebLegends::mark(Client *c)
 Client::Client(WebLegends *weblegends, CActiveSocket *sock) :
     weblegends(weblegends),
     sock(sock),
-    want_stop(false),
     thread(Client::run, this)
 {
 }
@@ -107,8 +108,6 @@ void Client::run(void *c)
 
 void Client::run()
 {
-    sock->SetNonblocking();
-
     std::string request;
 
     while (true)
@@ -119,21 +118,12 @@ void Client::run()
             return;
         }
 
-        {
-            tthread::lock_guard<tthread::mutex> l(weblegends->to_delete_lock);
-            if (want_stop)
-            {
-                sock->Close();
-                continue;
-            }
-        }
-
         if (!sock->Select(1, 0))
         {
             continue;
         }
 
-        int32_t len = sock->Receive(request.size() - 8192);
+        int32_t len = sock->Receive(8192);
         if (len <= 0)
         {
             sock->Close();
@@ -141,7 +131,7 @@ void Client::run()
         }
         request.append((const char *) sock->GetData(), size_t(len));
 
-        while (weblegends->handle(sock, request));
+        while (weblegends->http(sock, request));
 
         if (request.size() >= 8192)
         {
@@ -153,8 +143,7 @@ void Client::run()
 
 void Client::kill()
 {
-    tthread::lock_guard<tthread::mutex> l(weblegends->to_delete_lock);
-    want_stop = true;
+    sock->Shutdown(CSimpleSocket::Both);
 }
 
 void Client::join()

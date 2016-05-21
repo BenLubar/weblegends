@@ -4,10 +4,19 @@ SET(PROJECT_SRCS
     weblegends.cpp
     server.cpp
     http.cpp
+    helpers.cpp
+    helpers_event.cpp
+    render_home.cpp
+    render_entity.cpp
+    render_figure.cpp
+    render_region.cpp
+    render_site.cpp
+    render_layer.cpp
 )
 
 SET(PROJECT_HDRS
     weblegends.h
+    helpers.h
 )
 
 SET_SOURCE_FILES_PROPERTIES( ${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)

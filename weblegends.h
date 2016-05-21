@@ -42,13 +42,21 @@ public:
 
 protected:
     void mark(Client *c);
-    bool handle(CActiveSocket *sock, std::string & request);
+    bool http(CActiveSocket *sock, std::string & request);
     friend class Client;
 
 private:
     static void run(void *wl);
     void run();
     void cleanup();
+
+    void handle(CActiveSocket *sock, const std::string & url);
+    static void render_home(std::ostream & s);
+    static void render_entity(std::ostream & s, int32_t id);
+    static void render_figure(std::ostream & s, int32_t id);
+    static void render_region(std::ostream & s, int32_t id);
+    static void render_site(std::ostream & s, int32_t id);
+    static void render_layer(std::ostream & s, int32_t id);
 };
 
 class Client
@@ -56,7 +64,6 @@ class Client
     WebLegends *weblegends;
 
     CActiveSocket *sock;
-    bool want_stop;
     tthread::thread thread;
 
 public:
