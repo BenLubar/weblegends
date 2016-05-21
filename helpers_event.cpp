@@ -543,8 +543,62 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
     }
     // TODO: int32_t anon_1;
-    // TODO: int32_t props.structure;
     do_location_2(s, context, event);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_statest *event)
+{
+    std::string separator = " in ";
+    auto hf = df::historical_figure::find(event->hfid);
+    event_link(s, context, hf);
+    switch (event->state)
+    {
+        case df::history_event_change_hf_statest::T_state::Wandering:
+            switch (event->substate)
+            {
+                case df::history_event_change_hf_statest::T_substate::Fled:
+                    s << " fled";
+                    separator = " to ";
+                    break;
+                case df::history_event_change_hf_statest::T_substate::Wandered:
+                    s << " was wandering";
+                    break;
+            }
+            break;
+        case df::history_event_change_hf_statest::T_state::Settled:
+            s << " settled";
+            break;
+        case df::history_event_change_hf_statest::T_state::Refugee:
+            s << " became a refugee";
+            break;
+    }
+    if (auto loc = df::world_site::find(event->site))
+    {
+        if (loc != context.site)
+        {
+            s << separator;
+            link(s, loc);
+            separator = " in ";
+        }
+    }
+    if (auto loc = df::world_region::find(event->region))
+    {
+        if (loc != context.region)
+        {
+            s << separator;
+            link(s, loc);
+            separator = " in ";
+        }
+    }
+    if (auto loc = df::world_underground_region::find(event->layer))
+    {
+        if (loc != context.layer)
+        {
+            s << separator;
+            link(s, loc);
+            separator = " in ";
+        }
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_battle_eventst *event)
