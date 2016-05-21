@@ -3,10 +3,26 @@
 
 #include "modules/Translation.h"
 
+#include "df/abstract_building.h"
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
+#include "df/entity_position.h"
+#include "df/entity_position_assignment.h"
+#include "df/histfig_entity_link.h"
+#include "df/histfig_entity_link_former_occupationst.h"
+#include "df/histfig_entity_link_former_positionst.h"
+#include "df/histfig_entity_link_former_squadst.h"
+#include "df/histfig_entity_link_occupationst.h"
+#include "df/histfig_entity_link_position_claimst.h"
+#include "df/histfig_entity_link_positionst.h"
+#include "df/histfig_entity_link_squadst.h"
 #include "df/histfig_hf_link.h"
+#include "df/histfig_site_link.h"
+#include "df/historical_entity.h"
 #include "df/historical_figure.h"
+#include "df/occupation.h"
+#include "df/squad.h"
+#include "df/world_site.h"
 
 void WebLegends::render_figure(std::ostream & s, int32_t id)
 {
@@ -68,77 +84,325 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
             if (auto target = df::historical_figure::find((*it)->target_hf))
             {
                 s << "<li>";
+                link(s, target);
                 switch ((*it)->getType())
                 {
                     case histfig_hf_link_type::MOTHER:
-                        s << "Mother: ";
+                        s << ", mother";
                         break;
                     case histfig_hf_link_type::FATHER:
-                        s << "Father: ";
+                        s << ", father";
                         break;
                     case histfig_hf_link_type::SPOUSE:
                         if (target->sex == 0)
                         {
-                            s << "Wife: ";
+                            s << ", wife";
                         }
                         else if (target->sex == 1)
                         {
-                            s << "Husband: ";
+                            s << ", husband";
                         }
                         else
                         {
-                            s << "Spouse: ";
+                            s << ", spouse";
                         }
                         break;
                     case histfig_hf_link_type::CHILD:
                         if (target->sex == 0)
                         {
-                            s << "Daughter: ";
+                            s << ", daughter";
                         }
                         else if (target->sex == 1)
                         {
-                            s << "Son: ";
+                            s << ", son";
                         }
                         else
                         {
-                            s << "Child: ";
+                            s << ", child";
                         }
                         break;
                     case histfig_hf_link_type::LOVER:
-                        s << "Lover: ";
+                        s << ", lover";
                         break;
                     case histfig_hf_link_type::DEITY:
-                        s << "Object of ";
+                        s << ", object of ";
                         // TODO: ardent, faithful, ..., casual, dubious
-                        s << " worship: ";
+                        s << " worship";
                         break;
                     case histfig_hf_link_type::COMPANION:
-                        s << "Companion: ";
+                        s << ", companion";
                         break;
                     case histfig_hf_link_type::PRISONER:
-                        s << "Prisoner: ";
+                        s << ", prisoner";
                         break;
                     case histfig_hf_link_type::IMPRISONER:
-                        s << "Imprisoner: ";
+                        s << ", imprisoner";
                         break;
                     case histfig_hf_link_type::MASTER:
-                        s << "Master: ";
+                        s << ", master";
                         break;
                     case histfig_hf_link_type::APPRENTICE:
-                        s << "Apprentice: ";
+                        s << ", apprentice";
                         break;
                     case histfig_hf_link_type::FORMER_APPRENTICE:
-                        s << "Former apprentice: ";
+                        s << ", former apprentice";
                         break;
                 }
-                link(s, target);
                 born_died(s, target);
                 s << "</li>";
             }
         }
         s << "</ul>";
     }
+    if (!hf->entity_links.empty())
+    {
+        s << "<h2 id=\"related-entities\">Related Entities</h2><ul>";
+        for (auto it = hf->entity_links.begin(); it != hf->entity_links.end(); it++)
+        {
+            if (auto ent = df::historical_entity::find((*it)->entity_id))
+            {
+                s << "<li>";
+                link(s, ent);
+                switch ((*it)->getType())
+                {
+                    case histfig_entity_link_type::MEMBER:
+                        s << ", member";
+                        break;
+                    case histfig_entity_link_type::FORMER_MEMBER:
+                        s << ", former member";
+                        break;
+                    case histfig_entity_link_type::MERCENARY:
+                        s << ", mercenary";
+                        break;
+                    case histfig_entity_link_type::FORMER_MERCENARY:
+                        s << ", former mercenary";
+                        break;
+                    case histfig_entity_link_type::SLAVE:
+                        s << ", slave";
+                        break;
+                    case histfig_entity_link_type::FORMER_SLAVE:
+                        s << ", former slave";
+                        break;
+                    case histfig_entity_link_type::PRISONER:
+                        s << ", prisoner";
+                        break;
+                    case histfig_entity_link_type::FORMER_PRISONER:
+                        s << ", former prisoner";
+                        break;
+                    case histfig_entity_link_type::ENEMY:
+                        s << ", enemy";
+                        break;
+                    case histfig_entity_link_type::CRIMINAL:
+                        s << ", criminal";
+                        break;
+                    case histfig_entity_link_type::POSITION:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_positionst>(*it);
+                            auto assignment = ent->positions.assignments.at(l->assignment_id);
+                            auto position = ent->positions.own.at(assignment->position_id);
+                            s << ", ";
+                            if (hf->sex == 0 && !position->name_female[0].empty())
+                            {
+                                s << position->name_female[0];
+                            }
+                            else if (hf->sex == 1 && !position->name_male[0].empty())
+                            {
+                                s << position->name_male[0];
+                            }
+                            else
+                            {
+                                s << position->name[0];
+                            }
+                            s << " (" << l->start_year << "-)";
+                            break;
+                        }
+                    case histfig_entity_link_type::FORMER_POSITION:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_former_positionst>(*it);
+                            auto assignment = ent->positions.assignments.at(l->assignment_id);
+                            auto position = ent->positions.own.at(assignment->position_id);
+                            s << ", ";
+                            if (hf->sex == 0 && !position->name_female[0].empty())
+                            {
+                                s << position->name_female[0];
+                            }
+                            else if (hf->sex == 1 && !position->name_male[0].empty())
+                            {
+                                s << position->name_male[0];
+                            }
+                            else
+                            {
+                                s << position->name[0];
+                            }
+                            s << " (" << l->start_year << "-" << l->end_year << ")";
+                            break;
+                        }
+                    case histfig_entity_link_type::POSITION_CLAIM:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_position_claimst>(*it);
+                            auto assignment = ent->positions.assignments.at(l->assignment_id);
+                            auto position = ent->positions.own.at(assignment->position_id);
+                            s << ", ";
+                            if (hf->sex == 0 && !position->name_female[0].empty())
+                            {
+                                s << position->name_female[0];
+                            }
+                            else if (hf->sex == 1 && !position->name_male[0].empty())
+                            {
+                                s << position->name_male[0];
+                            }
+                            else
+                            {
+                                s << position->name[0];
+                            }
+                            s << " (" << l->start_year << "-)";
+                            break;
+                        }
+                    case histfig_entity_link_type::SQUAD:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_squadst>(*it);
+                            auto squad = df::squad::find(l->squad_id);
+                            s << ", member of ";
+                            if (squad->alias.empty())
+                            {
+                                s << "<abbr title=\"" << Translation::TranslateName(&squad->name, true, false) << "\">" << Translation::TranslateName(&squad->name, false, false) << "</abbr>";
+                            }
+                            else
+                            {
+                                s << squad->alias;
+                            }
+                            s << " (" << l->start_year << "-)";
+                            break;
+                        }
+                    case histfig_entity_link_type::FORMER_SQUAD:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_former_squadst>(*it);
+                            auto squad = df::squad::find(l->squad_id);
+                            s << ", former member of ";
+                            if (squad->alias.empty())
+                            {
+                                s << "<abbr title=\"" << Translation::TranslateName(&squad->name, true, false) << "\">" << Translation::TranslateName(&squad->name, false, false) << "</abbr>";
+                            }
+                            else
+                            {
+                                s << squad->alias;
+                            }
+                            s << " (" << l->start_year << "-" << l->end_year << ")";
+                            break;
+                        }
+                    case histfig_entity_link_type::OCCUPATION:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_occupationst>(*it);
+                            auto occupation = df::occupation::find(l->occupation_id);
+                            auto site = df::world_site::find(occupation->site_id);
+                            auto location = site->buildings.at(occupation->location_id);
+                            s << ", ";
+                            switch (occupation->type)
+                            {
+                                case occupation_type::TAVERN_KEEPER:
+                                    s << "tavern keeper";
+                                    break;
+                                case occupation_type::PERFORMER:
+                                    s << "performer";
+                                    break;
+                                case occupation_type::SCHOLAR:
+                                    s << "scholar";
+                                    break;
+                                case occupation_type::MERCENARY:
+                                    s << "mercenary";
+                                    break;
+                                case occupation_type::MONSTER_SLAYER:
+                                    s << "monster slayer";
+                                    break;
+                                case occupation_type::SCRIBE:
+                                    s << "scribe";
+                                    break;
+                            }
+                            s << " at ";
+                            link(s, location);
+                            s << " (" << l->start_year << "-)";
+                            break;
+                        }
+                    case histfig_entity_link_type::FORMER_OCCUPATION:
+                        {
+                            auto l = virtual_cast<df::histfig_entity_link_former_occupationst>(*it);
+                            auto occupation = df::occupation::find(l->occupation_id);
+                            auto site = df::world_site::find(occupation->site_id);
+                            auto location = site->buildings.at(occupation->location_id);
+                            s << ", former ";
+                            switch (occupation->type)
+                            {
+                                case occupation_type::TAVERN_KEEPER:
+                                    s << "tavern keeper";
+                                    break;
+                                case occupation_type::PERFORMER:
+                                    s << "performer";
+                                    break;
+                                case occupation_type::SCHOLAR:
+                                    s << "scholar";
+                                    break;
+                                case occupation_type::MERCENARY:
+                                    s << "mercenary";
+                                    break;
+                                case occupation_type::MONSTER_SLAYER:
+                                    s << "monster slayer";
+                                    break;
+                                case occupation_type::SCRIBE:
+                                    s << "scribe";
+                                    break;
+                            }
+                            s << " at ";
+                            link(s, location);
+                            s << " (" << l->start_year << "-" << l->end_year << ")";
+                            break;
+                        }
+                }
+                s << "</li>";
+            }
+        }
+        s << "</ul>";
+    }
+    if (!hf->site_links.empty())
+    {
+        s << "<h2 id=\"related-sites\">Related Sites</h2><ul>";
+        for (auto it = hf->site_links.begin(); it != hf->site_links.end(); it++)
+        {
+            auto site = df::world_site::find((*it)->site);
+            s << "<li>";
+            switch ((*it)->getType())
+            {
+                case histfig_site_link_type::SEAT_OF_POWER:
+                    link(s, site);
+                    s << ", seat of power";
+                    break;
+                case histfig_site_link_type::HANGOUT:
+                    link(s, site);
+                    s << ", hangout";
+                    break;
+                case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
+                    {
+                        auto structure = site->buildings.at((*it)->sub_id);
+                        link(s, structure);
+                        s << ", home";
+                        break;
+                    }
+                case histfig_site_link_type::HOME_SITE_REALIZATION_BUILDING:
+                    link(s, site);
+                    s << ", home";
+                    break;
+                case histfig_site_link_type::LAIR:
+                    link(s, site);
+                    s << ", lair";
+                    break;
+                case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
+                    link(s, site);
+                    s << ", home";
+                    break;
+            }
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
     history(s, hf);
-    // TODO
     s << "</body></html>";
 }
