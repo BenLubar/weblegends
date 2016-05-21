@@ -544,6 +544,64 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     do_location_2(s, context, event);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_battle_eventst *event)
+{
+    list<int32_t>(s, event->group1, [context](std::ostream & out, int32_t id)
+            {
+                auto hf = df::historical_figure::find(id);
+                event_link(out, context, hf);
+            });
+    switch (event->subtype)
+    {
+        case history_event_simple_battle_subtype::SCUFFLE:
+            s << " had a scuffle with ";
+            break;
+        case history_event_simple_battle_subtype::ATTACK:
+            s << " attacked ";
+            break;
+        case history_event_simple_battle_subtype::SURPRISE:
+            s << " surprised ";
+            break;
+        case history_event_simple_battle_subtype::AMBUSH:
+            s << " ambushed ";
+            break;
+        case history_event_simple_battle_subtype::HAPPEN_UPON:
+            s << " happened upon ";
+            break;
+        case history_event_simple_battle_subtype::CORNER:
+            s << " cornered ";
+            break;
+        case history_event_simple_battle_subtype::CONFRONT:
+            s << " confronted ";
+            break;
+        case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
+        case history_event_simple_battle_subtype::LOSE_AFTER_INFLICT_WOUND:
+        case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
+            s << " attacked ";
+            break;
+    }
+    list<int32_t>(s, event->group2, [context](std::ostream & out, int32_t id)
+            {
+                auto hf = df::historical_figure::find(id);
+                event_link(out, context, hf);
+            });
+    switch (event->subtype)
+    {
+        case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
+            s << " and was wounded but escaped";
+            break;
+        case history_event_simple_battle_subtype::LOSE_AFTER_INFLICT_WOUND:
+            s << " and inflicted a wound before escaping";
+            break;
+        case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
+            s << " and exchanged wounds before escaping";
+            break;
+        default:
+            break;
+    }
+    do_location_2(s, context, event);
+}
+
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
 {
     if (event->year != last_year)
