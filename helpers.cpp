@@ -101,7 +101,7 @@ void spheres(std::ostream & s, df::historical_figure *hf)
 {
     if (hf->info && hf->info->spheres && !hf->info->spheres->empty())
     {
-        s << " representing ";
+        s << " associated with ";
         list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
                 {
                     std::string sphere(ENUM_KEY_STR(sphere_type, t));
