@@ -11,7 +11,9 @@ SET(PROJECT_SRCS
     render_figure.cpp
     render_region.cpp
     render_site.cpp
+    render_structure.cpp
     render_layer.cpp
+    render_list.cpp
 )
 
 SET(PROJECT_HDRS

@@ -8,6 +8,7 @@ namespace df
     struct historical_entity;
     struct historical_figure;
     struct history_event;
+    struct language_name;
     struct world_region;
     struct world_site;
     struct world_underground_region;
@@ -70,9 +71,8 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
     }
 }
 
-void spheres(std::ostream & s, df::historical_figure *hf);
-void born_died(std::ostream & s, df::historical_figure *hf);
-void year(std::ostream & s, int32_t year, int32_t tick);
+void simple_header(std::ostream & s, const df::language_name *name, bool sub = false);
+
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);
 const std::string & month(int32_t tick);

@@ -1,8 +1,6 @@
 #include "weblegends.h"
 #include "helpers.h"
 
-#include "modules/Translation.h"
-
 #include "df/world_region.h"
 
 void WebLegends::render_region(std::ostream & s, int32_t id)
@@ -15,8 +13,7 @@ void WebLegends::render_region(std::ostream & s, int32_t id)
         return;
     }
 
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(&region->name, false, false) << "</title></head><body>";
-    s << "<h1>" << Translation::TranslateName(&region->name, false, false) << " &ldquo;" << Translation::TranslateName(&region->name, true, false)  << "&rdquo;</h1>";
+    simple_header(s, &region->name);
     history(s, region);
     // TODO
     s << "</body></html>";

@@ -20,9 +20,64 @@
 #include "df/histfig_site_link.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
+#include "df/historical_figure_info.h"
 #include "df/occupation.h"
 #include "df/squad.h"
 #include "df/world_site.h"
+
+static void spheres(std::ostream & s, df::historical_figure *hf)
+{
+    if (hf->info && hf->info->spheres && !hf->info->spheres->empty())
+    {
+        s << " associated with ";
+        list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
+                {
+                    std::string sphere(ENUM_KEY_STR(sphere_type, t));
+                    std::transform(sphere.begin(), sphere.end(), sphere.begin(), ::tolower);
+                    out << sphere;
+                });
+    }
+}
+
+static void year(std::ostream & s, int32_t year, int32_t tick)
+{
+    if (tick != -1)
+    {
+        s << "<abbr title=\"";
+        s << day(tick) << " " << month(tick) << " " << year;
+        s << "\">" << year << "</abbr>";
+    }
+    else
+    {
+        s << year;
+    }
+}
+
+static void born_died(std::ostream & s, df::historical_figure *hf)
+{
+    // TODO: handle negative years
+    if (hf->born_year <= -1 && hf->died_year <= -1)
+    {
+        return;
+    }
+
+    s << " (";
+    if (hf->born_year > -1)
+    {
+        s << "b. ";
+        year(s, hf->born_year, hf->born_seconds);
+        if (hf->died_year > -1)
+        {
+            s << " ";
+        }
+    }
+    if (hf->died_year > -1)
+    {
+        s << "d. ";
+        year(s, hf->died_year, hf->died_seconds);
+    }
+    s << ")";
+}
 
 void WebLegends::render_figure(std::ostream & s, int32_t id)
 {
@@ -37,8 +92,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
     auto race = df::creature_raw::find(hf->race);
     auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
 
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(&hf->name, false, false) << "</title></head><body>";
-    s << "<h1>" << Translation::TranslateName(&hf->name, false, false) << " &ldquo;" << Translation::TranslateName(&hf->name, true, false)  << "&rdquo;</h1>";
+    simple_header(s, &hf->name);
     if (caste)
     {
         s << "<p>";

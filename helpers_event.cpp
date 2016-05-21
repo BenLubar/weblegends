@@ -601,6 +601,28 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     }
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_creature_devouredst *event)
+{
+    auto eater = df::historical_figure::find(event->eater);
+    event_link(s, context, eater);
+    s << " devoured ";
+    if (auto victim = df::historical_figure::find(event->victim))
+    {
+        event_link(s, context, victim);
+    }
+    else if (auto race = df::creature_raw::find(event->race))
+    {
+        auto caste = race->caste.at(event->caste);
+        s << "a " << caste->caste_name[0];
+        if (auto ent = df::historical_entity::find(event->entity))
+        {
+            s << " owned by ";
+            event_link(s, context, ent);
+        }
+    }
+    do_location_2(s, context, event);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_battle_eventst *event)
 {
     list<int32_t>(s, event->group1, [context](std::ostream & out, int32_t id)

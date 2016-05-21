@@ -79,46 +79,77 @@ static void not_found(CActiveSocket *sock, const std::string & url)
     sock->Send((const uint8_t *) not_found.c_str(), not_found.length());
 }
 
+static bool check_id(std::ostream & s, const std::string & url, const std::string & prefix, std::function<void(std::ostream &, int32_t)> handler)
+{
+    if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
+    {
+        return false;
+    }
+
+    size_t end = 0;
+    int32_t id = -1;
+    try
+    {
+        id = std::stoi(url.substr(prefix.length()), &end);
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    if (end != url.length() - prefix.length())
+    {
+        return false;
+    }
+
+    handler(s, id);
+
+    return true;
+}
+
+static bool check_id_2(std::ostream & s, const std::string & url, const std::string & prefix1, const std::string & prefix2, std::function<void(std::ostream &, int32_t, int32_t)> handler)
+{
+    if (url.length() <= prefix1.length() + prefix2.length() || url.substr(0, prefix1.length()) != prefix1)
+    {
+        return false;
+    }
+
+    size_t end = 0;
+    int32_t id1 = -1;
+    try
+    {
+        id1 = std::stoi(url.substr(prefix1.length()), &end);
+    }
+    catch (...)
+    {
+        return false;
+    }
+
+    return check_id(s, url.substr(end), prefix2, [handler, id1](std::ostream & out, int32_t id2)
+            {
+                handler(out, id1, id2);
+            });
+}
+
 void WebLegends::handle(CActiveSocket *sock, const std::string & url)
 {
     std::ostringstream s;
-    auto check_id = [&s, url](const std::string & prefix, std::function<void(std::ostream &, int32_t)> handler) -> bool
-    {
-        if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
-        {
-            return false;
-        }
-
-        size_t end = 0;
-        int32_t id = -1;
-        try
-        {
-            id = std::stoi(url.substr(prefix.length()), &end);
-        }
-        catch (...)
-        {
-            return true;
-        }
-
-        if (end != url.length() - prefix.length())
-        {
-            return true;
-        }
-
-        handler(s, id);
-
-        return true;
-    };
 
     if (url == "/")
     {
         render_home(s);
     }
-    else if (check_id("/ent-", render_entity)) {}
-    else if (check_id("/fig-", render_figure)) {}
-    else if (check_id("/region-", render_region)) {}
-    else if (check_id("/site-", render_site)) {}
-    else if (check_id("/layer-", render_layer)) {}
+    else if (check_id(s, url, "/ents-", render_entity_list)) {}
+    else if (check_id(s, url, "/ent-", render_entity)) {}
+    else if (check_id(s, url, "/figs-", render_figure_list)) {}
+    else if (check_id(s, url, "/fig-", render_figure)) {}
+    else if (check_id(s, url, "/regions-", render_region_list)) {}
+    else if (check_id(s, url, "/region-", render_region)) {}
+    else if (check_id(s, url, "/sites-", render_site_list)) {}
+    else if (check_id(s, url, "/site-", render_site)) {}
+    else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
+    //else if (check_id(s, url, "/layers-", render_layer_list)) {}
+    //else if (check_id(s, url, "/layer-", render_layer)) {}
 
     std::string body = DF2UTF(s.str());
 

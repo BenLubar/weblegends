@@ -6,7 +6,6 @@
 #include "df/abstract_building.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
-#include "df/historical_figure_info.h"
 #include "df/history_event.h"
 #include "df/world.h"
 #include "df/world_region.h"
@@ -22,7 +21,7 @@ static void link_name(std::ostream & s, const std::string & prefix, int32_t id, 
 
 void link(std::ostream & s, df::abstract_building *structure)
 {
-    s << "<a href=\"bld-" << structure->site_id << "-" << structure->id << "\" title=\"" << Translation::TranslateName(structure->getName(), true, false) << "\">" << Translation::TranslateName(structure->getName(), false, false) << "</a>";
+    s << "<a href=\"site-" << structure->site_id << "/bld-" << structure->id << "\" title=\"" << Translation::TranslateName(structure->getName(), true, false) << "\">" << Translation::TranslateName(structure->getName(), false, false) << "</a>";
 }
 void link(std::ostream & s, df::historical_entity *ent)
 {
@@ -97,74 +96,10 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
     event_link_name(s, context.layer, layer);
 }
 
-void spheres(std::ostream & s, df::historical_figure *hf)
+void simple_header(std::ostream & s, const df::language_name *name, bool sub)
 {
-    if (hf->info && hf->info->spheres && !hf->info->spheres->empty())
-    {
-        s << " associated with ";
-        list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
-                {
-                    std::string sphere(ENUM_KEY_STR(sphere_type, t));
-                    std::transform(sphere.begin(), sphere.end(), sphere.begin(), ::tolower);
-                    out << sphere;
-                });
-    }
-}
-
-void born_died(std::ostream & s, df::historical_figure *hf)
-{
-    // TODO: handle negative years
-    if (hf->born_year <= -1 && hf->died_year <= -1)
-    {
-        return;
-    }
-
-    s << " (";
-    if (hf->born_year > -1)
-    {
-        s << "b. ";
-        year(s, hf->born_year, hf->born_seconds);
-        if (hf->died_year > -1)
-        {
-            s << " ";
-        }
-    }
-    if (hf->died_year > -1)
-    {
-        s << "d. ";
-        year(s, hf->died_year, hf->died_seconds);
-    }
-    s << ")";
-}
-
-static const std::string months[12] =
-{
-    "Granite",
-    "Slate",
-    "Felsite",
-    "Hematite",
-    "Malachite",
-    "Galena",
-    "Limestone",
-    "Sandstone",
-    "Timber",
-    "Moonstone",
-    "Opal",
-    "Obsidian"
-};
-
-void year(std::ostream & s, int32_t year, int32_t tick)
-{
-    if (tick != -1)
-    {
-        s << "<abbr title=\"";
-        s << day(tick) << " " << month(tick) << " " << year;
-        s << "\">" << year << "</abbr>";
-    }
-    else
-    {
-        s << year;
-    }
+    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(name, false, false) << "</title>" << (sub ? "<base href=\"..\">" : "") << "</head><body>";
+    s << "<h1>" << Translation::TranslateName(name, false, false) << " &ldquo;" << Translation::TranslateName(name, true, false)  << "&rdquo;</h1>";
 }
 
 int32_t day(int32_t tick)
@@ -185,6 +120,22 @@ std::string dayth(int32_t tick)
         return stl_sprintf("the %drd of", d);
     return stl_sprintf("the %dth of", d);
 }
+
+static const std::string months[12] =
+{
+    "Granite",
+    "Slate",
+    "Felsite",
+    "Hematite",
+    "Malachite",
+    "Galena",
+    "Limestone",
+    "Sandstone",
+    "Timber",
+    "Moonstone",
+    "Opal",
+    "Obsidian"
+};
 
 const std::string & month(int32_t tick)
 {
