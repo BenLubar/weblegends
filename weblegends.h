@@ -7,6 +7,8 @@
 
 #include "DataDefs.h"
 
+#define NOMINMAX
+
 #include "PassiveSocket.h"
 #include "ActiveSocket.h"
 #include "tinythread.h"
