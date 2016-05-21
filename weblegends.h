@@ -28,6 +28,7 @@ class WebLegends
 {
     CPassiveSocket sock;
     tthread::thread *thread;
+    bool do_shutdown;
 
     std::vector<Client *> to_delete;
     std::vector<Client *> clients;
@@ -36,7 +37,7 @@ protected:
     tthread::mutex to_delete_lock;
 
 public:
-    WebLegends() {}
+    WebLegends() : sock(), thread(nullptr), do_shutdown(false) {}
     ~WebLegends() {}
 
     command_result init(color_ostream & out);
@@ -50,9 +51,9 @@ protected:
 private:
     static void run(void *wl);
     void run();
-    void cleanup();
+    bool cleanup();
 
-    void handle(CActiveSocket *sock, const std::string & url);
+    void handle(CActiveSocket *sock, const std::string & method, const std::string & url);
 
     static void render_home(std::ostream & s);
     static void render_entity(std::ostream & s, int32_t id);
@@ -73,7 +74,7 @@ class Client
     WebLegends *weblegends;
 
     CActiveSocket *sock;
-    tthread::thread thread;
+    tthread::thread *thread;
 
 public:
     Client(WebLegends *weblegends, CActiveSocket *sock);
@@ -84,6 +85,7 @@ private:
     void run();
 
 protected:
+    bool start();
     void kill();
     void join();
     friend class WebLegends;

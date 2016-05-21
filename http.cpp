@@ -1,6 +1,7 @@
 #include "weblegends.h" 
 
 #include <functional>
+#include <iostream>
 #include <sstream>
 
 bool WebLegends::http(CActiveSocket *sock, std::string & request)
@@ -32,10 +33,11 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
     }
 
     std::string url;
+    std::string method = request.substr(0, 5) == "GET /" ? "GET" : request.substr(0, 6) == "HEAD /" ? "HEAD" : "";
 
-    if (request.substr(0, 5) == "GET /" && request.substr(ending - 9, 8) == " HTTP/1." && (request.at(ending - 1) == '0' || request.at(ending - 1) == '1'))
+    if (!method.empty() && request.substr(method.length(), 2) == " /" && request.substr(ending - 9, 8) == " HTTP/1." && (request.at(ending - 1) == '0' || request.at(ending - 1) == '1'))
     {
-        url = request.substr(4, ending - 13);
+        url = request.substr(method.length() + 1, ending - 10 - method.length());
     }
 
     while (true)
@@ -62,21 +64,25 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 
     if (url.empty())
     {
-        const static std::string bad_request("HTTP/1.0 400 Bad Request\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: 11\r\n\r\nbad request");
-        sock->Send((const uint8_t *) bad_request.c_str(), bad_request.length());
-        return true;
+        sock->Close();
+        return false;
     }
 
-    handle(sock, url);
+    handle(sock, method, url);
 
     return true;
 }
 
-static void not_found(CActiveSocket *sock, const std::string & url)
+static void not_found(CActiveSocket *sock, const std::string & method, const std::string & url)
 {
     std::string body = "not found: " + url;
-    std::string not_found = stl_sprintf("HTTP/1.0 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\n\r\n%s", body.length(), body.c_str());
-    sock->Send((const uint8_t *) not_found.c_str(), not_found.length());
+    std::string not_found_header = stl_sprintf("HTTP/1.0 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\n\r\n", body.length());
+    std::string not_found = method == "HEAD" ? not_found_header : (not_found_header + body);
+    if (sock->Send((const uint8_t *) not_found.c_str(), not_found.length()) != int32_t(not_found.length()))
+    {
+        std::cerr << "weblegends send 404 " << url << ": " << sock->GetSocketError() << std::endl;
+        std::cerr << sock->DescribeError() << std::endl;
+    }
 }
 
 static bool check_id(std::ostream & s, const std::string & url, const std::string & prefix, std::function<void(std::ostream &, int32_t)> handler)
@@ -131,7 +137,7 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
             });
 }
 
-void WebLegends::handle(CActiveSocket *sock, const std::string & url)
+void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url)
 {
     std::ostringstream s;
 
@@ -155,10 +161,15 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & url)
 
     if (body.empty())
     {
-        not_found(sock, url);
+        not_found(sock, method, url);
         return;
     }
 
-    std::string transport = stl_sprintf("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\n\r\n%s", body.length(), body.c_str());
-    sock->Send((const uint8_t *) transport.c_str(), transport.length());
+    std::string header = stl_sprintf("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\n\r\n", body.length());
+    std::string transport = method == "HEAD" ? header : (header + body);
+    if (sock->Send((const uint8_t *) transport.c_str(), transport.length()) != int32_t(transport.length()))
+    {
+        std::cerr << "weblegends send 200 " << url << ": " << sock->GetSocketError() << std::endl;
+        std::cerr << sock->DescribeError() << std::endl;
+    }
 }

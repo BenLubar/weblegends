@@ -1,5 +1,9 @@
 #include "weblegends.h"
 
+#include <cerrno>
+#include <cstring>
+#include <iostream>
+
 command_result WebLegends::init(color_ostream & out)
 {
     if (!sock.Initialize() || !sock.Listen((const uint8_t *) "0.0.0.0", 5080))
@@ -18,10 +22,17 @@ command_result WebLegends::init(color_ostream & out)
 command_result WebLegends::shutdown(color_ostream & out)
 {
     out << "weblegends cleaning up..." << std::endl;
+    std::cerr << "weblegends sending shutdown request" << std::endl;
 
-    sock.Close();
+    {
+        tthread::lock_guard<tthread::mutex> l(to_delete_lock);
+        do_shutdown = true;
+    }
+
     thread->join();
     delete thread;
+
+    std::cerr << "weblegends forcibly closing " << clients.size() << " clients" << std::endl;
 
     for (auto it = clients.begin(); it != clients.end(); it++)
     {
@@ -29,7 +40,7 @@ command_result WebLegends::shutdown(color_ostream & out)
     }
     for (auto it = clients.begin(); it != clients.end(); it++)
     {
-        (*it)->thread.join();
+        (*it)->join();
     }
     tthread::lock_guard<tthread::mutex> l(to_delete_lock);
     for (auto it = to_delete.begin(); it != to_delete.end(); it++)
@@ -51,36 +62,56 @@ void WebLegends::run(void *wl)
 
 void WebLegends::run()
 {
-    sock.SetNonblocking();
-
     while (true)
     {
-        cleanup();
+        if (cleanup())
+        {
+            std::cerr << "weblegends got shutdown request" << std::endl;
+            sock.Close();
+            return;
+        }
 
-        CActiveSocket *client = sock.Select(1, 0) ? sock.Accept() : nullptr;
+        if (!sock.Select(1, 0))
+        {
+            continue;
+        }
+
+        CActiveSocket *client = sock.Accept();
         if (!client)
         {
-            if (!sock.IsSocketValid())
-            {
-                return;
-            }
+            std::cerr << "weblegends accept: " << sock.GetSocketError() << std::endl;
+            std::cerr << sock.DescribeError() << std::endl;
 
             continue;
         }
 
-        clients.push_back(new Client(this, client));
+        Client *c = new Client(this, client);
+        if (c->start())
+        {
+            clients.push_back(c);
+        }
+        else
+        {
+            int err = errno;
+            std::cerr << "weblegends failed to start connection handler for " << (const char *) client->GetClientAddr() << ":" << uint16_t(client->GetClientPort()) << ": error " << err << ": " << strerror(err) << std::endl;
+            client->Close();
+            delete c;
+        }
     }
 }
 
-void WebLegends::cleanup()
+bool WebLegends::cleanup()
 {
     tthread::lock_guard<tthread::mutex> l(to_delete_lock);
     for (auto it = to_delete.begin(); it != to_delete.end(); it++)
     {
         clients.erase(std::find(clients.begin(), clients.end(), *it));
+        (*it)->join();
         delete *it;
     }
     to_delete.clear();
+
+    return do_shutdown;
 }
 
 void WebLegends::mark(Client *c)
@@ -92,12 +123,13 @@ void WebLegends::mark(Client *c)
 Client::Client(WebLegends *weblegends, CActiveSocket *sock) :
     weblegends(weblegends),
     sock(sock),
-    thread(Client::run, this)
+    thread(nullptr)
 {
 }
 
 Client::~Client()
 {
+    delete thread;
     delete sock;
 }
 
@@ -124,8 +156,16 @@ void Client::run()
         }
 
         int32_t len = sock->Receive(8192);
-        if (len <= 0)
+        if (len == 0)
         {
+            // closed on other end
+            sock->Close();
+            continue;
+        }
+        if (len == -1)
+        {
+            std::cerr << "weblegends recv: " << sock->GetSocketError() << std::endl;
+            std::cerr << sock->DescribeError() << std::endl;
             sock->Close();
             continue;
         }
@@ -135,8 +175,15 @@ void Client::run()
         {
             while (weblegends->http(sock, request));
         }
+        catch (std::exception & ex)
+        {
+            std::cerr << "weblegends ex: " << ex.what() << std::endl;
+            sock->Close();
+            continue;
+        }
         catch (...)
         {
+            std::cerr << "weblegends unknown error" << std::endl;
             sock->Close();
             continue;
         }
@@ -149,6 +196,13 @@ void Client::run()
     }
 }
 
+bool Client::start()
+{
+    tthread::lock_guard<tthread::mutex> l(weblegends->to_delete_lock);
+    thread = new tthread::thread(Client::run, this);
+    return thread->joinable();
+}
+
 void Client::kill()
 {
     sock->Shutdown(CSimpleSocket::Both);
@@ -156,5 +210,5 @@ void Client::kill()
 
 void Client::join()
 {
-    thread.join();
+    thread->join();
 }
