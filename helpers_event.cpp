@@ -210,16 +210,19 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 {
     auto victim = df::historical_figure::find(event->victim_hf);
     event_link(s, context, victim);
-    s << " was slain";
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
-        s << " by ";
+        s << " was slain by ";
         event_link(s, context, slayer);
     }
     else if (auto race = df::creature_raw::find(event->slayer_race))
     {
         auto caste = race->caste[event->slayer_caste];
-        s << " by a " << caste->caste_name[0];
+        s << " was slain by a " << caste->caste_name[0];
+    }
+    else
+    {
+        s << " died of old age";
     }
     // TODO: df::history_hit_item weapon;
     do_location_1(s, context, event);
