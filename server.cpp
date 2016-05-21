@@ -131,7 +131,15 @@ void Client::run()
         }
         request.append((const char *) sock->GetData(), size_t(len));
 
-        while (weblegends->http(sock, request));
+        try
+        {
+            while (weblegends->http(sock, request));
+        }
+        catch (...)
+        {
+            sock->Close();
+            continue;
+        }
 
         if (request.size() >= 8192)
         {
