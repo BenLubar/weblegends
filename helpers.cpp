@@ -4,6 +4,10 @@
 #include "modules/Translation.h"
 
 #include "df/abstract_building.h"
+#include "df/abstract_building_dungeonst.h"
+#include "df/abstract_building_templest.h"
+#include "df/caste_raw.h"
+#include "df/creature_raw.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
@@ -16,7 +20,14 @@ REQUIRE_GLOBAL(world);
 
 static void link_name(std::ostream & s, const std::string & prefix, int32_t id, const df::language_name & name)
 {
-    s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
+    if (name.has_name)
+    {
+        s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
+    }
+    else
+    {
+        s << "<a href=\"" << prefix << id << "\">[unnamed]</a>";
+    }
 }
 
 void link(std::ostream & s, df::abstract_building *structure)
@@ -94,6 +105,267 @@ void event_link(std::ostream & s, const event_context & context, df::world_site 
 void event_link(std::ostream & s, const event_context & context, df::world_underground_region *layer)
 {
     event_link_name(s, context.layer, layer);
+}
+
+void categorize(std::ostream & s, df::abstract_building *structure)
+{
+    switch (structure->getType())
+    {
+        case abstract_building_type::MEAD_HALL:
+            s << " mead hall";
+            break;
+        case abstract_building_type::KEEP:
+            s << " keep";
+            break;
+        case abstract_building_type::TEMPLE:
+            s << " temple";
+            if (auto temple = virtual_cast<df::abstract_building_templest>(structure))
+            {
+                if (auto deity = df::historical_figure::find(temple->deity))
+                {
+                    s << " of ";
+                    link(s, deity);
+                }
+            }
+            break;
+        case abstract_building_type::DARK_TOWER:
+            s << " dark tower";
+            break;
+        case abstract_building_type::MARKET:
+            s << " market";
+            break;
+        case abstract_building_type::TOMB:
+            s << " tomb";
+            break;
+        case abstract_building_type::DUNGEON:
+            if (auto dungeon = virtual_cast<df::abstract_building_dungeonst>(structure))
+            {
+                switch (dungeon->dungeon_type)
+                {
+                    case df::abstract_building_dungeonst::T_dungeon_type::DUNGEON:
+                        s << " dungeon";
+                        break;
+                    case df::abstract_building_dungeonst::T_dungeon_type::SEWERS:
+                        s << " sewers";
+                        break;
+                    case df::abstract_building_dungeonst::T_dungeon_type::CATACOMBS:
+                        s << " catacombs";
+                        break;
+                }
+            }
+            else
+            {
+                s << " dungeon";
+            }
+            break;
+        case abstract_building_type::UNDERWORLD_SPIRE:
+            s << " underworld spire";
+            break;
+        case abstract_building_type::INN_TAVERN:
+            s << " tavern";
+            break;
+        case abstract_building_type::LIBRARY:
+            s << " library";
+            break;
+    }
+}
+void categorize(std::ostream & s, df::historical_entity *ent)
+{
+    if (auto race = df::creature_raw::find(ent->race))
+    {
+        s << " " << race->name[2];
+    }
+
+    switch (ent->type)
+    {
+        case historical_entity_type::Civilization:
+            s << " civilization";
+            break;
+        case historical_entity_type::SiteGovernment:
+            s << " site government";
+            break;
+        case historical_entity_type::VesselCrew:
+            s << " vessel crew";
+            break;
+        case historical_entity_type::MigratingGroup:
+            s << " migrating group";
+            break;
+        case historical_entity_type::NomadicGroup:
+            s << " nomadic group";
+            break;
+        case historical_entity_type::Religion:
+            s << " religion";
+            break;
+        case historical_entity_type::MilitaryUnit:
+            s << " military unit";
+            break;
+        case historical_entity_type::Outcast:
+            s << " outcast group";
+            break;
+        case historical_entity_type::PerformanceTroupe:
+            s << " performance troupe";
+            break;
+    }
+}
+void categorize(std::ostream & s, df::historical_figure *hf)
+{
+    auto race = df::creature_raw::find(hf->race);
+    auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
+
+    if (caste != nullptr)
+    {
+        if (hf->flags.is_set(histfig_flags::rotting_deity))
+        {
+            s << " rotting";
+        }
+        if (hf->flags.is_set(histfig_flags::skeletal_deity))
+        {
+            s << " skeletal";
+        }
+        if (caste->caste_name[0] == race->name[0] && hf->sex != -1)
+        {
+            if (hf->sex == 0)
+            {
+                s << " female";
+            }
+            else if (hf->sex == 1)
+            {
+                s << " male";
+            }
+        }
+        s << " " << caste->caste_name[0];
+        if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
+        {
+            s << " deity";
+        }
+    }
+    else if (hf->flags.is_set(histfig_flags::force))
+    {
+        s << " force";
+    }
+}
+void categorize(std::ostream & s, df::world_region *region)
+{
+    switch (region->type)
+    {
+        case world_region_type::Swamp:
+            s << " swamp";
+            break;
+        case world_region_type::Desert:
+            s << " desert";
+            break;
+        case world_region_type::Jungle:
+            s << " jungle";
+            break;
+        case world_region_type::Mountains:
+            s << " mountains";
+            break;
+        case world_region_type::Ocean:
+            s << " ocean";
+            break;
+        case world_region_type::Lake:
+            s << " lake";
+            break;
+        case world_region_type::Glacier:
+            s << " glacier";
+            break;
+        case world_region_type::Tundra:
+            s << " tundra";
+            break;
+        case world_region_type::Steppe:
+            s << " steppe";
+            break;
+        case world_region_type::Hills:
+            s << " hills";
+            break;
+    }
+}
+void categorize(std::ostream & s, df::world_site *site)
+{
+    if (auto ent = df::historical_entity::find(site->cur_owner_id))
+    {
+        if (auto race = df::creature_raw::find(ent->race))
+        {
+            s << " " << race->name[2];
+        }
+    }
+
+    switch (site->type)
+    {
+        case world_site_type::PlayerFortress:
+            s << " fortress";
+            break;
+        case world_site_type::DarkFortress:
+            s << " dark fortress";
+            break;
+        case world_site_type::Cave:
+            s << " cave";
+            break;
+        case world_site_type::MountainHalls:
+            s << " mountain hall";
+            break;
+        case world_site_type::ForestRetreat:
+            s << " forest retreat";
+            break;
+        case world_site_type::Town:
+            s << " town";
+            break;
+        case world_site_type::ImportantLocation:
+            s << " important location";
+            break;
+        case world_site_type::LairShrine:
+            if (site->subtype_info != nullptr && site->subtype_info->lair_type == 2)
+            {
+                s << " monument";
+            }
+            else if (site->subtype_info != nullptr && site->subtype_info->lair_type == 3)
+            {
+                s << " shrine";
+            }
+            else
+            {
+                s << " lair";
+            }
+            break;
+        case world_site_type::Fortress:
+            if (site->subtype_info != nullptr && site->subtype_info->is_tower == 1)
+            {
+                s << " tower";
+            }
+            else
+            {
+                s << " fortress";
+            }
+            break;
+        case world_site_type::Camp:
+            s << " camp";
+            break;
+        case world_site_type::Monument:
+            if (site->subtype_info != nullptr && site->subtype_info->is_monument == 0)
+            {
+                s << " tomb";
+            }
+            else
+            {
+                s << " monument";
+            }
+            break;
+    }
+}
+void categorize(std::ostream & s, df::world_underground_region *layer)
+{
+    switch (layer->type)
+    {
+        case df::world_underground_region::T_type::Cavern:
+            s << " cavern";
+            break;
+        case df::world_underground_region::T_type::MagmaSea:
+            s << " magma sea";
+            break;
+        case df::world_underground_region::T_type::Underworld:
+            s << " underworld";
+            break;
+    }
 }
 
 void simple_header(std::ostream & s, const df::language_name *name, bool sub)

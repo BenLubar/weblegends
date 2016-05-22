@@ -45,12 +45,9 @@ WEBLEGENDS_TYPES
 };
 
 #define WEBLEGENDS_TYPE(type, name) \
-void link(std::ostream & s, df::type *name);
-WEBLEGENDS_TYPES
-#undef WEBLEGENDS_TYPE
-
-#define WEBLEGENDS_TYPE(type, name) \
-void event_link(std::ostream & s, const event_context & context, df::type *name);
+void link(std::ostream & s, df::type *name); \
+void event_link(std::ostream & s, const event_context & context, df::type *name); \
+void categorize(std::ostream & s, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 

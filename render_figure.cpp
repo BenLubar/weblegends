@@ -91,43 +91,16 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
     auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
 
     simple_header(s, &hf->name);
+    s << "<p>";
+    categorize(s, hf);
+    spheres(s, hf);
+    born_died(s, hf);
     if (caste)
     {
-        s << "<p>";
-        if (hf->flags.is_set(histfig_flags::rotting_deity))
-        {
-            s << "rotting ";
-        }
-        if (hf->flags.is_set(histfig_flags::skeletal_deity))
-        {
-            s << "skeletal ";
-        }
-        if (caste->caste_name[0] == race->name[0] && hf->sex != -1)
-        {
-            if (hf->sex == 0)
-            {
-                s << "female ";
-            }
-            else if (hf->sex == 1)
-            {
-                s << "male ";
-            }
-        }
-        s << caste->caste_name[0];
-        if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
-        {
-            s << " deity";
-        }
-        spheres(s, hf);
-        born_died(s, hf);
-        s << "<br>" << caste->description << "</p>";
+        s << "<br>" << caste->description;
     }
-    else if (hf->flags.is_set(histfig_flags::force))
-    {
-        s << "<p>force";
-        spheres(s, hf);
-        s << "</p>";
-    }
+    s << "</p>";
+
     if (!hf->histfig_links.empty())
     {
         s << "<h2 id=\"related-figures\">Related Figures</h2><ul>";

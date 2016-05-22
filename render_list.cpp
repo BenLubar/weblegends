@@ -28,6 +28,7 @@ static void render_list(std::ostream & s, int32_t page, const std::string & pref
     {
         s << "<li>";
         link(s, *it);
+        categorize(s, *it);
         s << "</li>";
     }
     s << "</ul>";

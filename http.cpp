@@ -131,7 +131,7 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
         return false;
     }
 
-    return check_id(s, url.substr(end), prefix2, [handler, id1](std::ostream & out, int32_t id2)
+    return check_id(s, url.substr(prefix1.length() + end), prefix2, [handler, id1](std::ostream & out, int32_t id2)
             {
                 handler(out, id1, id2);
             });

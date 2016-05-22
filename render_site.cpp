@@ -14,6 +14,18 @@ void WebLegends::render_site(std::ostream & s, int32_t id)
     }
 
     simple_header(s, &site->name);
+    if (!site->buildings.empty())
+    {
+        s << "<h2 id=\"structures\">Structures</h2><ul>";
+        for (auto it = site->buildings.begin(); it != site->buildings.end(); it++)
+        {
+            s << "<li>";
+            link(s, *it);
+            categorize(s, *it);
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
     history(s, site);
     // TODO
     s << "</body></html>";

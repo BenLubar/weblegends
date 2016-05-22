@@ -13,14 +13,14 @@ void WebLegends::render_structure(std::ostream & s, int32_t site_id, int32_t id)
     {
         return;
     }
-    auto structure = vector_get(site->buildings, uint32_t(id));
+    auto structure = binsearch_in_vector(site->buildings, uint32_t(id));
     if (structure == nullptr)
     {
         return;
     }
 
     simple_header(s, structure->getName(), true);
-    history(s, site);
+    history(s, structure);
     // TODO
     s << "</body></html>";
 }
