@@ -104,6 +104,10 @@ void simple_header(std::ostream & s, const df::language_name *name, bool sub)
 
 int32_t day(int32_t tick)
 {
+    if (tick < 0)
+    {
+        return 0;
+    }
     return ((tick / 1200) % 28) + 1;
 }
 
@@ -139,6 +143,11 @@ static const std::string months[12] =
 
 const std::string & month(int32_t tick)
 {
+    if (tick < 0)
+    {
+        static std::string empty;
+        return empty;
+    }
     return months[(tick / 1200 / 28) % 12];
 }
 

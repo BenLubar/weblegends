@@ -810,7 +810,7 @@ void event(std::ostream & s, const event_context & context, df::history_event *e
         else
         {
             s << "In " << event->year;
-            if (event->seconds == -1)
+            if (event->seconds < 0)
             {
                 s << ", ";
             }
@@ -820,7 +820,7 @@ void event(std::ostream & s, const event_context & context, df::history_event *e
             }
         }
     }
-    else if (event->seconds / 1200 != last_seconds / 1200)
+    else if ((event->seconds < 0) != (last_seconds < 0) || event->seconds / 1200 != last_seconds / 1200)
     {
         s << "On " << dayth(event->seconds) << " " << month(event->seconds) << ", ";
     }
