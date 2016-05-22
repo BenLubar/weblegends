@@ -2,6 +2,7 @@
 #include "helpers.h"
 
 #include "modules/Materials.h"
+#include "modules/Units.h"
 
 #include "df/abstract_building.h"
 #include "df/caste_raw.h"
@@ -108,9 +109,21 @@
 #include "df/history_event_written_content_composedst.h"
 #include "df/itemdef_weaponst.h"
 #include "df/plant_raw.h"
+#include "df/ui.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
+
+REQUIRE_GLOBAL(ui);
+
+static std::string profession_name(df::historical_figure *hf, df::profession prof, bool plural = false)
+{
+    int32_t old_race_id = ui->race_id;
+    ui->race_id = hf->race;
+    std::string str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
+    ui->race_id = old_race_id;
+    return str;
+}
 
 template<typename T>
 static void do_location_1(std::ostream & s, const event_context & context, T *event)
@@ -632,6 +645,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             link(s, loc);
             separator = " in ";
         }
+    }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_jobst *event)
+{
+    auto hf = df::historical_figure::find(event->hfid);
+    event_link(s, context, hf);
+    if (event->new_job != profession::STANDARD)
+    {
+        s << " became a " << profession_name(hf, event->new_job);
+        do_location_2(s, context, event);
+        if (event->old_job != profession::STANDARD)
+        {
+            s << ", leaving ";
+            if (hf->sex == 0)
+            {
+                s << "her";
+            }
+            else if (hf->sex == 1)
+            {
+                s << "his";
+            }
+            else
+            {
+                s << "its";
+            }
+            s << " previous job as a " << profession_name(hf, event->old_job);
+        }
+    }
+    else
+    {
+        s << " left ";
+        if (hf->sex == 0)
+        {
+            s << "her";
+        }
+        else if (hf->sex == 1)
+        {
+            s << "his";
+        }
+        else
+        {
+            s << "its";
+        }
+        s << " job as a " << profession_name(hf, event->old_job);
+        do_location_2(s, context, event);
     }
 }
 
