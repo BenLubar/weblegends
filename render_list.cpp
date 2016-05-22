@@ -12,18 +12,18 @@ const static int32_t items_per_page = 250;
 template<typename T>
 static void render_list(std::ostream & s, int32_t page, const std::string & prefix, const std::string & title)
 {
-    int32_t page_count = (int32_t(T::get_vector().size()) + items_per_page - 1) / items_per_page;
-    if (page < 0 || page >= page_count)
-    {
-        return;
-    }
-
     auto begin = std::find_if(T::get_vector().begin(), T::get_vector().end(), [](T *t) -> bool
             {
                 return t->name.has_name;
             });
 
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << title << ", page " << page << "</title></head><body><h1>" << title << "</h1><ul>";
+    int32_t page_count = (int32_t(T::get_vector().end() - begin) + items_per_page - 1) / items_per_page;
+    if (page < 0 || page >= page_count)
+    {
+        return;
+    }
+
+    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << title << ", page " << page << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h1>" << title << "</h1><ul>";
     for (auto it = begin + (page * items_per_page); it != T::get_vector().end() && it != begin + ((page + 1) * items_per_page); it++)
     {
         s << "<li>";

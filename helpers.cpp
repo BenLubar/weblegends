@@ -98,7 +98,7 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
 
 void simple_header(std::ostream & s, const df::language_name *name, bool sub)
 {
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(name, false, false) << "</title>" << (sub ? "<base href=\"..\">" : "") << "</head><body>";
+    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(name, false, false) << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body>";
     s << "<h1>" << Translation::TranslateName(name, false, false) << " &ldquo;" << Translation::TranslateName(name, true, false)  << "&rdquo;</h1>";
 }
 
