@@ -32,9 +32,7 @@ static void spheres(std::ostream & s, df::historical_figure *hf)
         s << " associated with ";
         list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
                 {
-                    std::string sphere(ENUM_KEY_STR(sphere_type, t));
-                    std::transform(sphere.begin(), sphere.end(), sphere.begin(), ::tolower);
-                    out << sphere;
+                    out << toLower(ENUM_KEY_STR(sphere_type, t));
                 });
     }
 }

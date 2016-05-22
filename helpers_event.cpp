@@ -1,6 +1,7 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "modules/Items.h"
 #include "modules/Materials.h"
 #include "modules/Units.h"
 
@@ -122,7 +123,7 @@ static std::string profession_name(df::historical_figure *hf, df::profession pro
     ui->race_id = hf->race;
     std::string str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
     ui->race_id = old_race_id;
-    return str;
+    return toLower(str);
 }
 
 template<typename T>
@@ -155,22 +156,24 @@ static void do_location_1(std::ostream & s, const event_context & context, T *ev
 }
 
 template<typename T>
-static void do_location_2(std::ostream & s, const event_context & context, T *event)
+static void do_location_2(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
 {
     if (auto loc = df::world_site::find(event->site))
     {
         if (loc != context.site)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
     if (auto loc = df::world_region::find(event->region))
     {
         if (loc != context.region)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
     // TODO: df::coord2d region_pos;
@@ -178,10 +181,29 @@ static void do_location_2(std::ostream & s, const event_context & context, T *ev
     {
         if (loc != context.layer)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
+}
+
+template<typename T>
+static void do_location_2_structure(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
+{
+    if (auto site = df::world_site::find(event->site))
+    {
+        if (auto loc = binsearch_in_vector(site->buildings, event->structure))
+        {
+            if (loc != context.structure)
+            {
+                s << separator;
+                link(s, loc);
+                separator = " in ";
+            }
+        }
+    }
+    do_location_2(s, context, event, separator);
 }
 
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
@@ -619,33 +641,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             s << " became a refugee";
             break;
     }
-    if (auto loc = df::world_site::find(event->site))
-    {
-        if (loc != context.site)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
-    if (auto loc = df::world_region::find(event->region))
-    {
-        if (loc != context.region)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
-    if (auto loc = df::world_underground_region::find(event->layer))
-    {
-        if (loc != context.layer)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
+    do_location_2(s, context, event, separator);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_jobst *event)
@@ -692,6 +688,35 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " job as a " << profession_name(hf, event->old_job);
         do_location_2(s, context, event);
     }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_item_stolenst *event)
+{
+    auto hf = df::historical_figure::find(event->histfig);
+    event_link(s, context, hf);
+    s << " stole ";
+    if (auto item = df::item::find(event->item))
+    {
+        std::string str;
+        item->getItemDescriptionPrefix(&str, 0);
+        s << str;
+        str.clear();
+        item->getItemDescription(&str, 0);
+        s << str;
+    }
+    else
+    {
+        ItemTypeInfo type(event->item_type, event->item_subtype);
+        MaterialInfo mat(event->mattype, event->matindex);
+        s << "a " << mat.toString() << " " << type.toString();
+    }
+    if (auto ent = df::historical_entity::find(event->entity))
+    {
+        s << " belonging to ";
+        event_link(s, context, ent);
+    }
+    do_location_2_structure(s, context, event, " from ");
+    // TODO: int32_t anon_1;
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_creature_devouredst *event)
