@@ -277,21 +277,213 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_diedst *event)
 {
+    std::string prefix;
+
     auto victim = df::historical_figure::find(event->victim_hf);
     event_link(s, context, victim);
+
+    switch (event->death_cause)
+    {
+        case death_type::OLD_AGE:
+            s << " died of old age";
+            prefix = " after being attacked";
+            break;
+        case death_type::HUNGER:
+            s << " starved to death";
+            prefix = " after being attacked";
+            break;
+        case death_type::THIRST:
+            s << " died of thirst";
+            prefix = " after being attacked";
+            break;
+        case death_type::SHOT:
+            s << " was shot and killed";
+            break;
+        case death_type::BLEED:
+            s << " bled to death";
+            prefix = ", killed";
+            break;
+        case death_type::DROWN:
+            s << " drowned";
+            prefix = ", killed";
+            break;
+        case death_type::SUFFOCATE:
+            s << " suffocated";
+            prefix = ", strangled";
+            break;
+        case death_type::STRUCK_DOWN:
+            s << " was slain";
+            break;
+        case death_type::SCUTTLE:
+            s << " was scuttled";
+            break;
+        case death_type::COLLISION:
+            s << " died in a collision";
+            prefix = " after being attacked";
+            break;
+        case death_type::MAGMA:
+            s << " was boiled alive in magma";
+            prefix = ", pushed";
+            break;
+        case death_type::MAGMA_MIST:
+            s << " got too close to magma";
+            prefix = ", killed";
+            break;
+        case death_type::DRAGONFIRE:
+            s << " was burned to a crisp";
+            break;
+        case death_type::FIRE:
+            s << " burned to death";
+            prefix = ", killed";
+            break;
+        case death_type::SCALD:
+            s << " was scalded";
+            break;
+        case death_type::CAVEIN:
+            s << " was crushed in a cave-in";
+            prefix = " caused";
+            break;
+        case death_type::DRAWBRIDGE:
+            s << " was crushed by a drawbridge";
+            prefix = " operated";
+            break;
+        case death_type::FALLING_ROCKS:
+            s << " was crushed by falling rocks";
+            prefix = " dropped";
+            break;
+        case death_type::CHASM:
+            s << " fell into a deep chasm";
+            prefix = ", pushed";
+            break;
+        case death_type::CAGE:
+            s << " died in a cage";
+            prefix = ", killed";
+            break;
+        case death_type::MURDER:
+            s << " was murdered";
+            break;
+        case death_type::TRAP:
+            s << " died in a trap";
+            prefix = ", killed";
+            break;
+        case death_type::VANISH:
+            s << " vanished into thin air";
+            prefix = ", killed";
+            break;
+        case death_type::QUIT:
+            s << " gave into starvation";
+            prefix = " after being attacked";
+            break;
+        case death_type::ABANDON:
+            s << " was abandoned";
+            prefix = " after being attacked";
+            break;
+        case death_type::HEAT:
+            s << " died of heat";
+            prefix = ", killed";
+            break;
+        case death_type::COLD:
+            s << " died of cold";
+            prefix = ", killed";
+            break;
+        case death_type::SPIKE:
+            s << " died on a spike";
+            prefix = ", killed";
+            break;
+        case death_type::ENCASE_LAVA:
+            s << " was encased in cooling lava";
+            prefix = " after being attacked";
+            break;
+        case death_type::ENCASE_MAGMA:
+            s << " was encased in cooling magma";
+            prefix = " after being attacked";
+            break;
+        case death_type::ENCASE_ICE:
+            s << " was encased in ice";
+            prefix = " after being attacked";
+            break;
+        case death_type::BEHEAD:
+            s << " was beheaded";
+            break;
+        case death_type::CRUCIFY:
+            s << " was crucified";
+            break;
+        case death_type::BURY_ALIVE:
+            s << " was buried alive";
+            break;
+        case death_type::DROWN_ALT:
+            s << " was drowned";
+            break;
+        case death_type::BURN_ALIVE:
+            s << " was burned alive";
+            break;
+        case death_type::FEED_TO_BEASTS:
+            s << " was fed to beasts";
+            break;
+        case death_type::HACK_TO_PIECES:
+            s << " was hacked to pieces";
+            break;
+        case death_type::LEAVE_OUT_IN_AIR:
+            s << " was left out in the air";
+            break;
+        case death_type::BOIL:
+            s << " boiled";
+            prefix = ", killed";
+            break;
+        case death_type::MELT:
+            s << " melted";
+            prefix = ", killed";
+            break;
+        case death_type::CONDENSE:
+            s << " condensed";
+            prefix = ", killed";
+            break;
+        case death_type::SOLIDIFY:
+            s << " solidified";
+            prefix = ", killed";
+            break;
+        case death_type::INFECTION:
+            s << " succumbed to infection";
+            prefix = " after being attacked";
+            break;
+        case death_type::MEMORIALIZE:
+            s << " was put to death";
+            break;
+        case death_type::SCARE:
+            s << " was scared to death";
+            break;
+        case death_type::DARKNESS:
+            s << " died in the dark";
+            prefix = " after being attacked";
+            break;
+        case death_type::COLLAPSE:
+            s << " collapsed";
+            prefix = " after being attacked";
+            break;
+        case death_type::DRAIN_BLOOD:
+            s << " was drained of blood";
+            break;
+        case death_type::SLAUGHTER:
+            s << " was slaughtered";
+            break;
+        case death_type::VEHICLE:
+            s << " was killed by a vehicle";
+            prefix = " after being attacked";
+            break;
+        case death_type::FALLING_OBJECT:
+            s << " was killed by a falling object";
+            prefix = " after being attacked";
+            break;
+    }
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
-        s << " was slain by ";
+        s << prefix << " by ";
         event_link(s, context, slayer);
     }
     else if (auto race = df::creature_raw::find(event->slayer_race))
     {
-        auto caste = race->caste[event->slayer_caste];
-        s << " was slain by a " << caste->caste_name[0];
-    }
-    else
-    {
-        s << " died of old age";
+        auto caste = race->caste.at(event->slayer_caste);
+        s << prefix << " by a " << caste->caste_name[0];
     }
     // TODO: df::history_hit_item weapon;
     do_location_1(s, context, event);
