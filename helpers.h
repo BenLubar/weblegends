@@ -2,50 +2,57 @@
 
 #include <functional>
 
+#define WEBLEGENDS_TYPES \
+    WEBLEGENDS_TYPE(abstract_building, structure) \
+    WEBLEGENDS_TYPE(historical_entity, ent) \
+    WEBLEGENDS_TYPE(historical_figure, hf) \
+    WEBLEGENDS_TYPE(world_region, region) \
+    WEBLEGENDS_TYPE(world_site, site) \
+    WEBLEGENDS_TYPE(world_underground_region, layer)
+
 namespace df
 {
-    struct abstract_building;
-    struct historical_entity;
-    struct historical_figure;
+#define WEBLEGENDS_TYPE(type, name) \
+    struct type;
+    WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
     struct history_event;
     struct language_name;
-    struct world_region;
-    struct world_site;
-    struct world_underground_region;
 }
 
 struct event_context
 {
-    df::abstract_building *structure;
-    df::historical_entity *ent;
-    df::historical_figure *hf;
-    df::world_region *region;
-    df::world_site *site;
-    df::world_underground_region *layer;
+#define WEBLEGENDS_TYPE(type, name) \
+    df::type *name;
+WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
 
-    event_context(df::abstract_building *structure) : structure(structure), ent(nullptr), hf(nullptr), region(nullptr), site(nullptr), layer(nullptr) {};
-    event_context(df::historical_entity *ent) : structure(nullptr), ent(ent), hf(nullptr), region(nullptr), site(nullptr), layer(nullptr) {};
-    event_context(df::historical_figure *hf) : structure(nullptr), ent(nullptr), hf(hf), region(nullptr), site(nullptr), layer(nullptr) {};
-    event_context(df::world_region *region) : structure(nullptr), ent(nullptr), hf(nullptr), region(region), site(nullptr), layer(nullptr) {};
-    event_context(df::world_site *site) : structure(nullptr), ent(nullptr), hf(nullptr), region(nullptr), site(site), layer(nullptr) {};
-    event_context(df::world_underground_region *layer) : structure(nullptr), ent(nullptr), hf(nullptr), region(nullptr), site(nullptr), layer(layer) {};
+#define WEBLEGENDS_TYPE(type, name) \
+    event_context(df::type *name) { clear(); this->name = name; }
+WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
 
     bool related(df::history_event *event) const;
+
+private:
+    inline void clear()
+    {
+#define WEBLEGENDS_TYPE(type, name) \
+        this->name = nullptr;
+WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
+    }
 };
 
-void link(std::ostream & s, df::abstract_building *structure);
-void link(std::ostream & s, df::historical_entity *ent);
-void link(std::ostream & s, df::historical_figure *hf);
-void link(std::ostream & s, df::world_region *region);
-void link(std::ostream & s, df::world_site *site);
-void link(std::ostream & s, df::world_underground_region *layer);
+#define WEBLEGENDS_TYPE(type, name) \
+void link(std::ostream & s, df::type *name);
+WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
 
-void event_link(std::ostream & s, const event_context & context, df::abstract_building *structure);
-void event_link(std::ostream & s, const event_context & context, df::historical_entity *ent);
-void event_link(std::ostream & s, const event_context & context, df::historical_figure *hf);
-void event_link(std::ostream & s, const event_context & context, df::world_region *region);
-void event_link(std::ostream & s, const event_context & context, df::world_site *site);
-void event_link(std::ostream & s, const event_context & context, df::world_underground_region *layer);
+#define WEBLEGENDS_TYPE(type, name) \
+void event_link(std::ostream & s, const event_context & context, df::type *name);
+WEBLEGENDS_TYPES
+#undef WEBLEGENDS_TYPE
 
 template<typename T>
 inline void list(std::ostream & s, const std::vector<T> & vec, std::function<void(std::ostream &, T)> f)
@@ -79,3 +86,5 @@ const std::string & month(int32_t tick);
 
 void history(std::ostream & s, const event_context & context);
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds);
+
+#undef WEBLEGENDS_TYPES

@@ -355,7 +355,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, ent);
             break;
         case histfig_entity_link_type::POSITION:
-            pos = ent->positions.own.at(event->position_id);
+            pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
             s << " became ";
             if (pos->number == 1)
@@ -382,7 +382,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, ent);
             break;
         case histfig_entity_link_type::FORMER_POSITION:
-            pos = ent->positions.own.at(event->position_id);
+            pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
             s << " became a former ";
             if (hf->sex == 0)
@@ -401,7 +401,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, ent);
             break;
         case histfig_entity_link_type::POSITION_CLAIM:
-            pos = ent->positions.own.at(event->position_id);
+            pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
             s << " claimed the position of ";
             if (hf->sex == 0)

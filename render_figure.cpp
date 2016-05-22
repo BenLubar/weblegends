@@ -250,8 +250,8 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                     case histfig_entity_link_type::POSITION:
                         {
                             auto l = virtual_cast<df::histfig_entity_link_positionst>(*it);
-                            auto assignment = ent->positions.assignments.at(l->assignment_id);
-                            auto position = ent->positions.own.at(assignment->position_id);
+                            auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
+                            auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                             s << ", ";
                             if (hf->sex == 0 && !position->name_female[0].empty())
                             {
@@ -271,8 +271,8 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                     case histfig_entity_link_type::FORMER_POSITION:
                         {
                             auto l = virtual_cast<df::histfig_entity_link_former_positionst>(*it);
-                            auto assignment = ent->positions.assignments.at(l->assignment_id);
-                            auto position = ent->positions.own.at(assignment->position_id);
+                            auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
+                            auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                             s << ", ";
                             if (hf->sex == 0 && !position->name_female[0].empty())
                             {
@@ -292,8 +292,8 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                     case histfig_entity_link_type::POSITION_CLAIM:
                         {
                             auto l = virtual_cast<df::histfig_entity_link_position_claimst>(*it);
-                            auto assignment = ent->positions.assignments.at(l->assignment_id);
-                            auto position = ent->positions.own.at(assignment->position_id);
+                            auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
+                            auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                             s << ", ";
                             if (hf->sex == 0 && !position->name_female[0].empty())
                             {
@@ -347,7 +347,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             auto l = virtual_cast<df::histfig_entity_link_occupationst>(*it);
                             auto occupation = df::occupation::find(l->occupation_id);
                             auto site = df::world_site::find(occupation->site_id);
-                            auto location = site->buildings.at(occupation->location_id);
+                            auto location = binsearch_in_vector(site->buildings, occupation->location_id);
                             s << ", ";
                             switch (occupation->type)
                             {
@@ -380,7 +380,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             auto l = virtual_cast<df::histfig_entity_link_former_occupationst>(*it);
                             auto occupation = df::occupation::find(l->occupation_id);
                             auto site = df::world_site::find(occupation->site_id);
-                            auto location = site->buildings.at(occupation->location_id);
+                            auto location = binsearch_in_vector(site->buildings, occupation->location_id);
                             s << ", former ";
                             switch (occupation->type)
                             {
@@ -433,7 +433,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                     break;
                 case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
                     {
-                        auto structure = site->buildings.at((*it)->sub_id);
+                        auto structure = binsearch_in_vector(site->buildings, (*it)->sub_id);
                         link(s, structure);
                         s << ", home";
                         break;
