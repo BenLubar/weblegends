@@ -1,16 +1,20 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "modules/Items.h"
+#include "modules/Materials.h"
 #include "modules/Translation.h"
 
 #include "df/abstract_building.h"
 #include "df/abstract_building_dungeonst.h"
 #include "df/abstract_building_templest.h"
+#include "df/artifact_record.h"
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
+#include "df/item.h"
 #include "df/world.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
@@ -18,41 +22,117 @@
 
 REQUIRE_GLOBAL(world);
 
-static void link_name(std::ostream & s, const std::string & prefix, int32_t id, const df::language_name & name)
+int32_t get_id(df::abstract_building *structure)
 {
+    return structure ? structure->id : -1;
+}
+int32_t get_id(df::artifact_record *item)
+{
+    return item ? item->id : -1;
+}
+int32_t get_id(df::historical_entity *ent)
+{
+    return ent ? ent->id : -1;
+}
+int32_t get_id(df::historical_figure *hf)
+{
+    return hf ? hf->id : -1;
+}
+int32_t get_id(df::world_region *region)
+{
+    return region ? region->index : -1;
+}
+int32_t get_id(df::world_site *site)
+{
+    return site ? site->id : -1;
+}
+int32_t get_id(df::world_underground_region *layer)
+{
+    return layer ? layer->index : -1;
+}
+
+static const df::language_name & get_no_name()
+{
+    static df::language_name no_name;
+    no_name.has_name = false;
+    return no_name;
+}
+
+const df::language_name & get_name(df::abstract_building *structure)
+{
+    return structure && structure->getName() ? *structure->getName() : get_no_name();
+}
+const df::language_name & get_name(df::artifact_record *item)
+{
+    return item ? item->name : get_no_name();
+}
+const df::language_name & get_name(df::historical_entity *ent)
+{
+    return ent ? ent->name : get_no_name();
+}
+const df::language_name & get_name(df::historical_figure *hf)
+{
+    return hf ? hf->name : get_no_name();
+}
+const df::language_name & get_name(df::world_region *region)
+{
+    return region ? region->name : get_no_name();
+}
+const df::language_name & get_name(df::world_site *site)
+{
+    return site ? site->name : get_no_name();
+}
+const df::language_name & get_name(df::world_underground_region *layer)
+{
+    return layer ? layer->name : get_no_name();
+}
+
+template<typename T>
+static void link_name(std::ostream & s, const std::string & prefix, T *target)
+{
+    int32_t id = get_id(target);
+    const df::language_name & name = get_name(target);
+
     if (name.has_name)
     {
         s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
     }
     else
     {
-        s << "<a href=\"" << prefix << id << "\">[unnamed]</a>";
+        s << "<a href=\"" << prefix << id << "\">[unnamed";
+        categorize(s, target);
+        s << "]</a>";
     }
 }
 
 void link(std::ostream & s, df::abstract_building *structure)
 {
-    s << "<a href=\"site-" << structure->site_id << "/bld-" << structure->id << "\" title=\"" << Translation::TranslateName(structure->getName(), true, false) << "\">" << Translation::TranslateName(structure->getName(), false, false) << "</a>";
+    std::string prefix = structure ? stl_sprintf("site-%d/bld-", structure->site_id) : "";
+    link_name(s, prefix, structure);
+}
+void link(std::ostream & s, df::artifact_record *item)
+{
+    link_name(s, "item-", item);
 }
 void link(std::ostream & s, df::historical_entity *ent)
 {
-    link_name(s, "ent-", ent->id, ent->name);
+    link_name(s, "ent-", ent);
 }
 void link(std::ostream & s, df::historical_figure *hf)
 {
-    link_name(s, "fig-", hf->id, hf->name);
+    link_name(s, "fig-", hf);
 }
 void link(std::ostream & s, df::world_region *region)
 {
-    link_name(s, "region-", region->index, region->name);
+    link_name(s, "region-", region);
 }
 void link(std::ostream & s, df::world_site *site)
 {
-    link_name(s, "site-", site->id, site->name);
+    link_name(s, "site-", site);
 }
 void link(std::ostream & s, df::world_underground_region *layer)
 {
-    link_name(s, "layer-", layer->index, layer->name);
+    link_name(s, "layer-", layer);
 }
 
 template<typename T>
@@ -60,13 +140,20 @@ static void event_link_name(std::ostream & s, T *reference, T *actual)
 {
     if (reference == actual)
     {
-        if (!actual->name.first_name.empty())
+        const df::language_name & name = get_name(actual);
+        if (!name.has_name)
         {
-            s << Translation::capitalize(actual->name.first_name);
+            s << "[unnamed";
+            categorize(s, actual);
+            s << "]";
+        }
+        else if (!name.first_name.empty())
+        {
+            s << Translation::capitalize(name.first_name);
         }
         else
         {
-            s << "<abbr title=\"" << Translation::TranslateName(&actual->name, true, true) << "\">" << Translation::TranslateName(&actual->name, false, true) << "</abbr>";
+            s << "<abbr title=\"" << Translation::TranslateName(&name, true, true) << "\">" << Translation::TranslateName(&name, false, true) << "</abbr>";
         }
     }
     else
@@ -77,14 +164,11 @@ static void event_link_name(std::ostream & s, T *reference, T *actual)
 
 void event_link(std::ostream & s, const event_context & context, df::abstract_building *structure)
 {
-    if (context.structure == structure)
-    {
-        s << "<abbr title=\"" << Translation::TranslateName(structure->getName(), true, false) << "\">" << Translation::TranslateName(structure->getName(), false, false) << "</abbr>";
-    }
-    else
-    {
-        link(s, structure);
-    }
+    event_link_name(s, context.structure, structure);
+}
+void event_link(std::ostream & s, const event_context & context, df::artifact_record *item)
+{
+    event_link_name(s, context.item, item);
 }
 void event_link(std::ostream & s, const event_context & context, df::historical_entity *ent)
 {
@@ -168,6 +252,10 @@ void categorize(std::ostream & s, df::abstract_building *structure)
             s << " library";
             break;
     }
+}
+void categorize(std::ostream & s, df::artifact_record *item)
+{
+    s << " " << MaterialInfo(item->item).toString() << " " << ItemTypeInfo(item->item).toString();
 }
 void categorize(std::ostream & s, df::historical_entity *ent)
 {
@@ -452,7 +540,9 @@ void history(std::ostream & s, const event_context & context)
 
 bool event_context::related(df::history_event *event) const
 {
-    if (site && event->isRelatedToSiteID(site->id))
+    if (structure && event->isRelatedToSiteStructure(structure->site_id, structure->id))
+        return true;
+    if (item && event->isRelatedToArtifactID(item->id))
         return true;
     if (ent && event->isRelatedToEntityID(ent->id))
         return true;

@@ -4,6 +4,7 @@
 
 #define WEBLEGENDS_TYPES \
     WEBLEGENDS_TYPE(abstract_building, structure) \
+    WEBLEGENDS_TYPE(artifact_record, item) \
     WEBLEGENDS_TYPE(historical_entity, ent) \
     WEBLEGENDS_TYPE(historical_figure, hf) \
     WEBLEGENDS_TYPE(world_region, region) \
@@ -45,6 +46,8 @@ WEBLEGENDS_TYPES
 };
 
 #define WEBLEGENDS_TYPE(type, name) \
+int32_t get_id(df::type *name); \
+const df::language_name & get_name(df::type *name); \
 void link(std::ostream & s, df::type *name); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
 void categorize(std::ostream & s, df::type *name);

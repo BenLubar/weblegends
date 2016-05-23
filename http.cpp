@@ -149,6 +149,8 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
     else if (check_id(s, url, "/ent-", render_entity)) {}
     else if (check_id(s, url, "/figs-", render_figure_list)) {}
     else if (check_id(s, url, "/fig-", render_figure)) {}
+    else if (check_id(s, url, "/items-", render_item_list)) {}
+    else if (check_id(s, url, "/item-", render_item)) {}
     else if (check_id(s, url, "/regions-", render_region_list)) {}
     else if (check_id(s, url, "/region-", render_region)) {}
     else if (check_id(s, url, "/sites-", render_site_list)) {}

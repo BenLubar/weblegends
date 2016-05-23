@@ -1,6 +1,7 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "df/artifact_record.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/world_region.h"
@@ -58,6 +59,10 @@ void WebLegends::render_entity_list(std::ostream & s, int32_t page)
 void WebLegends::render_figure_list(std::ostream & s, int32_t page)
 {
     render_list<df::historical_figure>(s, page, "figs-", "Historical Figures");
+}
+void WebLegends::render_item_list(std::ostream & s, int32_t page)
+{
+    render_list<df::artifact_record>(s, page, "items-", "Artifacts");
 }
 void WebLegends::render_region_list(std::ostream & s, int32_t page)
 {
