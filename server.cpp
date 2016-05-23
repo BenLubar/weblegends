@@ -21,6 +21,11 @@ command_result WebLegends::init(color_ostream & out)
 
 command_result WebLegends::shutdown(color_ostream & out)
 {
+    if (Core::getInstance().isSuspended())
+    {
+        return CR_FAILURE;
+    }
+
     out << "weblegends cleaning up..." << std::endl;
     std::cerr << "weblegends sending shutdown request" << std::endl;
 
@@ -39,19 +44,9 @@ command_result WebLegends::shutdown(color_ostream & out)
         (*it)->kill();
     }
 
-    int32_t suspend_count = 0;
-    while (Core::getInstance().isSuspended())
-    {
-        Core::getInstance().Resume();
-        suspend_count++;
-    }
     for (auto it = clients.begin(); it != clients.end(); it++)
     {
         (*it)->join();
-    }
-    for (int32_t i = 0; i < suspend_count; i++)
-    {
-        Core::getInstance().Suspend();
     }
 
     tthread::lock_guard<tthread::mutex> l(to_delete_lock);
