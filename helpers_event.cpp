@@ -6,6 +6,7 @@
 #include "modules/Units.h"
 
 #include "df/abstract_building.h"
+#include "df/artifact_record.h"
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
 #include "df/entity_position.h"
@@ -664,6 +665,24 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         event_link(s, context, site);
     }
     // TODO: df::meeting_topic topic;
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_createdst *event)
+{
+    auto artifact = df::artifact_record::find(event->artifact_id);
+    event_link(s, context, artifact);
+    s << " was created";
+    if (auto hf = df::historical_figure::find(event->hfid))
+    {
+        s << " by ";
+        event_link(s, context, hf);
+    }
+    if (auto site = df::world_site::find(event->site))
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
+    // TODO uint32_t flags2; /*!< 1 = name_only */
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_body_abusedst *event)
