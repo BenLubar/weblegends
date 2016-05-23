@@ -13,7 +13,7 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
         return;
     }
 
-    simple_header(s, &item->name);
+    simple_header(s, item);
 
     s << "<p>";
     categorize(s, item);

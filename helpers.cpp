@@ -16,6 +16,7 @@
 #include "df/history_event.h"
 #include "df/item.h"
 #include "df/world.h"
+#include "df/world_data.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
@@ -85,6 +86,11 @@ const df::language_name & get_name(df::world_site *site)
 const df::language_name & get_name(df::world_underground_region *layer)
 {
     return layer ? layer->name : get_no_name();
+}
+// for render_home
+const df::language_name & get_name(df::world_data *world_data)
+{
+    return world_data->name;
 }
 
 template<typename T>
@@ -193,6 +199,12 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
 
 void categorize(std::ostream & s, df::abstract_building *structure)
 {
+    if (!structure)
+    {
+        s << " structure";
+        return;
+    }
+
     switch (structure->getType())
     {
         case abstract_building_type::MEAD_HALL:
@@ -255,10 +267,22 @@ void categorize(std::ostream & s, df::abstract_building *structure)
 }
 void categorize(std::ostream & s, df::artifact_record *item)
 {
+    if (!item)
+    {
+        s << " artifact";
+        return;
+    }
+
     s << " " << MaterialInfo(item->item).toString() << " " << ItemTypeInfo(item->item).toString();
 }
 void categorize(std::ostream & s, df::historical_entity *ent)
 {
+    if (!ent)
+    {
+        s << " entity";
+        return;
+    }
+
     if (auto race = df::creature_raw::find(ent->race))
     {
         s << " " << race->name[2];
@@ -297,6 +321,12 @@ void categorize(std::ostream & s, df::historical_entity *ent)
 }
 void categorize(std::ostream & s, df::historical_figure *hf)
 {
+    if (!hf)
+    {
+        s << " figure";
+        return;
+    }
+
     auto race = df::creature_raw::find(hf->race);
     auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
 
@@ -334,6 +364,12 @@ void categorize(std::ostream & s, df::historical_figure *hf)
 }
 void categorize(std::ostream & s, df::world_region *region)
 {
+    if (!region)
+    {
+        s << " region";
+        return;
+    }
+
     switch (region->type)
     {
         case world_region_type::Swamp:
@@ -370,6 +406,12 @@ void categorize(std::ostream & s, df::world_region *region)
 }
 void categorize(std::ostream & s, df::world_site *site)
 {
+    if (!site)
+    {
+        s << " site";
+        return;
+    }
+
     if (auto ent = df::historical_entity::find(site->cur_owner_id))
     {
         if (auto race = df::creature_raw::find(ent->race))
@@ -442,6 +484,12 @@ void categorize(std::ostream & s, df::world_site *site)
 }
 void categorize(std::ostream & s, df::world_underground_region *layer)
 {
+    if (!layer)
+    {
+        s << " underground region";
+        return;
+    }
+
     switch (layer->type)
     {
         case df::world_underground_region::T_type::Cavern:
@@ -455,11 +503,77 @@ void categorize(std::ostream & s, df::world_underground_region *layer)
             break;
     }
 }
-
-void simple_header(std::ostream & s, const df::language_name *name, bool sub)
+// for render_home
+void categorize(std::ostream & s, df::world_data *)
 {
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << Translation::TranslateName(name, false, false) << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body>";
-    s << "<h1>" << Translation::TranslateName(name, false, false) << " &ldquo;" << Translation::TranslateName(name, true, false)  << "&rdquo;</h1>";
+    s << " world";
+}
+
+template<typename T>
+void simple_header_impl(std::ostream & s, T subject, bool sub = false)
+{
+    const df::language_name & name = get_name(subject);
+    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>";
+    if (name.has_name)
+    {
+        s << Translation::TranslateName(&name, false, false);
+    }
+    else
+    {
+        s << "unnamed";
+        categorize(s, subject);
+    }
+    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body><h1>";
+    if (name.has_name)
+    {
+        std::string native = Translation::TranslateName(&name, false, false);
+        std::string english = Translation::TranslateName(&name, true, false);
+        s << native;
+        if (native != english)
+        {
+            s << " &ldquo;" << english << "&rdquo;";
+        }
+    }
+    else
+    {
+        s << "unnamed";
+        categorize(s, subject);
+    }
+    s << "</h1>";
+}
+
+void simple_header(std::ostream & s, df::abstract_building *structure)
+{
+    simple_header_impl(s, structure, true);
+}
+void simple_header(std::ostream & s, df::artifact_record *item)
+{
+    simple_header_impl(s, item);
+}
+void simple_header(std::ostream & s, df::historical_entity *ent)
+{
+    simple_header_impl(s, ent);
+}
+void simple_header(std::ostream & s, df::historical_figure *hf)
+{
+    simple_header_impl(s, hf);
+}
+void simple_header(std::ostream & s, df::world_region *region)
+{
+    simple_header_impl(s, region);
+}
+void simple_header(std::ostream & s, df::world_site *site)
+{
+    simple_header_impl(s, site);
+}
+void simple_header(std::ostream & s, df::world_underground_region *layer)
+{
+    simple_header_impl(s, layer);
+}
+// for render_home
+void simple_header(std::ostream & s, df::world_data *world_data)
+{
+    simple_header_impl(s, world_data);
 }
 
 int32_t day(int32_t tick)

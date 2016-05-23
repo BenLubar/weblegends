@@ -13,7 +13,7 @@ void WebLegends::render_region(std::ostream & s, int32_t id)
         return;
     }
 
-    simple_header(s, &region->name);
+    simple_header(s, region);
 
     s << "<p>";
     categorize(s, region);

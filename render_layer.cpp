@@ -13,7 +13,7 @@ void WebLegends::render_layer(std::ostream & s, int32_t id)
         return;
     }
 
-    simple_header(s, &layer->name);
+    simple_header(s, layer);
 
     s << "<p>";
     categorize(s, layer);

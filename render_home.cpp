@@ -15,7 +15,8 @@ void WebLegends::render_home(std::ostream & s)
         return;
     }
 
-    simple_header(s, &world->world_data->name);
+    void simple_header(std::ostream &, df::world_data *);
+    simple_header(s, world->world_data);
     s << "<table>";
     s << "<tr><th><a href=\"figs-0\">Historical Figures</a></th><td>" << world->history.figures.size() << "</td></tr>";
     s << "<tr><th><a href=\"sites-0\">Sites</a></th><td>" << world->world_data->sites.size() << "</td></tr>";

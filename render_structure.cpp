@@ -19,7 +19,7 @@ void WebLegends::render_structure(std::ostream & s, int32_t site_id, int32_t id)
         return;
     }
 
-    simple_header(s, structure->getName(), true);
+    simple_header(s, structure);
 
     s << "<p>";
     categorize(s, structure);

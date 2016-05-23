@@ -11,12 +11,24 @@
 const static int32_t items_per_page = 250;
 
 template<typename T>
+static typename std::vector<T *>::iterator get_first()
+{
+    return std::find_if(T::get_vector().begin(), T::get_vector().end(), [](T *t) -> bool
+            {
+                return get_name(t).has_name;
+            });
+}
+
+template<>
+std::vector<df::world_underground_region *>::iterator get_first<df::world_underground_region>()
+{
+    return df::world_underground_region::get_vector().begin();
+}
+
+template<typename T>
 static void render_list(std::ostream & s, int32_t page, const std::string & prefix, const std::string & title)
 {
-    auto begin = std::find_if(T::get_vector().begin(), T::get_vector().end(), [](T *t) -> bool
-            {
-                return t->name.has_name;
-            });
+    auto begin = get_first<T>();
 
     int32_t page_count = (int32_t(T::get_vector().end() - begin) + items_per_page - 1) / items_per_page;
     if (page < 0 || page >= page_count)

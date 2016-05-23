@@ -156,8 +156,8 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
     else if (check_id(s, url, "/sites-", render_site_list)) {}
     else if (check_id(s, url, "/site-", render_site)) {}
     else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
-    //else if (check_id(s, url, "/layers-", render_layer_list)) {}
-    //else if (check_id(s, url, "/layer-", render_layer)) {}
+    else if (check_id(s, url, "/layers-", render_layer_list)) {}
+    else if (check_id(s, url, "/layer-", render_layer)) {}
 
     std::string body = DF2UTF(s.str());
 

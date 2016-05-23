@@ -50,7 +50,8 @@ int32_t get_id(df::type *name); \
 const df::language_name & get_name(df::type *name); \
 void link(std::ostream & s, df::type *name); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
-void categorize(std::ostream & s, df::type *name);
+void categorize(std::ostream & s, df::type *name); \
+void simple_header(std::ostream & s, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 
@@ -77,8 +78,6 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
         f(s, *it);
     }
 }
-
-void simple_header(std::ostream & s, const df::language_name *name, bool sub = false);
 
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);
