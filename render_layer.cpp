@@ -14,6 +14,11 @@ void WebLegends::render_layer(std::ostream & s, int32_t id)
     }
 
     simple_header(s, &layer->name);
+
+    s << "<p>";
+    categorize(s, layer);
+    s << "</p>";
+
     history(s, layer);
     // TODO
     s << "</body></html>";

@@ -14,6 +14,11 @@ void WebLegends::render_entity(std::ostream & s, int32_t id)
     }
 
     simple_header(s, &ent->name);
+
+    s << "<p>";
+    categorize(s, ent);
+    s << "</p>";
+
     history(s, ent);
     // TODO
     s << "</body></html>";

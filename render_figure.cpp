@@ -91,6 +91,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
     auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
 
     simple_header(s, &hf->name);
+
     s << "<p>";
     categorize(s, hf);
     spheres(s, hf);

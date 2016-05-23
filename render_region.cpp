@@ -14,6 +14,11 @@ void WebLegends::render_region(std::ostream & s, int32_t id)
     }
 
     simple_header(s, &region->name);
+
+    s << "<p>";
+    categorize(s, region);
+    s << "</p>";
+
     history(s, region);
     // TODO
     s << "</body></html>";
