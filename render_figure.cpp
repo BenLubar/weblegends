@@ -238,7 +238,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             {
                                 s << position->name[0];
                             }
-                            s << " (" << l->start_year << "-)";
+                            if (l->start_year > 0)
+                            {
+                                s << " (" << l->start_year << "-)";
+                            }
+                            else
+                            {
+                                s << " (prehistory-)";
+                            }
                             break;
                         }
                     case histfig_entity_link_type::FORMER_POSITION:
@@ -259,7 +266,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             {
                                 s << position->name[0];
                             }
-                            s << " (" << l->start_year << "-" << l->end_year << ")";
+                            if (l->start_year > 0)
+                            {
+                                s << " (" << l->start_year << "-" << l->end_year << ")";
+                            }
+                            else
+                            {
+                                s << " (prehistory-" << l->end_year << ")";
+                            }
                             break;
                         }
                     case histfig_entity_link_type::POSITION_CLAIM:
@@ -280,7 +294,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             {
                                 s << position->name[0];
                             }
-                            s << " (" << l->start_year << "-)";
+                            if (l->start_year > 0)
+                            {
+                                s << " (" << l->start_year << "-)";
+                            }
+                            else
+                            {
+                                s << " (prehistory-)";
+                            }
                             break;
                         }
                     case histfig_entity_link_type::SQUAD:
@@ -296,7 +317,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             {
                                 s << squad->alias;
                             }
-                            s << " (" << l->start_year << "-)";
+                            if (l->start_year > 0)
+                            {
+                                s << " (" << l->start_year << "-)";
+                            }
+                            else
+                            {
+                                s << " (prehistory-)";
+                            }
                             break;
                         }
                     case histfig_entity_link_type::FORMER_SQUAD:
@@ -312,7 +340,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             {
                                 s << squad->alias;
                             }
-                            s << " (" << l->start_year << "-" << l->end_year << ")";
+                            if (l->start_year > 0)
+                            {
+                                s << " (" << l->start_year << "-" << l->end_year << ")";
+                            }
+                            else
+                            {
+                                s << " (prehistory-" << l->end_year << ")";
+                            }
                             break;
                         }
                     case histfig_entity_link_type::OCCUPATION:
