@@ -488,6 +488,10 @@ void categorize(std::ostream & s, df::world_site *site, bool)
             {
                 s << " tomb";
             }
+            else if (site->subtype_info != nullptr && site->subtype_info->is_monument == 1)
+            {
+                s << " vault";
+            }
             else
             {
                 s << " monument";
