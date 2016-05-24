@@ -9,6 +9,7 @@
 #include "df/artifact_record.h"
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
+#include "df/dance_form.h"
 #include "df/entity_position.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
@@ -110,7 +111,9 @@
 #include "df/history_event_war_site_tribute_forcedst.h"
 #include "df/history_event_written_content_composedst.h"
 #include "df/itemdef_weaponst.h"
+#include "df/musical_form.h"
 #include "df/plant_raw.h"
+#include "df/poetic_form.h"
 #include "df/ui.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
@@ -1143,6 +1146,87 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " in ";
         event_link(s, context, site);
     }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_poetic_form_createdst *event)
+{
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+    }
+    else
+    {
+        s << "An unknown poet";
+    }
+    s << " created ";
+    if (auto form = df::poetic_form::find(event->form))
+    {
+        s << "the poetic form ";
+        name_translated(s, form->name);
+    }
+    else
+    {
+        s << "[unknown poetic form]";
+    }
+    do_location_2(s, context, event);
+    // TODO: int32_t circumstance;
+    // TODO: int32_t circumstance_id;
+    // TODO: int32_t reason;
+    // TODO: int32_t reason_id;
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_musical_form_createdst *event)
+{
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+    }
+    else
+    {
+        s << "An unknown musician";
+    }
+    s << " created ";
+    if (auto form = df::musical_form::find(event->form))
+    {
+        s << "the musical form ";
+        name_translated(s, form->name);
+    }
+    else
+    {
+        s << "[unknown musical form]";
+    }
+    do_location_2(s, context, event);
+    // TODO: int32_t circumstance;
+    // TODO: int32_t circumstance_id;
+    // TODO: int32_t reason;
+    // TODO: int32_t reason_id;
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_dance_form_createdst *event)
+{
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+    }
+    else
+    {
+        s << "An unknown choreographer";
+    }
+    s << " created ";
+    if (auto form = df::dance_form::find(event->form))
+    {
+        s << "the dance form ";
+        name_translated(s, form->name);
+    }
+    else
+    {
+        s << "[unknown dance form]";
+    }
+    do_location_2(s, context, event);
+    // TODO: int32_t circumstance;
+    // TODO: int32_t circumstance_id;
+    // TODO: int32_t reason;
+    // TODO: int32_t reason_id;
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_written_content_composedst *event)

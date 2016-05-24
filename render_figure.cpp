@@ -312,7 +312,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             s << ", member of ";
                             if (squad->alias.empty())
                             {
-                                s << "<abbr title=\"" << Translation::TranslateName(&squad->name, true, false) << "\">" << Translation::TranslateName(&squad->name, false, false) << "</abbr>";
+                                name_translated(s, squad->name);
                             }
                             else
                             {
@@ -335,7 +335,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             s << ", former member of ";
                             if (squad->alias.empty())
                             {
-                                s << "<abbr title=\"" << Translation::TranslateName(&squad->name, true, false) << "\">" << Translation::TranslateName(&squad->name, false, false) << "</abbr>";
+                                name_translated(s, squad->name);
                             }
                             else
                             {

@@ -159,6 +159,20 @@ void link(std::ostream & s, df::world_underground_region *layer)
     link_name(s, "layer-", layer);
 }
 
+void name_translated(std::ostream & s, const df::language_name & name, bool only_last)
+{
+    std::string native = Translation::TranslateName(&name, false, only_last);
+    std::string english = Translation::TranslateName(&name, true, only_last);
+    if (native != english)
+    {
+        s << "<abbr title=\"" << english << "\">" << native << "</abbr>";
+    }
+    else
+    {
+        s << native;
+    }
+}
+
 template<typename T>
 static void event_link_name(std::ostream & s, T *reference, T *actual)
 {
@@ -177,7 +191,7 @@ static void event_link_name(std::ostream & s, T *reference, T *actual)
         }
         else
         {
-            s << "<abbr title=\"" << Translation::TranslateName(&name, true, true) << "\">" << Translation::TranslateName(&name, false, true) << "</abbr>";
+            name_translated(s, name, true);
         }
     }
     else
@@ -242,7 +256,8 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                         const df::language_name & name = get_name(deity);
                         if (name.has_name)
                         {
-                            s << " of <abbr title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</abbr>";
+                            s << " of ";
+                            name_translated(s, name);
                         }
                     }
                     else
@@ -566,7 +581,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
         s << native;
         if (native != english)
         {
-            s << " &ldquo;" << english << "&rdquo;";
+            s << ", &ldquo;" << english << "&rdquo;";
         }
     }
     else
@@ -730,7 +745,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
                     }
                     else if (context.hf != *it)
                     {
-                        s << "<abbr title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</abbr>";
+                        name_translated(s, name);
                     }
                     else if (!name.first_name.empty())
                     {
@@ -738,7 +753,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
                     }
                     else
                     {
-                        s << "<abbr title=\"" << Translation::TranslateName(&name, true, true) << "\">" << Translation::TranslateName(&name, false, true) << "</abbr>";
+                        name_translated(s, name, true);
                     }
                 }
                 else
@@ -904,8 +919,9 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                     {
                         int32_t last_year = 0;
                         int32_t last_seconds = -1;
-                        s << ". ";
+                        s << ". <em>";
                         event(s, context, e, last_year, last_seconds);
+                        s << "</em>";
                     }
                 }
                 break;
