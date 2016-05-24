@@ -209,7 +209,7 @@ static void do_location_2_structure(std::ostream & s, const event_context & cont
 
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
 {
-    s << ENUM_KEY_STR(history_event_type, event->getType());
+    s << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id;
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_sitest *event)
