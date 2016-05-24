@@ -12,6 +12,7 @@
 #include "df/historical_figure.h"
 #include "df/history_event.h"
 #include "df/item_constructed.h"
+#include "df/item_slabst.h"
 #include "df/itemimprovement.h"
 #include "df/itemimprovement_itemspecificst.h"
 #include "df/itemimprovement_pagesst.h"
@@ -1563,6 +1564,10 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
         {
             s << " created by " << race->name[1];
         }
+    }
+    if (auto slab = virtual_cast<df::item_slabst>(item->item))
+    {
+        s << "<br>" << slab->description;
     }
     s << "</p>";
     if (auto constructed = virtual_cast<df::item_constructed>(item->item))
