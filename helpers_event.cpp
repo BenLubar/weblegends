@@ -1077,6 +1077,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     do_location_2(s, context, event);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_travelst *event)
+{
+    list<int32_t>(s, event->group, [context](std::ostream & out, int32_t id)
+            {
+                auto hf = df::historical_figure::find(id);
+                event_link(out, context, hf);
+            });
+    std::string prefix = " to ";
+    switch (event->reason)
+    {
+        case df::history_event_hist_figure_travelst::T_reason::Journey:
+            s << " made a journey";
+            break;
+        case df::history_event_hist_figure_travelst::T_reason::Return:
+            s << " returned";
+            break;
+        case df::history_event_hist_figure_travelst::T_reason::Escape:
+            s << " escaped";
+            prefix = " from ";
+            break;
+    }
+    do_location_2(s, context, event, prefix);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_new_petst *event)
+{
+    list<int32_t>(s, event->group, [context](std::ostream & out, int32_t id)
+            {
+                auto hf = df::historical_figure::find(id);
+                event_link(out, context, hf);
+            });
+    s << " tamed ";
+    list<int16_t>(s, event->pets, [](std::ostream & out, int16_t id)
+            {
+                if (auto race = df::creature_raw::find(id))
+                {
+                    out << "the " << race->name[1];
+                }
+                else
+                {
+                    out << "[unknown race]";
+                }
+            });
+    do_location_2(s, context, event, " of ");
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_storedst *event)
 {
     auto item = df::artifact_record::find(event->artifact);
