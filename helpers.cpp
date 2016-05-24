@@ -106,7 +106,7 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
     else
     {
         s << "<a href=\"" << prefix << id << "\">[unnamed";
-        categorize(s, target);
+        categorize(s, target, true);
         s << "]</a>";
     }
 }
@@ -197,7 +197,7 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
     event_link_name(s, context.layer, layer);
 }
 
-void categorize(std::ostream & s, df::abstract_building *structure)
+void categorize(std::ostream & s, df::abstract_building *structure, bool in_link)
 {
     if (!structure)
     {
@@ -219,8 +219,19 @@ void categorize(std::ostream & s, df::abstract_building *structure)
             {
                 if (auto deity = df::historical_figure::find(temple->deity))
                 {
-                    s << " of ";
-                    link(s, deity);
+                    if (in_link)
+                    {
+                        const df::language_name & name = get_name(deity);
+                        if (name.has_name)
+                        {
+                            s << " of <abbr title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</abbr>";
+                        }
+                    }
+                    else
+                    {
+                        s << " of ";
+                        link(s, deity);
+                    }
                 }
             }
             break;
@@ -265,7 +276,7 @@ void categorize(std::ostream & s, df::abstract_building *structure)
             break;
     }
 }
-void categorize(std::ostream & s, df::artifact_record *item)
+void categorize(std::ostream & s, df::artifact_record *item, bool in_link)
 {
     if (!item)
     {
@@ -273,9 +284,11 @@ void categorize(std::ostream & s, df::artifact_record *item)
         return;
     }
 
-    s << " " << MaterialInfo(item->item).toString() << " " << ItemTypeInfo(item->item).toString();
+    s << " ";
+    material(s, event_context(), item->item, in_link);
+    s << " " << ItemTypeInfo(item->item).toString();
 }
-void categorize(std::ostream & s, df::historical_entity *ent)
+void categorize(std::ostream & s, df::historical_entity *ent, bool)
 {
     if (!ent)
     {
@@ -319,7 +332,7 @@ void categorize(std::ostream & s, df::historical_entity *ent)
             break;
     }
 }
-void categorize(std::ostream & s, df::historical_figure *hf)
+void categorize(std::ostream & s, df::historical_figure *hf, bool)
 {
     if (!hf)
     {
@@ -362,7 +375,7 @@ void categorize(std::ostream & s, df::historical_figure *hf)
         s << " force";
     }
 }
-void categorize(std::ostream & s, df::world_region *region)
+void categorize(std::ostream & s, df::world_region *region, bool)
 {
     if (!region)
     {
@@ -404,7 +417,7 @@ void categorize(std::ostream & s, df::world_region *region)
             break;
     }
 }
-void categorize(std::ostream & s, df::world_site *site)
+void categorize(std::ostream & s, df::world_site *site, bool)
 {
     if (!site)
     {
@@ -482,7 +495,7 @@ void categorize(std::ostream & s, df::world_site *site)
             break;
     }
 }
-void categorize(std::ostream & s, df::world_underground_region *layer)
+void categorize(std::ostream & s, df::world_underground_region *layer, bool)
 {
     if (!layer)
     {
@@ -504,7 +517,7 @@ void categorize(std::ostream & s, df::world_underground_region *layer)
     }
 }
 // for render_home
-void categorize(std::ostream & s, df::world_data *)
+void categorize(std::ostream & s, df::world_data *, bool)
 {
     s << " world";
 }
@@ -521,7 +534,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
     else
     {
         s << "unnamed";
-        categorize(s, subject);
+        categorize(s, subject, true);
     }
     s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body><h1>";
     if (name.has_name)
@@ -537,7 +550,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
     else
     {
         s << "unnamed";
-        categorize(s, subject);
+        categorize(s, subject, true);
     }
     s << "</h1>";
 }
@@ -669,4 +682,56 @@ bool event_context::related(df::history_event *event) const
     if (layer && event->isRelatedToLayerID(layer->index))
         return true;
     return false;
+}
+
+void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link)
+{
+    if (!mat.isCreature())
+    {
+        s << mat.toString();
+        return;
+    }
+    if (mat.creature->flags.is_set(creature_raw_flags::CASTE_FEATURE_BEAST) || mat.creature->flags.is_set(creature_raw_flags::CASTE_TITAN) || mat.creature->flags.is_set(creature_raw_flags::CASTE_UNIQUE_DEMON))
+    {
+        for (auto it = world->history.figures.begin(); it != world->history.figures.end(); it++)
+        {
+            if ((*it)->race == mat.index)
+            {
+                if (in_link)
+                {
+                    const df::language_name & name = get_name(*it);
+                    if (!name.has_name)
+                    {
+                        s << "[unnamed";
+                        categorize(s, *it, true);
+                        s << "]";
+                    }
+                    else if (context.hf != *it)
+                    {
+                        s << "<abbr title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</abbr>";
+                    }
+                    else if (!name.first_name.empty())
+                    {
+                        s << Translation::capitalize(name.first_name);
+                    }
+                    else
+                    {
+                        s << "<abbr title=\"" << Translation::TranslateName(&name, true, true) << "\">" << Translation::TranslateName(&name, false, true) << "</abbr>";
+                    }
+                }
+                else
+                {
+                    event_link(s, context, *it);
+                }
+                df::matter_state state = matter_state::Solid;
+                if (10015 >= mat.material->heat.melting_point)
+                    state = matter_state::Liquid;
+                if (10015 >= mat.material->heat.boiling_point)
+                    state = matter_state::Gas;
+                s << " " << mat.material->state_name[state];
+                return;
+            }
+        }
+    }
+    s << mat.toString();
 }

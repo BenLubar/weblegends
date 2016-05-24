@@ -740,15 +740,17 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             {
                 // event->props.item.item_type == item_type::WEAPON
                 auto idef = df::itemdef_weaponst::find(event->props.item.item_subtype);
-                MaterialInfo mat(&event->props.item);
                 s << " on ";
                 if (event->bodies.size() == 1)
                 {
-                    s << "a " << mat.toString() << " " << idef->name;
+                    s << "a ";
+                    material(s, context, &event->props.item);
+                    s << " " << idef->name;
                 }
                 else
                 {
-                    s << mat.toString() << " " << idef->name_plural;
+                    material(s, context, &event->props.item);
+                    s << " " << idef->name_plural;
                 }
                 break;
             }
@@ -800,16 +802,21 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
         case df::history_event_body_abusedst::T_abuse_type::Hung:
             {
-                auto tree = df::plant_raw::find(event->props.hung.tree);
-                MaterialInfo rope(&event->props.hung);
-                s << " from a " << tree->name << " tree with ";
+                s << " from ";
+                if (auto tree = df::plant_raw::find(event->props.hung.tree))
+                {
+                    s << "a " << tree->name << " tree with ";
+                }
                 if (event->bodies.size() == 1)
                 {
-                    s << "a " << rope.toString() << " rope";
+                    s << "a ";
+                    material(s, context, &event->props.hung);
+                    s << " rope";
                 }
                 else
                 {
-                    s << rope.toString() << " ropes";
+                    material(s, context, &event->props.hung);
+                    s << " ropes";
                 }
                 break;
             }
@@ -919,7 +926,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         ItemTypeInfo type(event->item_type, event->item_subtype);
         MaterialInfo mat(event->mattype, event->matindex);
-        s << "a " << mat.toString() << " " << type.toString();
+        s << "a ";
+        material(s, context, mat);
+        s << " " << type.toString();
     }
     if (auto ent = df::historical_entity::find(event->entity))
     {

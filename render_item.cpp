@@ -1593,10 +1593,14 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
                         switch (imp->type)
                         {
                             case itemimprovement_specific_type::HANDLE:
-                                s << " It has a " << MaterialInfo(imp).toString() << " handle.";
+                                s << " It has a ";
+                                material(s, item, imp);
+                                s << " handle.";
                                 break;
                             case itemimprovement_specific_type::ROLLERS:
-                                s << " It has " << MaterialInfo(imp).toString() << " rollers.";
+                                s << " It has ";
+                                material(s, item, imp);
+                                s << " rollers.";
                                 break;
                         }
                     }
@@ -1613,7 +1617,16 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
                 case improvement_type::PAGES:
                     if (auto imp = virtual_cast<df::itemimprovement_pagesst>(*it))
                     {
-                        s << "The " << ItemTypeInfo(item->item).toString() << " contains " << imp->count << " " << MaterialInfo(imp).toString() << " pages.";
+                        s << "The " << ItemTypeInfo(item->item).toString() << " contains " << imp->count << " ";
+                        material(s, item, imp);
+                        if (imp->count == 1)
+                        {
+                            s << " page.";
+                        }
+                        else
+                        {
+                            s << " pages.";
+                        }
                         for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
                         {
                             if (auto content = df::written_content::find(*it2))
