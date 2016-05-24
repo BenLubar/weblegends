@@ -669,13 +669,17 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_createdst *event)
 {
-    auto artifact = df::artifact_record::find(event->artifact_id);
-    event_link(s, context, artifact);
-    s << " was created";
+    auto item = df::artifact_record::find(event->artifact_id);
     if (auto hf = df::historical_figure::find(event->hfid))
     {
-        s << " by ";
         event_link(s, context, hf);
+        s << " created ";
+        event_link(s, context, item);
+    }
+    else
+    {
+        event_link(s, context, item);
+        s << " was created";
     }
     if (auto site = df::world_site::find(event->site))
     {
@@ -1017,6 +1021,27 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             break;
     }
     do_location_2(s, context, event);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_storedst *event)
+{
+    auto item = df::artifact_record::find(event->artifact);
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+        s << " stored ";
+        event_link(s, context, item);
+    }
+    else
+    {
+        event_link(s, context, item);
+        s << " was stored";
+    }
+    if (auto site = df::world_site::find(event->site))
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
 }
 
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
