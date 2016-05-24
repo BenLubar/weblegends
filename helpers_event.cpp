@@ -1158,7 +1158,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     s << " wrote ";
     if (auto content = df::written_content::find(event->content))
     {
-        s << "a ";
         written_content(s, context, content);
     }
     else

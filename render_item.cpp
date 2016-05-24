@@ -21,13 +21,14 @@ static void do_written_content(std::ostream & s, const event_context & context, 
 {
     if (content->page_start == -1)
     {
-        s << " The written contents are a ";
+        s << " The written contents are ";
     }
     else
     {
-        s << " Pages " << content->page_start << " to " << content->page_end << " are a ";
+        s << " Pages " << content->page_start << " to " << content->page_end << " are ";
     }
     written_content(s, context, content);
+    s << ".";
 }
 
 void WebLegends::render_item(std::ostream & s, int32_t id)

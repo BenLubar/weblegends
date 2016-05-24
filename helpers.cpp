@@ -760,6 +760,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 
 void written_content(std::ostream & s, const event_context & context, df::written_content *content)
 {
+    s << "a ";
     typedef std::pair<df::written_content_style, int32_t> style_t;
     std::vector<style_t> styles;
     styles.resize(content->styles.size());
@@ -890,7 +891,7 @@ void written_content(std::ostream & s, const event_context & context, df::writte
         s << " by ";
         link(s, author);
     }
-    s << " titled " << content->title << ".";
+    s << " titled <em>" << content->title << "</em>";
 
     for (auto ref = content->refs.begin(); ref != content->refs.end(); ref++)
     {
@@ -903,7 +904,7 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                     {
                         int32_t last_year = 0;
                         int32_t last_seconds = -1;
-                        s << " ";
+                        s << ". ";
                         event(s, context, e, last_year, last_seconds);
                     }
                 }
@@ -913,18 +914,17 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                 {
                     if (auto site = df::world_site::find(r->site_id))
                     {
-                        s << " The writing concerns the";
+                        s << ". The writing concerns the";
                         categorize(s, site);
                         s << " ";
                         event_link(s, context, site);
-                        s << ".";
                     }
                 }
                 break;
             case general_ref_type::KNOWLEDGE_SCHOLAR_FLAG:
                 if (auto r = virtual_cast<df::general_ref_knowledge_scholar_flagst>(*ref))
                 {
-                    s << " The writing concerns ";
+                    s << ". The writing concerns ";
                     switch (r->knowledge_category)
                     {
                         case 0:
@@ -2246,7 +2246,6 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                             }
                             break;
                     }
-                    s << ".";
                 }
                 break;
             default:
