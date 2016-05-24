@@ -4,7 +4,7 @@
 
 namespace DFHack
 {
-    struct DFHACK_EXPORT MaterialInfo;
+    struct MaterialInfo;
 }
 
 #define WEBLEGENDS_TYPES \
@@ -24,6 +24,7 @@ namespace df
 #undef WEBLEGENDS_TYPE
     struct history_event;
     struct language_name;
+    struct written_content;
 }
 
 struct event_context
@@ -86,6 +87,7 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
 }
 
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false);
+void written_content(std::ostream & s, const event_context & context, df::written_content *content);
 
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);

@@ -115,6 +115,7 @@
 #include "df/world_region.h"
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
+#include "df/written_content.h"
 
 REQUIRE_GLOBAL(ui);
 
@@ -1142,6 +1143,33 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " in ";
         event_link(s, context, site);
     }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_written_content_composedst *event)
+{
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+    }
+    else
+    {
+        s << "An unknown author";
+    }
+    s << " wrote ";
+    if (auto content = df::written_content::find(event->content))
+    {
+        s << "a ";
+        written_content(s, context, content);
+    }
+    else
+    {
+        s << "[unknown document]";
+    }
+    do_location_2(s, context, event);
+    // TODO: int32_t circumstance;
+    // TODO: int32_t circumstance_id;
+    // TODO: int32_t reason;
+    // TODO: int32_t reason_id;
 }
 
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
