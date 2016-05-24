@@ -845,6 +845,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 {
     auto site = df::world_site::find(event->site);
     auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
+
+    if (structure->getType() == abstract_building_type::UNDERWORLD_SPIRE)
+    {
+        auto builder = df::historical_figure::find(event->builder_hf);
+        event_link(s, context, builder);
+        s << " thrust a spire of slade up from the underworld, naming it ";
+        event_link(s, context, structure);
+        s << ", and established a gateway between worlds in ";
+        event_link(s, context, site);
+        return;
+    }
+
     if (auto builder = df::historical_figure::find(event->builder_hf))
     {
         event_link(s, context, builder);
