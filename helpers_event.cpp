@@ -1296,6 +1296,7 @@ void event(std::ostream & s, const event_context & context, df::history_event *e
     last_year = event->year;
     last_seconds = event->seconds;
 
+    s << "<!--" << event->id << "-->";
     switch (event->getType())
     {
         case history_event_type::WAR_ATTACKED_SITE:
