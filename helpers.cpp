@@ -773,7 +773,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
     s << mat.toString();
 }
 
-void written_content(std::ostream & s, const event_context & context, df::written_content *content)
+void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author)
 {
     s << "a ";
     typedef std::pair<df::written_content_style, int32_t> style_t;
@@ -903,10 +903,16 @@ void written_content(std::ostream & s, const event_context & context, df::writte
     }
     if (auto author = df::historical_figure::find(content->author))
     {
-        s << " by ";
-        link(s, author);
+        if (author != omit_author)
+        {
+            s << " by ";
+            link(s, author);
+        }
     }
-    s << " titled <em>" << content->title << "</em>";
+    if (!content->title.empty())
+    {
+        s << " titled <em>" << content->title << "</em>";
+    }
 
     for (auto ref = content->refs.begin(); ref != content->refs.end(); ref++)
     {

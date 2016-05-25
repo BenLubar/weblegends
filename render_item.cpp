@@ -23,6 +23,10 @@ static void do_written_content(std::ostream & s, const event_context & context, 
     {
         s << " The written contents are ";
     }
+    else if (content->page_start == content->page_end)
+    {
+        s << " Page " << content->page_start << " is ";
+    }
     else
     {
         s << " Pages " << content->page_start << " to " << content->page_end << " are ";

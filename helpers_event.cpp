@@ -1243,7 +1243,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_written_content_composedst *event)
 {
-    if (auto hf = df::historical_figure::find(event->histfig))
+    auto hf = df::historical_figure::find(event->histfig);
+    if (hf)
     {
         event_link(s, context, hf);
     }
@@ -1254,7 +1255,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     s << " wrote ";
     if (auto content = df::written_content::find(event->content))
     {
-        written_content(s, context, content);
+        written_content(s, context, content, hf);
     }
     else
     {

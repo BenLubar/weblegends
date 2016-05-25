@@ -89,7 +89,7 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
 }
 
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false);
-void written_content(std::ostream & s, const event_context & context, df::written_content *content);
+void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author = nullptr);
 
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);
