@@ -5,6 +5,7 @@ SET(PROJECT_SRCS
     server.cpp
     http.cpp
     helpers.cpp
+    helpers_content.cpp
     helpers_event.cpp
     render_home.cpp
     render_entity.cpp
