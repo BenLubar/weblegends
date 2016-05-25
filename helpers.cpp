@@ -900,6 +900,42 @@ void written_content(std::ostream & s, const event_context & context, df::writte
         case written_content_type::Choreography:
             s << "choreography";
             break;
+        case written_content_type::ComparativeBiography:
+            s << "comparative biography";
+            break;
+        case written_content_type::BiographicalDictionary:
+            s << "biographical dictionary";
+            break;
+        case written_content_type::Genealogy:
+            s << "genealogy";
+            break;
+        case written_content_type::Encyclopedia:
+            s << "encyclopedia";
+            break;
+        case written_content_type::CulturalHistory:
+            s << "cultural history";
+            break;
+        case written_content_type::CulturalComparison:
+            s << "cultural comparison";
+            break;
+        case written_content_type::AlternateHistory:
+            s << "alternate history";
+            break;
+        case written_content_type::TreatiseOnTechnologicalEvolution:
+            s << "treatise on technological evolution";
+            break;
+        case written_content_type::Dictionary:
+            s << "dictionary";
+            break;
+        case written_content_type::StarChart:
+            s << "star chart";
+            break;
+        case written_content_type::StarCatalogue:
+            s << "star catalogue";
+            break;
+        case written_content_type::Atlas:
+            s << "atlas";
+            break;
     }
     if (auto author = df::historical_figure::find(content->author))
     {
