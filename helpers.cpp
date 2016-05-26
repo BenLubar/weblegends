@@ -15,6 +15,9 @@
 #include "df/historical_figure.h"
 #include "df/history_event.h"
 #include "df/item.h"
+#include "df/item_constructed.h"
+#include "df/itemimprovement_pagesst.h"
+#include "df/itemimprovement_writingst.h"
 #include "df/world.h"
 #include "df/world_data.h"
 #include "df/world_region.h"
@@ -188,7 +191,30 @@ void event_link(std::ostream & s, const event_context & context, df::abstract_bu
 }
 void event_link(std::ostream & s, const event_context & context, df::artifact_record *item)
 {
+    bool italicize = false;
+    if (item && item->name.has_name && !item->name.first_name.empty())
+    {
+        if (auto constructed = virtual_cast<df::item_constructed>(item->item))
+        {
+            for (auto it = constructed->improvements.begin(); it != constructed->improvements.end(); it++)
+            {
+                if (virtual_cast<df::itemimprovement_writingst>(*it) || virtual_cast<df::itemimprovement_pagesst>(*it))
+                {
+                    italicize = true;
+                    break;
+                }
+            }
+        }
+    }
+    if (italicize)
+    {
+        s << "<em>";
+    }
     event_link_name(s, context.item, item);
+    if (italicize)
+    {
+        s << "</em>";
+    }
 }
 void event_link(std::ostream & s, const event_context & context, df::historical_entity *ent)
 {
