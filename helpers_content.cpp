@@ -1349,7 +1349,7 @@ void knowledge(std::ostream & s, int32_t category, int32_t flags)
     }
 }
 
-void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author)
+void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author, bool show_refs)
 {
     s << "a ";
     typedef std::pair<df::written_content_style, int32_t> style_t;
@@ -1526,42 +1526,45 @@ void written_content(std::ostream & s, const event_context & context, df::writte
         s << " titled <em>" << content->title << "</em>";
     }
 
-    for (auto ref = content->refs.begin(); ref != content->refs.end(); ref++)
+    if (show_refs)
     {
-        switch ((*ref)->getType())
+        for (auto ref = content->refs.begin(); ref != content->refs.end(); ref++)
         {
-            case general_ref_type::HISTORICAL_EVENT:
-                if (auto r = virtual_cast<df::general_ref_historical_eventst>(*ref))
-                {
-                    if (auto e = df::history_event::find(r->event_id))
+            switch ((*ref)->getType())
+            {
+                case general_ref_type::HISTORICAL_EVENT:
+                    if (auto r = virtual_cast<df::general_ref_historical_eventst>(*ref))
                     {
-                        s << ". <em>";
-                        event_reverse(s, context, e);
-                        s << "</em>";
+                        if (auto e = df::history_event::find(r->event_id))
+                        {
+                            s << ". <em>";
+                            event_reverse(s, context, e);
+                            s << "</em>";
+                        }
                     }
-                }
-                break;
-            case general_ref_type::SITE:
-                if (auto r = virtual_cast<df::general_ref_sitest>(*ref))
-                {
-                    if (auto site = df::world_site::find(r->site_id))
+                    break;
+                case general_ref_type::SITE:
+                    if (auto r = virtual_cast<df::general_ref_sitest>(*ref))
                     {
-                        s << ". The writing concerns the";
-                        categorize(s, site);
-                        s << " ";
-                        event_link(s, context, site);
+                        if (auto site = df::world_site::find(r->site_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, site);
+                            s << " ";
+                            event_link(s, context, site);
+                        }
                     }
-                }
-                break;
-            case general_ref_type::KNOWLEDGE_SCHOLAR_FLAG:
-                if (auto r = virtual_cast<df::general_ref_knowledge_scholar_flagst>(*ref))
-                {
-                    s << ". The writing concerns ";
-                    knowledge(s, r->knowledge_category, r->knowledge_flags);
-                }
-                break;
-            default:
-                s << " " << ENUM_KEY_STR(general_ref_type, (*ref)->getType());
+                    break;
+                case general_ref_type::KNOWLEDGE_SCHOLAR_FLAG:
+                    if (auto r = virtual_cast<df::general_ref_knowledge_scholar_flagst>(*ref))
+                    {
+                        s << ". The writing concerns ";
+                        knowledge(s, r->knowledge_category, r->knowledge_flags);
+                    }
+                    break;
+                default:
+                    s << " " << ENUM_KEY_STR(general_ref_type, (*ref)->getType());
+            }
         }
     }
 }

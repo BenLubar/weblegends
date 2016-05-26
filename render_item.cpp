@@ -31,7 +31,7 @@ static void do_written_content(std::ostream & s, const event_context & context, 
     {
         s << " Pages " << content->page_start << " to " << content->page_end << " are ";
     }
-    written_content(s, context, content);
+    written_content(s, context, content, nullptr, true);
     s << ".";
 }
 
