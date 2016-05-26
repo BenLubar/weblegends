@@ -1304,7 +1304,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         s << " was the first to discover ";
     }
-    knowledge(s, event->knowledge_type, event->knowledge_flags);
+    knowledge(s, event->knowledge);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_destroyedst *event)
