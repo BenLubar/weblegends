@@ -110,6 +110,8 @@
 #include "df/history_event_war_site_taken_overst.h"
 #include "df/history_event_war_site_tribute_forcedst.h"
 #include "df/history_event_written_content_composedst.h"
+#include "df/interaction.h"
+#include "df/interaction_source.h"
 #include "df/itemdef_weaponst.h"
 #include "df/musical_form.h"
 #include "df/plant_raw.h"
@@ -209,6 +211,47 @@ static void do_location_2_structure(std::ostream & s, const event_context & cont
         }
     }
     do_location_2(s, context, event, separator);
+}
+
+static void do_weapon(std::ostream & s, const event_context & context, const df::history_hit_item & weapon)
+{
+    if (auto item = df::item::find(weapon.item))
+    {
+        s << " with ";
+        std::string str;
+        item->getItemDescriptionPrefix(&str, 0);
+        s << str;
+        str.clear();
+        item->getItemDescription(&str, 0);
+        s << str;
+    }
+    else if (weapon.item_type != item_type::NONE)
+    {
+        ItemTypeInfo type(weapon.item_type, weapon.item_subtype);
+        MaterialInfo mat(weapon.mattype, weapon.matindex);
+        s << " with a ";
+        material(s, context, mat);
+        s << " " << type.toString();
+    }
+
+    if (auto item = df::item::find(weapon.shooter_item))
+    {
+        s << " fired from ";
+        std::string str;
+        item->getItemDescriptionPrefix(&str, 0);
+        s << str;
+        str.clear();
+        item->getItemDescription(&str, 0);
+        s << str;
+    }
+    else if (weapon.shooter_item_type != item_type::NONE)
+    {
+        ItemTypeInfo type(weapon.shooter_item_type, weapon.shooter_item_subtype);
+        MaterialInfo mat(weapon.shooter_mattype, weapon.shooter_matindex);
+        s << " fired from a ";
+        material(s, context, mat);
+        s << " " << type.toString();
+    }
 }
 
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
@@ -480,6 +523,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             prefix = " after being attacked";
             break;
     }
+    do_weapon(s, context, event->weapon);
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
         s << prefix << " by ";
@@ -490,7 +534,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         auto caste = race->caste.at(event->slayer_caste);
         s << prefix << " by a " << caste->caste_name[0];
     }
-    // TODO: df::history_hit_item weapon;
     do_location_1(s, context, event);
 }
 
@@ -1139,6 +1182,62 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     do_location_2(s, context, event, " of ");
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_act_on_buildingst *event)
+{
+    auto hf = df::historical_figure::find(event->histfig);
+    event_link(s, context, hf);
+
+    switch (event->action)
+    {
+        case df::history_event_hf_act_on_buildingst::T_action::Profane:
+            s << " profaned ";
+            break;
+        case df::history_event_hf_act_on_buildingst::T_action::Disturb:
+            s << " disturbed ";
+            break;
+    }
+
+    auto site = df::world_site::find(event->site);
+    auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
+    if (structure)
+    {
+        s << "the";
+        categorize(s, structure);
+        s << " ";
+        event_link(s, context, structure);
+    }
+    else
+    {
+        s << "an unknown structure";
+    }
+
+    if (site)
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_does_interactionst *event)
+{
+    auto interaction = df::interaction::find(event->interaction);
+    auto source = interaction ? interaction->sources.at(event->source) : nullptr;
+
+    auto doer = df::historical_figure::find(event->doer);
+    event_link(s, context, doer);
+    if (source)
+    {
+        s << source->hist_string_1;
+    }
+    auto target = df::historical_figure::find(event->target);
+    event_link(s, context, target);
+    if (source)
+    {
+        s << source->hist_string_2;
+    }
+    do_location_2(s, context, event);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_storedst *event)
 {
     auto item = df::artifact_record::find(event->artifact);
@@ -1158,6 +1257,21 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " in ";
         event_link(s, context, site);
     }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_knowledge_discoveredst *event)
+{
+    auto hf = df::historical_figure::find(event->hf);
+    event_link(s, context, hf);
+    if (event->first == 0)
+    {
+        s << " independently discovered ";
+    }
+    else
+    {
+        s << " was the first to discover ";
+    }
+    knowledge(s, event->knowledge_type, event->knowledge_flags);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_poetic_form_createdst *event)
