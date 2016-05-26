@@ -736,6 +736,39 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     // TODO uint32_t flags2; /*!< 1 = name_only */
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_lostst *event)
+{
+    auto item = df::artifact_record::find(event->artifact);
+    event_link(s, context, item);
+    s << " was lost";
+    if (auto site = df::world_site::find(event->site))
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_foundst *event)
+{
+    auto item = df::artifact_record::find(event->artifact);
+    if (auto hf = df::historical_figure::find(event->histfig))
+    {
+        event_link(s, context, hf);
+        s << " found ";
+        event_link(s, context, item);
+    }
+    else
+    {
+        event_link(s, context, item);
+        s << " was found";
+    }
+    if (auto site = df::world_site::find(event->site))
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_body_abusedst *event)
 {
     if (auto hf = df::historical_figure::find(event->histfig))
@@ -1272,6 +1305,39 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " was the first to discover ";
     }
     knowledge(s, event->knowledge_type, event->knowledge_flags);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_destroyedst *event)
+{
+    auto item = df::artifact_record::find(event->artifact);
+    if (auto hf = df::historical_figure::find(event->destroyer_hf))
+    {
+        event_link(s, context, hf);
+        if (auto civ = df::historical_entity::find(event->destroyer_civ))
+        {
+            s << " of ";
+            event_link(s, context, civ);
+        }
+        s << " destroyed ";
+        event_link(s, context, item);
+    }
+    else if (auto civ = df::historical_entity::find(event->destroyer_civ))
+    {
+        event_link(s, context, civ);
+        s << " destroyed ";
+        event_link(s, context, item);
+    }
+    else
+    {
+        event_link(s, context, item);
+        s << " was destroyed";
+    }
+
+    if (auto site = df::world_site::find(event->site))
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_poetic_form_createdst *event)
