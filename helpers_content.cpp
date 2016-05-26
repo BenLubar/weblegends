@@ -1535,10 +1535,8 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                 {
                     if (auto e = df::history_event::find(r->event_id))
                     {
-                        int32_t last_year = 0;
-                        int32_t last_seconds = -1;
                         s << ". <em>";
-                        event(s, context, e, last_year, last_seconds);
+                        event_reverse(s, context, e);
                         s << "</em>";
                     }
                 }

@@ -98,5 +98,6 @@ const std::string & month(int32_t tick);
 
 void history(std::ostream & s, const event_context & context);
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds);
+void event_reverse(std::ostream & s, const event_context & context, df::history_event *event);
 
 #undef WEBLEGENDS_TYPES

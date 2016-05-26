@@ -1382,34 +1382,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     // TODO: int32_t reason_id;
 }
 
-void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
+static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
-    if (event->year != last_year)
-    {
-        if (event->year < 0)
-        {
-            s << "In a time before time, ";
-        }
-        else
-        {
-            s << "In " << event->year;
-            if (event->seconds < 0)
-            {
-                s << ", ";
-            }
-            else
-            {
-                s << " on " << dayth(event->seconds) << " " << month(event->seconds) << ", ";
-            }
-        }
-    }
-    else if ((event->seconds < 0) != (last_seconds < 0) || event->seconds / 1200 != last_seconds / 1200)
-    {
-        s << "On " << dayth(event->seconds) << " " << month(event->seconds) << ", ";
-    }
-    last_year = event->year;
-    last_seconds = event->seconds;
-
     s << "<!--" << event->id << "-->";
     switch (event->getType())
     {
@@ -1699,5 +1673,54 @@ void event(std::ostream & s, const event_context & context, df::history_event *e
             do_event(s, context, virtual_cast<df::history_event_written_content_composedst>(event));
             break;
     }
+}
+
+void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
+{
+    if (event->year != last_year)
+    {
+        if (event->year < 0)
+        {
+            s << "In a time before time, ";
+        }
+        else
+        {
+            s << "In " << event->year;
+            if (event->seconds < 0)
+            {
+                s << ", ";
+            }
+            else
+            {
+                s << " on " << dayth(event->seconds) << " " << month(event->seconds) << ", ";
+            }
+        }
+    }
+    else if ((event->seconds < 0) != (last_seconds < 0) || event->seconds / 1200 != last_seconds / 1200)
+    {
+        s << "On " << dayth(event->seconds) << " " << month(event->seconds) << ", ";
+    }
+    last_year = event->year;
+    last_seconds = event->seconds;
+
+    event_dispatch(s, context, event);
     s << ". ";
+}
+
+void event_reverse(std::ostream & s, const event_context & context, df::history_event *event)
+{
+    event_dispatch(s, context, event);
+
+    if (event->year < 0)
+    {
+        s << " in a time before time";
+    }
+    else
+    {
+        s << " in " << event->year;
+        if (event->seconds >= 0)
+        {
+            s << " on " << dayth(event->seconds) << " " << month(event->seconds);
+        }
+    }
 }
