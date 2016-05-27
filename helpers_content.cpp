@@ -1174,7 +1174,7 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                     break;
                 default:
                     s << " " << ENUM_KEY_STR(general_ref_type, (*ref)->getType()); // TODO
-                    std::cout << "[weblegends] missing general_ref_type::" << ENUM_KEY_STR(general_ref_type, (*ref)->getType()) << ": content-" << content->id << std::endl;
+                    std::cerr << "[weblegends] missing general_ref_type::" << ENUM_KEY_STR(general_ref_type, (*ref)->getType()) << ": content-" << content->id << std::endl;
             }
         }
     }

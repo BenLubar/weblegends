@@ -257,7 +257,7 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
 {
     s << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id;
-    std::cout << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl; \
+    std::cerr << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl; \
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_sitest *event)

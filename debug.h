@@ -13,7 +13,7 @@
 #define END_SWITCH(var, message) \
         if (!var##_found) \
         { \
-            std::cout << "[weblegends] missing enum-item: df::" << typeid(var).name() << "(" << int32_t(var) << "): " << (message) << std::endl; \
+            std::cerr << "[weblegends] missing enum-item: df::" << typeid(var).name() << "(" << int32_t(var) << "): " << (message) << std::endl; \
         } \
     }
 
