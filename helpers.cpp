@@ -506,11 +506,17 @@ void categorize(std::ostream & s, df::world_site *site, bool)
             {
                 SWITCH(subtype, site->subtype_info->lair_type)
                 {
+                    case 1:
+                        s << " lair";
+                        BREAK(subtype);
                     case 2:
                         s << " monument";
                         BREAK(subtype);
                     case 3:
                         s << " shrine";
+                        BREAK(subtype);
+                    case 4:
+                        s << " nest";
                         BREAK(subtype);
                 }
                 END_SWITCH(subtype, stl_sprintf("site-%d (lair)", site->id));
