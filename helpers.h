@@ -2,6 +2,8 @@
 
 #include <functional>
 
+#include "df/value_type.h"
+
 namespace DFHack
 {
     struct MaterialInfo;
@@ -91,6 +93,7 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
 
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false);
 void knowledge(std::ostream & s, const df::knowledge_scholar_category_flag & knowledge);
+void value_level(std::ostream & s, df::value_type type, int32_t level);
 void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author = nullptr, bool show_refs = false);
 
 int32_t day(int32_t tick);
