@@ -111,14 +111,14 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
             {
                 s << "<li>";
                 link(s, target);
-                switch ((*it)->getType())
+                SWITCH(link_type, (*it)->getType())
                 {
                     case histfig_hf_link_type::MOTHER:
                         s << ", mother";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::FATHER:
                         s << ", father";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::SPOUSE:
                         if (target->sex == 0)
                         {
@@ -132,7 +132,7 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                         {
                             s << ", spouse";
                         }
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::CHILD:
                         if (target->sex == 0)
                         {
@@ -146,34 +146,35 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                         {
                             s << ", child";
                         }
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::LOVER:
                         s << ", lover";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::DEITY:
                         s << ", object of ";
                         // TODO: ardent, faithful, ..., casual, dubious
                         s << " worship";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::COMPANION:
                         s << ", companion";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::PRISONER:
                         s << ", prisoner";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::IMPRISONER:
                         s << ", imprisoner";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::MASTER:
                         s << ", master";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::APPRENTICE:
                         s << ", apprentice";
-                        break;
+                        BREAK(link_type);
                     case histfig_hf_link_type::FORMER_APPRENTICE:
                         s << ", former apprentice";
-                        break;
+                        BREAK(link_type);
                 }
+                END_SWITCH(link_type, stl_sprintf("fig-%d target=fig-%d", id, (*it)->target_hf));
                 born_died(s, target);
                 s << "</li>";
             }
@@ -189,38 +190,38 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
             {
                 s << "<li>";
                 link(s, ent);
-                switch ((*it)->getType())
+                SWITCH(link_type, (*it)->getType())
                 {
                     case histfig_entity_link_type::MEMBER:
                         s << ", member";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::FORMER_MEMBER:
                         s << ", former member";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::MERCENARY:
                         s << ", mercenary";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::FORMER_MERCENARY:
                         s << ", former mercenary";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::SLAVE:
                         s << ", slave";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::FORMER_SLAVE:
                         s << ", former slave";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::PRISONER:
                         s << ", prisoner";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::FORMER_PRISONER:
                         s << ", former prisoner";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::ENEMY:
                         s << ", enemy";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::CRIMINAL:
                         s << ", criminal";
-                        break;
+                        BREAK(link_type);
                     case histfig_entity_link_type::POSITION:
                         {
                             auto l = virtual_cast<df::histfig_entity_link_positionst>(*it);
@@ -241,13 +242,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             }
                             if (l->start_year > 0)
                             {
-                                s << " (" << l->start_year << "-)";
+                                s << " (since " << l->start_year << ")";
                             }
-                            else
-                            {
-                                s << " (prehistory-)";
-                            }
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::FORMER_POSITION:
                         {
@@ -273,9 +270,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             }
                             else
                             {
-                                s << " (prehistory-" << l->end_year << ")";
+                                s << " (until " << l->end_year << ")";
                             }
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::POSITION_CLAIM:
                         {
@@ -297,13 +294,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             }
                             if (l->start_year > 0)
                             {
-                                s << " (" << l->start_year << "-)";
+                                s << " (since " << l->start_year << ")";
                             }
-                            else
-                            {
-                                s << " (prehistory-)";
-                            }
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::SQUAD:
                         {
@@ -320,13 +313,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             }
                             if (l->start_year > 0)
                             {
-                                s << " (" << l->start_year << "-)";
+                                s << " (since " << l->start_year << ")";
                             }
-                            else
-                            {
-                                s << " (prehistory-)";
-                            }
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::FORMER_SQUAD:
                         {
@@ -347,9 +336,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             }
                             else
                             {
-                                s << " (prehistory-" << l->end_year << ")";
+                                s << " (until " << l->end_year << ")";
                             }
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::OCCUPATION:
                         {
@@ -358,31 +347,32 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             auto site = df::world_site::find(occupation->site_id);
                             auto location = binsearch_in_vector(site->buildings, occupation->location_id);
                             s << ", ";
-                            switch (occupation->type)
+                            SWITCH(occ, occupation->type)
                             {
                                 case occupation_type::TAVERN_KEEPER:
                                     s << "tavern keeper";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::PERFORMER:
                                     s << "performer";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::SCHOLAR:
                                     s << "scholar";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::MERCENARY:
                                     s << "mercenary";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::MONSTER_SLAYER:
                                     s << "monster slayer";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::SCRIBE:
                                     s << "scribe";
-                                    break;
+                                    BREAK(occ);
                             }
+                            END_SWITCH(occ, stl_sprintf("fig-%d (current) occ=%d loc=site-%d/bld-%d", id, l->occupation_id, occupation->site_id, occupation->location_id));
                             s << " at ";
                             link(s, location);
                             s << " (" << l->start_year << "-)";
-                            break;
+                            BREAK(link_type);
                         }
                     case histfig_entity_link_type::FORMER_OCCUPATION:
                         {
@@ -391,33 +381,35 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                             auto site = df::world_site::find(occupation->site_id);
                             auto location = binsearch_in_vector(site->buildings, occupation->location_id);
                             s << ", former ";
-                            switch (occupation->type)
+                            SWITCH(occ, occupation->type)
                             {
                                 case occupation_type::TAVERN_KEEPER:
                                     s << "tavern keeper";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::PERFORMER:
                                     s << "performer";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::SCHOLAR:
                                     s << "scholar";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::MERCENARY:
                                     s << "mercenary";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::MONSTER_SLAYER:
                                     s << "monster slayer";
-                                    break;
+                                    BREAK(occ);
                                 case occupation_type::SCRIBE:
                                     s << "scribe";
-                                    break;
+                                    BREAK(occ);
                             }
+                            END_SWITCH(occ, stl_sprintf("fig-%d (former) occ=%d loc=site-%d/bld-%d", id, l->occupation_id, occupation->site_id, occupation->location_id));
                             s << " at ";
                             link(s, location);
                             s << " (" << l->start_year << "-" << l->end_year << ")";
-                            break;
+                            BREAK(link_type);
                         }
                 }
+                END_SWITCH(link_type, stl_sprintf("fig-%d target=ent-%d", id, (*it)->entity_id));
                 s << "</li>";
             }
         }
@@ -430,36 +422,39 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
         {
             auto site = df::world_site::find((*it)->site);
             s << "<li>";
-            switch ((*it)->getType())
+            SWITCH(link_type, (*it)->getType())
             {
                 case histfig_site_link_type::SEAT_OF_POWER:
                     link(s, site);
                     s << ", seat of power";
-                    break;
+                    BREAK(link_type);
                 case histfig_site_link_type::HANGOUT:
                     link(s, site);
                     s << ", hangout";
-                    break;
+                    BREAK(link_type);
                 case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
                     {
                         auto structure = binsearch_in_vector(site->buildings, (*it)->sub_id);
                         link(s, structure);
+                        s << " in ";
+                        link(s, site);
                         s << ", home";
-                        break;
+                        BREAK(link_type);
                     }
                 case histfig_site_link_type::HOME_SITE_REALIZATION_BUILDING:
                     link(s, site);
                     s << ", home";
-                    break;
+                    BREAK(link_type);
                 case histfig_site_link_type::LAIR:
                     link(s, site);
                     s << ", lair";
-                    break;
+                    BREAK(link_type);
                 case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
                     link(s, site);
                     s << ", home";
-                    break;
+                    BREAK(link_type);
             }
+            END_SWITCH(link_type, stl_sprintf("fig-%d target=site-%d", id, (*it)->site));
             s << "</li>";
         }
         s << "</ul>";

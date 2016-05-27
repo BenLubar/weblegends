@@ -245,14 +245,14 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
         return;
     }
 
-    switch (structure->getType())
+    SWITCH(type, structure->getType())
     {
         case abstract_building_type::MEAD_HALL:
             s << " mead hall";
-            break;
+            BREAK(type);
         case abstract_building_type::KEEP:
             s << " keep";
-            break;
+            BREAK(type);
         case abstract_building_type::TEMPLE:
             s << " temple";
             if (auto temple = virtual_cast<df::abstract_building_templest>(structure))
@@ -275,47 +275,49 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                     }
                 }
             }
-            break;
+            BREAK(type);
         case abstract_building_type::DARK_TOWER:
             s << " dark tower";
-            break;
+            BREAK(type);
         case abstract_building_type::MARKET:
             s << " market";
-            break;
+            BREAK(type);
         case abstract_building_type::TOMB:
             s << " tomb";
-            break;
+            BREAK(type);
         case abstract_building_type::DUNGEON:
             if (auto dungeon = virtual_cast<df::abstract_building_dungeonst>(structure))
             {
-                switch (dungeon->dungeon_type)
+                SWITCH(dungeon_type, dungeon->dungeon_type)
                 {
                     case df::abstract_building_dungeonst::T_dungeon_type::DUNGEON:
                         s << " dungeon";
-                        break;
+                        BREAK(dungeon_type);
                     case df::abstract_building_dungeonst::T_dungeon_type::SEWERS:
                         s << " sewers";
-                        break;
+                        BREAK(dungeon_type);
                     case df::abstract_building_dungeonst::T_dungeon_type::CATACOMBS:
                         s << " catacombs";
-                        break;
+                        BREAK(dungeon_type);
                 }
+                END_SWITCH(dungeon_type, stl_sprintf("site-%d/bld-%d (dungeon)", structure->site_id, structure->id));
             }
             else
             {
                 s << " dungeon";
             }
-            break;
+            BREAK(type);
         case abstract_building_type::UNDERWORLD_SPIRE:
             s << " underworld spire";
-            break;
+            BREAK(type);
         case abstract_building_type::INN_TAVERN:
             s << " tavern";
-            break;
+            BREAK(type);
         case abstract_building_type::LIBRARY:
             s << " library";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("site-%d/bld-%d", structure->site_id, structure->id));
 }
 void categorize(std::ostream & s, df::artifact_record *item, bool in_link)
 {
@@ -342,36 +344,37 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool)
         s << " " << race->name[2];
     }
 
-    switch (ent->type)
+    SWITCH(type, ent->type)
     {
         case historical_entity_type::Civilization:
             s << " civilization";
-            break;
+            BREAK(type);
         case historical_entity_type::SiteGovernment:
             s << " site government";
-            break;
+            BREAK(type);
         case historical_entity_type::VesselCrew:
             s << " vessel crew";
-            break;
+            BREAK(type);
         case historical_entity_type::MigratingGroup:
             s << " migrating group";
-            break;
+            BREAK(type);
         case historical_entity_type::NomadicGroup:
             s << " nomadic group";
-            break;
+            BREAK(type);
         case historical_entity_type::Religion:
             s << " religion";
-            break;
+            BREAK(type);
         case historical_entity_type::MilitaryUnit:
             s << " military unit";
-            break;
+            BREAK(type);
         case historical_entity_type::Outcast:
             s << " outcast group";
-            break;
+            BREAK(type);
         case historical_entity_type::PerformanceTroupe:
             s << " performance troupe";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("ent-%d", ent->id));
 }
 void categorize(std::ostream & s, df::historical_figure *hf, bool)
 {
@@ -424,39 +427,40 @@ void categorize(std::ostream & s, df::world_region *region, bool)
         return;
     }
 
-    switch (region->type)
+    SWITCH(type, region->type)
     {
         case world_region_type::Swamp:
             s << " swamp";
-            break;
+            BREAK(type);
         case world_region_type::Desert:
             s << " desert";
-            break;
+            BREAK(type);
         case world_region_type::Jungle:
             s << " jungle";
-            break;
+            BREAK(type);
         case world_region_type::Mountains:
             s << " mountains";
-            break;
+            BREAK(type);
         case world_region_type::Ocean:
             s << " ocean";
-            break;
+            BREAK(type);
         case world_region_type::Lake:
             s << " lake";
-            break;
+            BREAK(type);
         case world_region_type::Glacier:
             s << " glacier";
-            break;
+            BREAK(type);
         case world_region_type::Tundra:
             s << " tundra";
-            break;
+            BREAK(type);
         case world_region_type::Steppe:
             s << " steppe";
-            break;
+            BREAK(type);
         case world_region_type::Hills:
             s << " hills";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("region-%d", region->index));
 }
 void categorize(std::ostream & s, df::world_site *site, bool)
 {
@@ -474,43 +478,48 @@ void categorize(std::ostream & s, df::world_site *site, bool)
         }
     }
 
-    switch (site->type)
+    SWITCH(type, site->type)
     {
         case world_site_type::PlayerFortress:
             s << " fortress";
-            break;
+            BREAK(type);
         case world_site_type::DarkFortress:
             s << " dark fortress";
-            break;
+            BREAK(type);
         case world_site_type::Cave:
             s << " cave";
-            break;
+            BREAK(type);
         case world_site_type::MountainHalls:
             s << " mountain hall";
-            break;
+            BREAK(type);
         case world_site_type::ForestRetreat:
             s << " forest retreat";
-            break;
+            BREAK(type);
         case world_site_type::Town:
             s << " town";
-            break;
+            BREAK(type);
         case world_site_type::ImportantLocation:
             s << " important location";
-            break;
+            BREAK(type);
         case world_site_type::LairShrine:
-            if (site->subtype_info != nullptr && site->subtype_info->lair_type == 2)
+            if (site->subtype_info)
             {
-                s << " monument";
-            }
-            else if (site->subtype_info != nullptr && site->subtype_info->lair_type == 3)
-            {
-                s << " shrine";
+                SWITCH(subtype, site->subtype_info->lair_type)
+                {
+                    case 2:
+                        s << " monument";
+                        BREAK(subtype);
+                    case 3:
+                        s << " shrine";
+                        BREAK(subtype);
+                }
+                END_SWITCH(subtype, stl_sprintf("site-%d (lair)", site->id));
             }
             else
             {
                 s << " lair";
             }
-            break;
+            BREAK(type);
         case world_site_type::Fortress:
             if (site->subtype_info != nullptr && site->subtype_info->is_tower == 1)
             {
@@ -520,25 +529,31 @@ void categorize(std::ostream & s, df::world_site *site, bool)
             {
                 s << " fortress";
             }
-            break;
+            BREAK(type);
         case world_site_type::Camp:
             s << " camp";
-            break;
+            BREAK(type);
         case world_site_type::Monument:
-            if (site->subtype_info != nullptr && site->subtype_info->is_monument == 0)
+            if (site->subtype_info)
             {
-                s << " tomb";
-            }
-            else if (site->subtype_info != nullptr && site->subtype_info->is_monument == 1)
-            {
-                s << " vault";
+                SWITCH(subtype, site->subtype_info->is_monument)
+                {
+                    case 0:
+                        s << " tomb";
+                        BREAK(subtype);
+                    case 1:
+                        s << " vault";
+                        BREAK(subtype);
+                }
+                END_SWITCH(subtype, stl_sprintf("site-%d (monument)", site->id));
             }
             else
             {
                 s << " monument";
             }
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("site-%d", site->id));
 }
 void categorize(std::ostream & s, df::world_underground_region *layer, bool)
 {
@@ -548,18 +563,19 @@ void categorize(std::ostream & s, df::world_underground_region *layer, bool)
         return;
     }
 
-    switch (layer->type)
+    SWITCH(type, layer->type)
     {
         case df::world_underground_region::T_type::Cavern:
             s << " cavern";
-            break;
+            BREAK(type);
         case df::world_underground_region::T_type::MagmaSea:
             s << " magma sea";
-            break;
+            BREAK(type);
         case df::world_underground_region::T_type::Underworld:
             s << " underworld";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("layer-%d", layer->index));
 }
 // for render_home
 void categorize(std::ostream & s, df::world_data *, bool)

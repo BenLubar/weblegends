@@ -71,50 +71,51 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
         for (auto it = constructed->improvements.begin(); it != constructed->improvements.end(); it++)
         {
             s << "<p>";
-            switch ((*it)->getType())
+            SWITCH(type, (*it)->getType())
             {
                 case improvement_type::ART_IMAGE:
-                    s << "ART_IMAGE";
-                    break;
+                    s << "ART_IMAGE"; // TODO
+                    BREAK(type);
                 case improvement_type::COVERED:
-                    s << "COVERED";
-                    break;
+                    s << "COVERED"; // TODO
+                    BREAK(type);
                 case improvement_type::RINGS_HANGING:
-                    s << "RINGS_HANGING";
-                    break;
+                    s << "RINGS_HANGING"; // TODO
+                    BREAK(type);
                 case improvement_type::BANDS:
-                    s << "BANDS";
-                    break;
+                    s << "BANDS"; // TODO
+                    BREAK(type);
                 case improvement_type::SPIKES:
-                    s << "SPIKES";
-                    break;
+                    s << "SPIKES"; // TODO
+                    BREAK(type);
                 case improvement_type::ITEMSPECIFIC:
                     if (auto imp = virtual_cast<df::itemimprovement_itemspecificst>(*it))
                     {
-                        switch (imp->type)
+                        SWITCH(specific_type, imp->type)
                         {
                             case itemimprovement_specific_type::HANDLE:
                                 s << " It has a ";
                                 material(s, item, imp);
                                 s << " handle.";
-                                break;
+                                BREAK(specific_type);
                             case itemimprovement_specific_type::ROLLERS:
                                 s << " It has ";
                                 material(s, item, imp);
                                 s << " rollers.";
-                                break;
+                                BREAK(specific_type);
                         }
+                        END_SWITCH(specific_type, stl_sprintf("item-%d", id));
                     }
-                    break;
+                    BREAK(type);
                 case improvement_type::THREAD:
-                    s << "THREAD";
-                    break;
+                    s << "THREAD"; // TODO
+                    BREAK(type);
                 case improvement_type::CLOTH:
-                    s << "CLOTH";
-                    break;
+                    s << "CLOTH"; // TODO
+                    BREAK(type);
                 case improvement_type::SEWN_IMAGE:
-                    s << "SEWN_IMAGE";
-                    break;
+                    s << "SEWN_IMAGE"; // TODO
+                    BREAK(type);
                 case improvement_type::PAGES:
                     if (auto imp = virtual_cast<df::itemimprovement_pagesst>(*it))
                     {
@@ -136,13 +137,13 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
                             }
                         }
                     }
-                    break;
+                    BREAK(type);
                 case improvement_type::ILLUSTRATION:
-                    s << "ILLUSTRATION";
-                    break;
+                    s << "ILLUSTRATION"; // TODO
+                    BREAK(type);
                 case improvement_type::INSTRUMENT_PIECE:
-                    s << "INSTRUMENT_PIECE";
-                    break;
+                    s << "INSTRUMENT_PIECE"; // TODO
+                    BREAK(type);
                 case improvement_type::WRITING:
                     if (auto imp = virtual_cast<df::itemimprovement_writingst>(*it))
                     {
@@ -154,8 +155,9 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
                             }
                         }
                     }
-                    break;
+                    BREAK(type);
             }
+            END_SWITCH(type, stl_sprintf("item-%d", id));
             s << "</p>";
         }
     }

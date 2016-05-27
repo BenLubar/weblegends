@@ -257,6 +257,7 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
 {
     s << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id;
+    std::cout << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl; \
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_sitest *event)
@@ -330,199 +331,200 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     auto victim = df::historical_figure::find(event->victim_hf);
     event_link(s, context, victim);
 
-    switch (event->death_cause)
+    SWITCH(cause, event->death_cause)
     {
         case death_type::OLD_AGE:
             s << " died of old age";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::HUNGER:
             s << " starved to death";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::THIRST:
             s << " died of thirst";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::SHOT:
             s << " was shot and killed";
-            break;
+            BREAK(cause);
         case death_type::BLEED:
             s << " bled to death";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::DROWN:
             s << " drowned";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::SUFFOCATE:
             s << " suffocated";
             prefix = ", strangled";
-            break;
+            BREAK(cause);
         case death_type::STRUCK_DOWN:
             s << " was slain";
-            break;
+            BREAK(cause);
         case death_type::SCUTTLE:
             s << " was scuttled";
-            break;
+            BREAK(cause);
         case death_type::COLLISION:
             s << " died in a collision";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::MAGMA:
             s << " was boiled alive in magma";
             prefix = ", pushed";
-            break;
+            BREAK(cause);
         case death_type::MAGMA_MIST:
             s << " got too close to magma";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::DRAGONFIRE:
             s << " was burned to a crisp";
-            break;
+            BREAK(cause);
         case death_type::FIRE:
             s << " burned to death";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::SCALD:
             s << " was scalded";
-            break;
+            BREAK(cause);
         case death_type::CAVEIN:
             s << " was crushed in a cave-in";
             prefix = " caused";
-            break;
+            BREAK(cause);
         case death_type::DRAWBRIDGE:
             s << " was crushed by a drawbridge";
             prefix = " operated";
-            break;
+            BREAK(cause);
         case death_type::FALLING_ROCKS:
             s << " was crushed by falling rocks";
             prefix = " dropped";
-            break;
+            BREAK(cause);
         case death_type::CHASM:
             s << " fell into a deep chasm";
             prefix = ", pushed";
-            break;
+            BREAK(cause);
         case death_type::CAGE:
             s << " died in a cage";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::MURDER:
             s << " was murdered";
-            break;
+            BREAK(cause);
         case death_type::TRAP:
             s << " died in a trap";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::VANISH:
             s << " vanished into thin air";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::QUIT:
             s << " gave into starvation";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::ABANDON:
             s << " was abandoned";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::HEAT:
             s << " died of heat";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::COLD:
             s << " died of cold";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::SPIKE:
             s << " died on a spike";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::ENCASE_LAVA:
             s << " was encased in cooling lava";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::ENCASE_MAGMA:
             s << " was encased in cooling magma";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::ENCASE_ICE:
             s << " was encased in ice";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::BEHEAD:
             s << " was beheaded";
-            break;
+            BREAK(cause);
         case death_type::CRUCIFY:
             s << " was crucified";
-            break;
+            BREAK(cause);
         case death_type::BURY_ALIVE:
             s << " was buried alive";
-            break;
+            BREAK(cause);
         case death_type::DROWN_ALT:
             s << " was drowned";
-            break;
+            BREAK(cause);
         case death_type::BURN_ALIVE:
             s << " was burned alive";
-            break;
+            BREAK(cause);
         case death_type::FEED_TO_BEASTS:
             s << " was fed to beasts";
-            break;
+            BREAK(cause);
         case death_type::HACK_TO_PIECES:
             s << " was hacked to pieces";
-            break;
+            BREAK(cause);
         case death_type::LEAVE_OUT_IN_AIR:
             s << " was left out in the air";
-            break;
+            BREAK(cause);
         case death_type::BOIL:
             s << " boiled";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::MELT:
             s << " melted";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::CONDENSE:
             s << " condensed";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::SOLIDIFY:
             s << " solidified";
             prefix = ", killed";
-            break;
+            BREAK(cause);
         case death_type::INFECTION:
             s << " succumbed to infection";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::MEMORIALIZE:
             s << " was put to death";
-            break;
+            BREAK(cause);
         case death_type::SCARE:
             s << " was scared to death";
-            break;
+            BREAK(cause);
         case death_type::DARKNESS:
             s << " died in the dark";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::COLLAPSE:
             s << " collapsed";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::DRAIN_BLOOD:
             s << " was drained of blood";
-            break;
+            BREAK(cause);
         case death_type::SLAUGHTER:
             s << " was slaughtered";
-            break;
+            BREAK(cause);
         case death_type::VEHICLE:
             s << " was killed by a vehicle";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
         case death_type::FALLING_OBJECT:
             s << " was killed by a falling object";
             prefix = " after being attacked";
-            break;
+            BREAK(cause);
     }
+    END_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
     do_weapon(s, context, event->weapon);
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
@@ -542,58 +544,58 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     auto ent = df::historical_entity::find(event->civ);
     auto hf = df::historical_figure::find(event->histfig);
     df::entity_position *pos;
-    switch (event->link_type)
+    SWITCH(type, event->link_type)
     {
         case histfig_entity_link_type::MEMBER:
             event_link(s, context, hf);
             s << " became a member of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_MEMBER:
             event_link(s, context, hf);
             s << " became a former member of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::MERCENARY:
             event_link(s, context, hf);
             s << " became a mercenary of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_MERCENARY:
             event_link(s, context, hf);
             s << " became a former mercenary of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::SLAVE:
             event_link(s, context, hf);
             s << " became a slave of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_SLAVE:
             event_link(s, context, hf);
             s << " became a former slave of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::PRISONER:
             event_link(s, context, hf);
             s << " became a prisoner of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_PRISONER:
             event_link(s, context, hf);
             s << " became a former prisoner of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::ENEMY:
             event_link(s, context, hf);
             s << " became an enemy of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::CRIMINAL:
             event_link(s, context, hf);
             s << " became a criminal of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::POSITION:
             pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
@@ -620,7 +622,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
             s << " of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_POSITION:
             pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
@@ -639,7 +641,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
             s << " of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::POSITION_CLAIM:
             pos = binsearch_in_vector(ent->positions.own, event->position_id);
             event_link(s, context, hf);
@@ -658,30 +660,31 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
             s << " of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::SQUAD:
             event_link(s, context, hf);
             s << " became a squad member of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_SQUAD:
             event_link(s, context, hf);
             s << " became a former squad member of ";
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::OCCUPATION:
             event_link(s, context, hf);
             s << " became a worker of ";
             // TODO: get occupation type
             event_link(s, context, ent);
-            break;
+            BREAK(type);
         case histfig_entity_link_type::FORMER_OCCUPATION:
             event_link(s, context, hf);
             s << " became a former worker of ";
             // TODO: get occupation type
             event_link(s, context, ent);
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_war_peace_acceptedst *event)
@@ -784,27 +787,28 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         event_link(s, context, ent);
     }
-    switch (event->abuse_type)
+    SWITCH(type, event->abuse_type)
     {
         case df::history_event_body_abusedst::T_abuse_type::Impaled:
             s << " impaled";
-            break;
+            BREAK(type);
         case df::history_event_body_abusedst::T_abuse_type::Piled:
             s << " added";
-            break;
+            BREAK(type);
         case df::history_event_body_abusedst::T_abuse_type::Flayed:
             s << " flayed";
-            break;
+            BREAK(type);
         case df::history_event_body_abusedst::T_abuse_type::Hung:
             s << " hung";
-            break;
+            BREAK(type);
         case df::history_event_body_abusedst::T_abuse_type::Mutilated:
             s << " horribly mutilated";
-            break;
+            BREAK(type);
         case df::history_event_body_abusedst::T_abuse_type::Animated:
             s << " animated";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
     if (event->bodies.size() == 1)
     {
         s << " the body of ";
@@ -818,7 +822,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 auto hf = df::historical_figure::find(id);
                 event_link(out, context, hf);
             });
-    switch (event->abuse_type)
+    SWITCH(type, event->abuse_type)
     {
         case df::history_event_body_abusedst::T_abuse_type::Impaled:
             {
@@ -836,24 +840,25 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                     material(s, context, &event->props.item);
                     s << " " << idef->name_plural;
                 }
-                break;
+                BREAK(type);
             }
         case df::history_event_body_abusedst::T_abuse_type::Piled:
             {
                 s << " to a ";
-                switch (event->props.pile_type)
+                SWITCH(pile_type, event->props.pile_type)
                 {
                     case df::history_event_body_abusedst::T_props::T_pile_type::GrislyMound:
                         s << "grisly mound";
-                        break;
+                        BREAK(pile_type);
                     case df::history_event_body_abusedst::T_props::T_pile_type::GrotesquePillar:
                         s << "grotesque pillar";
-                        break;
+                        BREAK(pile_type);
                     case df::history_event_body_abusedst::T_props::T_pile_type::GruesomeSculpture:
                         s << "gruesome sculpture";
-                        break;
+                        BREAK(pile_type);
                 }
-                break;
+                END_SWITCH(pile_type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
+                BREAK(type);
             }
         case df::history_event_body_abusedst::T_abuse_type::Flayed:
             {
@@ -882,7 +887,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 auto site = df::world_site::find(event->site);
                 auto structure = binsearch_in_vector(site->buildings, event->props.structure);
                 event_link(s, context, structure);
-                break;
+                BREAK(type);
             }
         case df::history_event_body_abusedst::T_abuse_type::Hung:
             {
@@ -902,17 +907,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                     material(s, context, &event->props.hung);
                     s << " ropes";
                 }
-                break;
+                BREAK(type);
             }
         case df::history_event_body_abusedst::T_abuse_type::Mutilated:
             {
-                break;
+                BREAK(type);
             }
         case df::history_event_body_abusedst::T_abuse_type::Animated:
             {
-                break;
+                BREAK(type);
             }
     }
+    END_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
     // TODO: int32_t anon_1;
     do_location_2(s, context, event);
 }
@@ -988,27 +994,29 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     std::string separator = " in ";
     auto hf = df::historical_figure::find(event->hfid);
     event_link(s, context, hf);
-    switch (event->state)
+    SWITCH(state, event->state)
     {
         case df::history_event_change_hf_statest::T_state::Wandering:
-            switch (event->substate)
+            SWITCH(substate, event->substate)
             {
                 case df::history_event_change_hf_statest::T_substate::Fled:
                     s << " fled";
                     separator = " to ";
-                    break;
+                    BREAK(substate);
                 case df::history_event_change_hf_statest::T_substate::Wandered:
                     s << " was wandering";
-                    break;
+                    BREAK(substate);
             }
-            break;
+            END_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
+            BREAK(state);
         case df::history_event_change_hf_statest::T_state::Settled:
             s << " settled";
-            break;
+            BREAK(state);
         case df::history_event_change_hf_statest::T_state::Refugee:
             s << " became a refugee";
-            break;
+            BREAK(state);
     }
+    END_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
     do_location_2(s, context, event, separator);
 }
 
@@ -1118,35 +1126,36 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 auto hf = df::historical_figure::find(id);
                 event_link(out, context, hf);
             });
-    switch (event->subtype)
+    SWITCH(type, event->subtype)
     {
         case history_event_simple_battle_subtype::SCUFFLE:
             s << " had a scuffle with ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::ATTACK:
             s << " attacked ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::SURPRISE:
             s << " surprised ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::AMBUSH:
             s << " ambushed ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::HAPPEN_UPON:
             s << " happened upon ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::CORNER:
             s << " cornered ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::CONFRONT:
             s << " confronted ";
-            break;
+            BREAK(type);
         case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
         case history_event_simple_battle_subtype::LOSE_AFTER_INFLICT_WOUND:
         case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
             s << " attacked ";
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
     list<int32_t>(s, event->group2, [context](std::ostream & out, int32_t id)
             {
                 auto hf = df::historical_figure::find(id);
@@ -1177,19 +1186,20 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 event_link(out, context, hf);
             });
     std::string prefix = " to ";
-    switch (event->reason)
+    SWITCH(reason, event->reason)
     {
         case df::history_event_hist_figure_travelst::T_reason::Journey:
             s << " made a journey";
-            break;
+            BREAK(reason);
         case df::history_event_hist_figure_travelst::T_reason::Return:
             s << " returned";
-            break;
+            BREAK(reason);
         case df::history_event_hist_figure_travelst::T_reason::Escape:
             s << " escaped";
             prefix = " from ";
-            break;
+            BREAK(reason);
     }
+    END_SWITCH(reason, stl_sprintf("event-%d (HIST_FIGURE_TRAVEL)", event->id));
     do_location_2(s, context, event, prefix);
 }
 
@@ -1220,15 +1230,16 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     auto hf = df::historical_figure::find(event->histfig);
     event_link(s, context, hf);
 
-    switch (event->action)
+    SWITCH(action, event->action)
     {
         case df::history_event_hf_act_on_buildingst::T_action::Profane:
             s << " profaned ";
-            break;
+            BREAK(action);
         case df::history_event_hf_act_on_buildingst::T_action::Disturb:
             s << " disturbed ";
-            break;
+            BREAK(action);
     }
+    END_SWITCH(action, stl_sprintf("event-%d (HF_ACT_ON_BUILDING)", event->id));
 
     auto site = df::world_site::find(event->site);
     auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
@@ -1451,294 +1462,295 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
     s << "<!--" << event->id << "-->";
-    switch (event->getType())
+    SWITCH(type, event->getType())
     {
         case history_event_type::WAR_ATTACKED_SITE:
             do_event(s, context, virtual_cast<df::history_event_war_attacked_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_DESTROYED_SITE:
             do_event(s, context, virtual_cast<df::history_event_war_destroyed_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::CREATED_SITE:
             do_event(s, context, virtual_cast<df::history_event_created_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_DIED:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_diedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ADD_HF_ENTITY_LINK:
             do_event(s, context, virtual_cast<df::history_event_add_hf_entity_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::REMOVE_HF_ENTITY_LINK:
             do_event(s, context, virtual_cast<df::history_event_remove_hf_entity_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::FIRST_CONTACT:
             do_event(s, context, virtual_cast<df::history_event_first_contactst>(event));
-            break;
+            BREAK(type);
         case history_event_type::FIRST_CONTACT_FAILED:
             do_event(s, context, virtual_cast<df::history_event_first_contact_failedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::TOPICAGREEMENT_CONCLUDED:
             do_event(s, context, virtual_cast<df::history_event_topicagreement_concludedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::TOPICAGREEMENT_REJECTED:
             do_event(s, context, virtual_cast<df::history_event_topicagreement_rejectedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::TOPICAGREEMENT_MADE:
             do_event(s, context, virtual_cast<df::history_event_topicagreement_madest>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_PEACE_ACCEPTED:
             do_event(s, context, virtual_cast<df::history_event_war_peace_acceptedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_PEACE_REJECTED:
             do_event(s, context, virtual_cast<df::history_event_war_peace_rejectedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::DIPLOMAT_LOST:
             do_event(s, context, virtual_cast<df::history_event_diplomat_lostst>(event));
-            break;
+            BREAK(type);
         case history_event_type::AGREEMENTS_VOIDED:
             do_event(s, context, virtual_cast<df::history_event_agreements_voidedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MERCHANT:
             do_event(s, context, virtual_cast<df::history_event_merchantst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_HIDDEN:
             do_event(s, context, virtual_cast<df::history_event_artifact_hiddenst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_POSSESSED:
             do_event(s, context, virtual_cast<df::history_event_artifact_possessedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_CREATED:
             do_event(s, context, virtual_cast<df::history_event_artifact_createdst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_LOST:
             do_event(s, context, virtual_cast<df::history_event_artifact_lostst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_FOUND:
             do_event(s, context, virtual_cast<df::history_event_artifact_foundst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_RECOVERED:
             do_event(s, context, virtual_cast<df::history_event_artifact_recoveredst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_DROPPED:
             do_event(s, context, virtual_cast<df::history_event_artifact_droppedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::RECLAIM_SITE:
             do_event(s, context, virtual_cast<df::history_event_reclaim_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_DESTROYED_SITE:
             do_event(s, context, virtual_cast<df::history_event_hf_destroyed_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::SITE_DIED:
             do_event(s, context, virtual_cast<df::history_event_site_diedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::SITE_RETIRED:
             do_event(s, context, virtual_cast<df::history_event_site_retiredst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ENTITY_CREATED:
             do_event(s, context, virtual_cast<df::history_event_entity_createdst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ENTITY_ACTION:
             do_event(s, context, virtual_cast<df::history_event_entity_actionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ENTITY_INCORPORATED:
             do_event(s, context, virtual_cast<df::history_event_entity_incorporatedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CREATED_BUILDING:
             do_event(s, context, virtual_cast<df::history_event_created_buildingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::REPLACED_BUILDING:
             do_event(s, context, virtual_cast<df::history_event_replaced_buildingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ADD_HF_SITE_LINK:
             do_event(s, context, virtual_cast<df::history_event_add_hf_site_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::REMOVE_HF_SITE_LINK:
             do_event(s, context, virtual_cast<df::history_event_remove_hf_site_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ADD_HF_HF_LINK:
             do_event(s, context, virtual_cast<df::history_event_add_hf_hf_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::REMOVE_HF_HF_LINK:
             do_event(s, context, virtual_cast<df::history_event_remove_hf_hf_linkst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ENTITY_RAZED_BUILDING:
             do_event(s, context, virtual_cast<df::history_event_entity_razed_buildingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_ARCH_DESIGN:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_arch_designst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_ARCH_CONSTRUCT:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_arch_constructst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_ITEM:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_itemst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_DYE_ITEM:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_dye_itemst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_ITEM_IMPROVEMENT:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_item_improvementst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_FOOD:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_foodst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_CREATED_ENGRAVING:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_created_engravingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MASTERPIECE_LOST:
             do_event(s, context, virtual_cast<df::history_event_masterpiece_lostst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CHANGE_HF_STATE:
             do_event(s, context, virtual_cast<df::history_event_change_hf_statest>(event));
-            break;
+            BREAK(type);
         case history_event_type::CHANGE_HF_JOB:
             do_event(s, context, virtual_cast<df::history_event_change_hf_jobst>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_FIELD_BATTLE:
             do_event(s, context, virtual_cast<df::history_event_war_field_battlest>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_PLUNDERED_SITE:
             do_event(s, context, virtual_cast<df::history_event_war_plundered_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_SITE_NEW_LEADER:
             do_event(s, context, virtual_cast<df::history_event_war_site_new_leaderst>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_SITE_TRIBUTE_FORCED:
             do_event(s, context, virtual_cast<df::history_event_war_site_tribute_forcedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::WAR_SITE_TAKEN_OVER:
             do_event(s, context, virtual_cast<df::history_event_war_site_taken_overst>(event));
-            break;
+            BREAK(type);
         case history_event_type::BODY_ABUSED:
             do_event(s, context, virtual_cast<df::history_event_body_abusedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_ABDUCTED:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_abductedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ITEM_STOLEN:
             do_event(s, context, virtual_cast<df::history_event_item_stolenst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_RAZED_BUILDING:
             do_event(s, context, virtual_cast<df::history_event_hf_razed_buildingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CREATURE_DEVOURED:
             do_event(s, context, virtual_cast<df::history_event_creature_devouredst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_WOUNDED:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_woundedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_SIMPLE_BATTLE_EVENT:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_simple_battle_eventst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CREATED_WORLD_CONSTRUCTION:
             do_event(s, context, virtual_cast<df::history_event_created_world_constructionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_REUNION:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_reunionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_REACH_SUMMIT:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_reach_summitst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_TRAVEL:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_travelst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_NEW_PET:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_new_petst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ASSUME_IDENTITY:
             do_event(s, context, virtual_cast<df::history_event_assume_identityst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CREATE_ENTITY_POSITION:
             do_event(s, context, virtual_cast<df::history_event_create_entity_positionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CHANGE_CREATURE_TYPE:
             do_event(s, context, virtual_cast<df::history_event_change_creature_typest>(event));
-            break;
+            BREAK(type);
         case history_event_type::HIST_FIGURE_REVIVED:
             do_event(s, context, virtual_cast<df::history_event_hist_figure_revivedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_LEARNS_SECRET:
             do_event(s, context, virtual_cast<df::history_event_hf_learns_secretst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CHANGE_HF_BODY_STATE:
             do_event(s, context, virtual_cast<df::history_event_change_hf_body_statest>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_ACT_ON_BUILDING:
             do_event(s, context, virtual_cast<df::history_event_hf_act_on_buildingst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_DOES_INTERACTION:
             do_event(s, context, virtual_cast<df::history_event_hf_does_interactionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_CONFRONTED:
             do_event(s, context, virtual_cast<df::history_event_hf_confrontedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ENTITY_LAW:
             do_event(s, context, virtual_cast<df::history_event_entity_lawst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_GAINS_SECRET_GOAL:
             do_event(s, context, virtual_cast<df::history_event_hf_gains_secret_goalst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_STORED:
             do_event(s, context, virtual_cast<df::history_event_artifact_storedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::AGREEMENT_FORMED:
             do_event(s, context, virtual_cast<df::history_event_agreement_formedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::SITE_DISPUTE:
             do_event(s, context, virtual_cast<df::history_event_site_disputest>(event));
-            break;
+            BREAK(type);
         case history_event_type::AGREEMENT_CONCLUDED:
             do_event(s, context, virtual_cast<df::history_event_agreement_concludedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::INSURRECTION_STARTED:
             do_event(s, context, virtual_cast<df::history_event_insurrection_startedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::INSURRECTION_ENDED:
             do_event(s, context, virtual_cast<df::history_event_insurrection_endedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_ATTACKED_SITE:
             do_event(s, context, virtual_cast<df::history_event_hf_attacked_sitest>(event));
-            break;
+            BREAK(type);
         case history_event_type::PERFORMANCE:
             do_event(s, context, virtual_cast<df::history_event_performancest>(event));
-            break;
+            BREAK(type);
         case history_event_type::COMPETITION:
             do_event(s, context, virtual_cast<df::history_event_competitionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::PROCESSION:
             do_event(s, context, virtual_cast<df::history_event_processionst>(event));
-            break;
+            BREAK(type);
         case history_event_type::CEREMONY:
             do_event(s, context, virtual_cast<df::history_event_ceremonyst>(event));
-            break;
+            BREAK(type);
         case history_event_type::KNOWLEDGE_DISCOVERED:
             do_event(s, context, virtual_cast<df::history_event_knowledge_discoveredst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_TRANSFORMED:
             do_event(s, context, virtual_cast<df::history_event_artifact_transformedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::ARTIFACT_DESTROYED:
             do_event(s, context, virtual_cast<df::history_event_artifact_destroyedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::HF_RELATIONSHIP_DENIED:
             do_event(s, context, virtual_cast<df::history_event_hf_relationship_deniedst>(event));
-            break;
+            BREAK(type);
         case history_event_type::REGIONPOP_INCORPORATED_INTO_ENTITY:
             do_event(s, context, virtual_cast<df::history_event_regionpop_incorporated_into_entityst>(event));
-            break;
+            BREAK(type);
         case history_event_type::POETIC_FORM_CREATED:
             do_event(s, context, virtual_cast<df::history_event_poetic_form_createdst>(event));
-            break;
+            BREAK(type);
         case history_event_type::MUSICAL_FORM_CREATED:
             do_event(s, context, virtual_cast<df::history_event_musical_form_createdst>(event));
-            break;
+            BREAK(type);
         case history_event_type::DANCE_FORM_CREATED:
             do_event(s, context, virtual_cast<df::history_event_dance_form_createdst>(event));
-            break;
+            BREAK(type);
         case history_event_type::WRITTEN_CONTENT_COMPOSED:
             do_event(s, context, virtual_cast<df::history_event_written_content_composedst>(event));
-            break;
+            BREAK(type);
     }
+    END_SWITCH(type, stl_sprintf("event-%d", event->id));
 }
 
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
