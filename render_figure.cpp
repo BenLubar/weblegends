@@ -170,6 +170,9 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
                     case histfig_hf_link_type::APPRENTICE:
                         s << ", apprentice";
                         BREAK(link_type);
+                    case histfig_hf_link_type::FORMER_MASTER:
+                        s << ", former master";
+                        BREAK(link_type);
                     case histfig_hf_link_type::FORMER_APPRENTICE:
                         s << ", former apprentice";
                         BREAK(link_type);
