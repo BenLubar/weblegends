@@ -32,7 +32,7 @@
 #include "df/world_underground_region.h"
 #include "df/written_content.h"
 
-void knowledge(std::ostream & s, const df::knowledge_scholar_category_flag & knowledge)
+void knowledge(std::ostream & s, df::knowledge_scholar_category_flag knowledge)
 {
     using namespace df::enums::dfhack_knowledge_scholar_flag;
 
