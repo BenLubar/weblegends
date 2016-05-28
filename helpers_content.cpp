@@ -1,17 +1,35 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "modules/Translation.h"
+
+#include "df/abstract_building.h"
+#include "df/artifact_record.h"
+#include "df/dance_form.h"
+#include "df/general_ref_abstract_buildingst.h"
+#include "df/general_ref_artifact.h"
+#include "df/general_ref_dance_formst.h"
+#include "df/general_ref_entity.h"
+#include "df/general_ref_feature_layerst.h"
 #include "df/general_ref_historical_eventst.h"
+#include "df/general_ref_historical_figurest.h"
 #include "df/general_ref_knowledge_scholar_flagst.h"
+#include "df/general_ref_languagest.h"
 #include "df/general_ref_musical_formst.h"
+#include "df/general_ref_poetic_formst.h"
 #include "df/general_ref_sitest.h"
+#include "df/general_ref_subregionst.h"
 #include "df/general_ref_value_levelst.h"
+#include "df/general_ref_written_contentst.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
 #include "df/knowledge_scholar_category_flag.h"
 #include "df/musical_form.h"
+#include "df/poetic_form.h"
+#include "df/world_region.h"
 #include "df/world_site.h"
+#include "df/world_underground_region.h"
 #include "df/written_content.h"
 
 void knowledge(std::ostream & s, const df::knowledge_scholar_category_flag & knowledge)
@@ -2143,6 +2161,45 @@ void written_content(std::ostream & s, const event_context & context, df::writte
         {
             switch ((*ref)->getType())
             {
+                case general_ref_type::ARTIFACT:
+                    if (auto r = virtual_cast<df::general_ref_artifact>(*ref))
+                    {
+                        if (auto item = df::artifact_record::find(r->artifact_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, item);
+                            s << " ";
+                            event_link(s, context, item);
+                        }
+                    }
+                    break;
+                case general_ref_type::ABSTRACT_BUILDING:
+                    if (auto r = virtual_cast<df::general_ref_abstract_buildingst>(*ref))
+                    {
+                        if (auto site = df::world_site::find(r->site_id))
+                        {
+                            if (auto structure = binsearch_in_vector(site->buildings, r->building_id))
+                            {
+                                s << ". The writing concerns the";
+                                categorize(s, structure);
+                                s << " ";
+                                event_link(s, context, structure);
+                            }
+                        }
+                    }
+                    break;
+                case general_ref_type::ENTITY:
+                    if (auto r = virtual_cast<df::general_ref_entity>(*ref))
+                    {
+                        if (auto ent = df::historical_entity::find(r->entity_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, ent);
+                            s << " ";
+                            event_link(s, context, ent);
+                        }
+                    }
+                    break;
                 case general_ref_type::HISTORICAL_EVENT:
                     if (auto r = virtual_cast<df::general_ref_historical_eventst>(*ref))
                     {
@@ -2166,6 +2223,42 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                         }
                     }
                     break;
+                case general_ref_type::SUBREGION:
+                    if (auto r = virtual_cast<df::general_ref_subregionst>(*ref))
+                    {
+                        if (auto region = df::world_region::find(r->region_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, region);
+                            s << " ";
+                            event_link(s, context, region);
+                        }
+                    }
+                    break;
+                case general_ref_type::FEATURE_LAYER:
+                    if (auto r = virtual_cast<df::general_ref_feature_layerst>(*ref))
+                    {
+                        if (auto layer = df::world_underground_region::find(r->underground_region_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, layer);
+                            s << " ";
+                            event_link(s, context, layer);
+                        }
+                    }
+                    break;
+                case general_ref_type::HISTORICAL_FIGURE:
+                    if (auto r = virtual_cast<df::general_ref_historical_figurest>(*ref))
+                    {
+                        if (auto hf = df::historical_figure::find(r->hist_figure_id))
+                        {
+                            s << ". The writing concerns the";
+                            categorize(s, hf);
+                            s << " ";
+                            event_link(s, context, hf);
+                        }
+                    }
+                    break;
                 case general_ref_type::KNOWLEDGE_SCHOLAR_FLAG:
                     if (auto r = virtual_cast<df::general_ref_knowledge_scholar_flagst>(*ref))
                     {
@@ -2180,6 +2273,43 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                         value_level(s, r->value, r->level);
                     }
                     break;
+                case general_ref_type::LANGUAGE:
+                    if (auto r = virtual_cast<df::general_ref_languagest>(*ref))
+                    {
+                        if (auto lang = df::language_translation::find(r->anon_1))
+                        {
+                            s << ". The writing concerns the " << Translation::capitalize(toLower(lang->name)) << " language";
+                        }
+                    }
+                    break;
+                case general_ref_type::WRITTEN_CONTENT:
+                    if (auto r = virtual_cast<df::general_ref_written_contentst>(*ref))
+                    {
+                        if (auto target = df::written_content::find(r->written_content_id))
+                        {
+                            s << ". The writing concerns ";
+                            written_content(s, context, target);
+                        }
+                        else
+                        {
+                            s << ". The writing concerns an unknown writing";
+                        }
+                    }
+                    break;
+                case general_ref_type::POETIC_FORM:
+                    if (auto r = virtual_cast<df::general_ref_poetic_formst>(*ref))
+                    {
+                        if (auto form = df::poetic_form::find(r->poetic_form_id))
+                        {
+                            s << ". The writing concerns the poetic form ";
+                            name_translated(s, form->name);
+                        }
+                        else
+                        {
+                            s << ". The writing concerns a poetic form";
+                        }
+                    }
+                    break;
                 case general_ref_type::MUSICAL_FORM:
                     if (auto r = virtual_cast<df::general_ref_musical_formst>(*ref))
                     {
@@ -2191,6 +2321,20 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                         else
                         {
                             s << ". The writing concerns a musical form";
+                        }
+                    }
+                    break;
+                case general_ref_type::DANCE_FORM:
+                    if (auto r = virtual_cast<df::general_ref_dance_formst>(*ref))
+                    {
+                        if (auto form = df::dance_form::find(r->dance_form_id))
+                        {
+                            s << ". The writing concerns the dance form ";
+                            name_translated(s, form->name);
+                        }
+                        else
+                        {
+                            s << ". The writing concerns a dance form";
                         }
                     }
                     break;

@@ -106,6 +106,12 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
     {
         s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
     }
+    else if (id == -1)
+    {
+        s << "[unknown ";
+        categorize(s, target, true);
+        s << "]";
+    }
     else
     {
         s << "<a href=\"" << prefix << id << "\">[unnamed";
