@@ -2179,9 +2179,9 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                 case general_ref_type::INTERACTION:
                     if (auto r = virtual_cast<df::general_ref_interactionst>(*ref))
                     {
-                        if (auto interaction = df::interaction::find(r->anon_1))
+                        if (auto interaction = df::interaction::find(r->interaction_id))
                         {
-                            if (auto source = binsearch_in_vector(interaction->sources, &df::interaction_source::anon_1, r->anon_2))
+                            if (auto source = binsearch_in_vector(interaction->sources, r->source_id))
                             {
                                 s << ". The writing teaches the reader " << source->name;
                             }
