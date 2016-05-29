@@ -1265,7 +1265,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_does_interactionst *event)
 {
     auto interaction = df::interaction::find(event->interaction);
-    auto source = interaction ? interaction->sources.at(event->source) : nullptr;
+    auto source = interaction ? binsearch_in_vector(interaction->sources, &df::interaction_source::anon_1, event->source) : nullptr;
 
     auto doer = df::historical_figure::find(event->doer);
     event_link(s, context, doer);

@@ -512,6 +512,9 @@ void categorize(std::ostream & s, df::world_site *site, bool)
             {
                 SWITCH(subtype, site->subtype_info->lair_type)
                 {
+                    case 0:
+                        s << " lair"; // night creatures
+                        BREAK(subtype);
                     case 1:
                         s << " lair";
                         BREAK(subtype);

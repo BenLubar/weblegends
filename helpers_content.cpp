@@ -13,6 +13,7 @@
 #include "df/general_ref_feature_layerst.h"
 #include "df/general_ref_historical_eventst.h"
 #include "df/general_ref_historical_figurest.h"
+#include "df/general_ref_interactionst.h"
 #include "df/general_ref_knowledge_scholar_flagst.h"
 #include "df/general_ref_languagest.h"
 #include "df/general_ref_musical_formst.h"
@@ -24,6 +25,8 @@
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
+#include "df/interaction.h"
+#include "df/interaction_source.h"
 #include "df/knowledge_scholar_category_flag.h"
 #include "df/musical_form.h"
 #include "df/poetic_form.h"
@@ -2170,6 +2173,18 @@ void written_content(std::ostream & s, const event_context & context, df::writte
                             categorize(s, item);
                             s << " ";
                             event_link(s, context, item);
+                        }
+                    }
+                    break;
+                case general_ref_type::INTERACTION:
+                    if (auto r = virtual_cast<df::general_ref_interactionst>(*ref))
+                    {
+                        if (auto interaction = df::interaction::find(r->anon_1))
+                        {
+                            if (auto source = binsearch_in_vector(interaction->sources, &df::interaction_source::anon_1, r->anon_2))
+                            {
+                                s << ". The writing teaches the reader " << source->name;
+                            }
                         }
                     }
                     break;
