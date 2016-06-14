@@ -147,7 +147,7 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
                 case improvement_type::WRITING:
                     if (auto imp = virtual_cast<df::itemimprovement_writingst>(*it))
                     {
-                        for (auto it2 = imp->anon_1.begin(); it2 != imp->anon_1.end(); it2++)
+                        for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
                         {
                             if (auto content = df::written_content::find(*it2))
                             {
