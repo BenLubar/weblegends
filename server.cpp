@@ -6,7 +6,7 @@
 
 command_result WebLegends::init(color_ostream & out)
 {
-    if (!sock.Initialize() || !sock.Listen((const uint8_t *) "0.0.0.0", 5080))
+    if (!sock.Initialize() || !sock.Listen("0.0.0.0", 5080))
     {
         out << "weblegends startup failed: " << sock.GetSocketError() << std::endl;
         out << sock.DescribeError() << std::endl;
