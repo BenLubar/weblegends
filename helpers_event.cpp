@@ -10,6 +10,10 @@
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
 #include "df/dance_form.h"
+#include "df/entity_occasion.h"
+#include "df/entity_occasion_info.h"
+#include "df/entity_occasion_schedule.h"
+#include "df/entity_occasion_schedule_feature.h"
 #include "df/entity_position.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
@@ -257,7 +261,7 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
 {
     s << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id;
-    std::cerr << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl; \
+    std::cerr << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_sitest *event)
@@ -1082,10 +1086,22 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     }
     else
     {
-        ItemTypeInfo type(event->item_type, event->item_subtype);
-        MaterialInfo mat(event->mattype, event->matindex);
-        s << "a ";
-        material(s, context, mat);
+		s << "a ";
+		if (ENUM_ATTR(item_type, is_caste_mat, event->item_type))
+		{
+			auto creature = df::creature_raw::find(event->mattype);
+			auto caste = creature->caste.at(event->matindex);
+			if (!material(s, context, creature))
+			{
+				s << caste->caste_name[0];
+			}
+		}
+		else
+		{
+			MaterialInfo mat(event->mattype, event->matindex);
+			material(s, context, mat);
+		}
+		ItemTypeInfo type(event->item_type, event->item_subtype);
         s << " " << type.toString();
     }
     if (auto ent = df::historical_entity::find(event->entity))
@@ -1301,6 +1317,264 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " in ";
         event_link(s, context, site);
     }
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_performancest *event)
+{
+	auto ent = df::historical_entity::find(event->entity);
+	event_link(s, context, ent);
+	s << " held ";
+	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
+	auto schedule = vector_get(occasion->schedule, event->schedule);
+	SWITCH(type, schedule->type)
+	{
+		case df::occasion_schedule_type::DANCE_PERFORMANCE:
+			if (auto form = df::dance_form::find(schedule->reference))
+			{
+				s << "a performance of the dance ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a dance performance";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::MUSICAL_PERFORMANCE:
+			if (auto form = df::musical_form::find(schedule->reference))
+			{
+				s << "a performance of the song ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a musical performance";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::POETRY_RECITAL:
+			if (auto form = df::poetic_form::find(schedule->reference))
+			{
+				s << "a recital of the poetry ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a poetry recital";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::STORYTELLING:
+			if (auto ref = df::history_event::find(schedule->reference))
+			{
+				s << "a telling of how ";
+				event_reverse(s, context, ref);
+			}
+			else
+			{
+				s << "a storytelling";
+			}
+			BREAK(type);
+		default:
+			s << ENUM_KEY_STR(history_event_type, event->getType());
+			s << ":";
+			s << ENUM_KEY_STR(occasion_schedule_type, schedule->type);
+			s << ":";
+			s << schedule->reference;
+			s << ":";
+			s << schedule->reference2;
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (PERFORMANCE)", event->id));
+	if (!schedule->features.empty())
+	{
+		s << " featuring ";
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+				{
+					schedule_feature(out, context, feature);
+				});
+	}
+	s << " as part of ";
+	name_translated(s, occasion->name);
+	do_location_2(s, context, event);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_competitionst *event)
+{
+	auto ent = df::historical_entity::find(event->entity);
+	event_link(s, context, ent);
+	s << " held ";
+	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
+	auto schedule = vector_get(occasion->schedule, event->schedule);
+	SWITCH(type, schedule->type)
+	{
+		case df::occasion_schedule_type::DANCE_COMPETITION:
+			if (auto form = df::dance_form::find(schedule->reference))
+			{
+				s << "a competition of the dance ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a dance competition";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::MUSICAL_COMPETITION:
+			if (auto form = df::musical_form::find(schedule->reference))
+			{
+				s << "a competition of the song ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a musical competition";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::POETRY_COMPETITION:
+			if (auto form = df::poetic_form::find(schedule->reference))
+			{
+				s << "a competition of the poetry ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a poetry competition";
+			}
+			BREAK(type);
+		case df::occasion_schedule_type::FOOT_RACE:
+			s << "a foot race";
+			BREAK(type);
+		case df::occasion_schedule_type::WRESTLING_COMPETITION:
+			s << "a wrestling competition";
+			BREAK(type);
+		case df::occasion_schedule_type::THROWING_COMPETITION:
+			s << "a ";
+			s << ItemTypeInfo(df::item_type(schedule->reference), int16_t(schedule->reference2)).toString();
+			s << "-throwing competition";
+			BREAK(type);
+		case df::occasion_schedule_type::GLADIATORY_COMPETITION:
+			s << "a gladiatory competition";
+			s << ":" << schedule->reference << ":" << schedule->reference2;
+			BREAK(type);
+		default:
+			s << ENUM_KEY_STR(history_event_type, event->getType());
+			s << ":";
+			s << ENUM_KEY_STR(occasion_schedule_type, schedule->type);
+			s << ":";
+			s << schedule->reference;
+			s << ":";
+			s << schedule->reference2;
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (COMPETITION)", event->id));
+	if (!schedule->features.empty())
+	{
+		s << " featuring ";
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+				{
+					schedule_feature(out, context, feature);
+				});
+	}
+	s << " as part of ";
+	name_translated(s, occasion->name);
+	do_location_2(s, context, event);
+	if (!event->competitor_hf.empty())
+	{
+		if (event->competitor_hf.size() == 1)
+		{
+			s << ", but the only competitor was ";
+		}
+		else
+		{
+			s << ". Competing were ";
+		}
+		list<int32_t>(s, event->competitor_hf, [context](std::ostream & out, int32_t id)
+				{
+					auto hf = df::historical_figure::find(id);
+					event_link(out, context, hf);
+				});
+	}
+	if (!event->winner_hf.empty())
+	{
+		if (event->winner_hf.size() == 1)
+		{
+			s << ". The winner was ";
+		}
+		else
+		{
+			s << ". The winners were ";
+		}
+		list<int32_t>(s, event->winner_hf, [context](std::ostream & out, int32_t id)
+				{
+					auto hf = df::historical_figure::find(id);
+					event_link(out, context, hf);
+				});
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_processionst *event)
+{
+	auto ent = df::historical_entity::find(event->entity);
+	event_link(s, context, ent);
+	s << " held ";
+	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
+	auto schedule = vector_get(occasion->schedule, event->schedule);
+	SWITCH(type, schedule->type)
+	{
+		case df::occasion_schedule_type::PROCESSION:
+			s << "a procession";
+			BREAK(type);
+		default:
+			s << ENUM_KEY_STR(history_event_type, event->getType());
+			s << ":";
+			s << ENUM_KEY_STR(occasion_schedule_type, schedule->type);
+			s << ":";
+			s << schedule->reference;
+			s << ":";
+			s << schedule->reference2;
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (PROCESSION)", event->id));
+	if (!schedule->features.empty())
+	{
+		s << " featuring ";
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+				{
+					schedule_feature(out, context, feature);
+				});
+	}
+	s << " as part of ";
+	name_translated(s, occasion->name);
+	do_location_2(s, context, event);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_ceremonyst *event)
+{
+	auto ent = df::historical_entity::find(event->entity);
+	event_link(s, context, ent);
+	s << " held ";
+	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
+	auto schedule = vector_get(occasion->schedule, event->schedule);
+	SWITCH(type, schedule->type)
+	{
+		case df::occasion_schedule_type::CEREMONY:
+			s << "a ceremony";
+			BREAK(type);
+		default:
+			s << ENUM_KEY_STR(history_event_type, event->getType());
+			s << ":";
+			s << ENUM_KEY_STR(occasion_schedule_type, schedule->type);
+			s << ":";
+			s << schedule->reference;
+			s << ":";
+			s << schedule->reference2;
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (CEREMONY)", event->id));
+	if (!schedule->features.empty())
+	{
+		s << " featuring ";
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+				{
+					schedule_feature(out, context, feature);
+				});
+	}
+	s << " as part of ";
+	name_translated(s, occasion->name);
+	do_location_2(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_knowledge_discoveredst *event)

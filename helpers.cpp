@@ -104,7 +104,9 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
 
     if (name.has_name)
     {
-        s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
+		s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << ",";
+		categorize(s, target, true, true);
+		s << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
     }
     else if (id == -1)
     {
@@ -243,7 +245,7 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
     event_link_name(s, context.layer, layer);
 }
 
-void categorize(std::ostream & s, df::abstract_building *structure, bool in_link)
+void categorize(std::ostream & s, df::abstract_building *structure, bool in_link, bool in_attr)
 {
     if (!structure)
     {
@@ -271,7 +273,14 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                         if (name.has_name)
                         {
                             s << " of ";
-                            name_translated(s, name);
+							if (in_attr)
+							{
+								s << Translation::TranslateName(&name, false);
+							}
+							else
+							{
+								name_translated(s, name);
+							}
                         }
                     }
                     else
@@ -325,7 +334,7 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
     }
     END_SWITCH(type, stl_sprintf("site-%d/bld-%d", structure->site_id, structure->id));
 }
-void categorize(std::ostream & s, df::artifact_record *item, bool in_link)
+void categorize(std::ostream & s, df::artifact_record *item, bool in_link, bool in_attr)
 {
     if (!item)
     {
@@ -334,10 +343,10 @@ void categorize(std::ostream & s, df::artifact_record *item, bool in_link)
     }
 
     s << " ";
-    material(s, event_context(), item->item, in_link);
+    material(s, event_context(), item->item, in_link, in_attr);
     s << " " << ItemTypeInfo(item->item).toString();
 }
-void categorize(std::ostream & s, df::historical_entity *ent, bool)
+void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
 {
     if (!ent)
     {
@@ -382,7 +391,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool)
     }
     END_SWITCH(type, stl_sprintf("ent-%d", ent->id));
 }
-void categorize(std::ostream & s, df::historical_figure *hf, bool)
+void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 {
     if (!hf)
     {
@@ -425,7 +434,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool)
         s << " force";
     }
 }
-void categorize(std::ostream & s, df::world_region *region, bool)
+void categorize(std::ostream & s, df::world_region *region, bool, bool)
 {
     if (!region)
     {
@@ -468,7 +477,7 @@ void categorize(std::ostream & s, df::world_region *region, bool)
     }
     END_SWITCH(type, stl_sprintf("region-%d", region->index));
 }
-void categorize(std::ostream & s, df::world_site *site, bool)
+void categorize(std::ostream & s, df::world_site *site, bool, bool)
 {
     if (!site)
     {
@@ -570,7 +579,7 @@ void categorize(std::ostream & s, df::world_site *site, bool)
     }
     END_SWITCH(type, stl_sprintf("site-%d", site->id));
 }
-void categorize(std::ostream & s, df::world_underground_region *layer, bool)
+void categorize(std::ostream & s, df::world_underground_region *layer, bool, bool)
 {
     if (!layer)
     {
@@ -593,7 +602,7 @@ void categorize(std::ostream & s, df::world_underground_region *layer, bool)
     END_SWITCH(type, stl_sprintf("layer-%d", layer->index));
 }
 // for render_home
-void categorize(std::ostream & s, df::world_data *, bool)
+void categorize(std::ostream & s, df::world_data *, bool, bool)
 {
     s << " world";
 }
@@ -610,7 +619,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
     else
     {
         s << "unnamed";
-        categorize(s, subject, true);
+        categorize(s, subject, true, true);
     }
     s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body><h1>";
     if (name.has_name)
@@ -626,7 +635,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
     else
     {
         s << "unnamed";
-        categorize(s, subject, true);
+        categorize(s, subject, true, false);
     }
     s << "</h1>";
 }
@@ -760,54 +769,77 @@ bool event_context::related(df::history_event *event) const
     return false;
 }
 
-void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link)
+void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link, bool in_attr)
 {
     if (!mat.isCreature())
     {
         s << mat.toString();
         return;
     }
-    if (mat.creature->flags.is_set(creature_raw_flags::CASTE_FEATURE_BEAST) || mat.creature->flags.is_set(creature_raw_flags::CASTE_TITAN) || mat.creature->flags.is_set(creature_raw_flags::CASTE_UNIQUE_DEMON))
-    {
-        for (auto it = world->history.figures.begin(); it != world->history.figures.end(); it++)
-        {
-            if ((*it)->race == mat.index)
-            {
-                if (in_link)
-                {
-                    const df::language_name & name = get_name(*it);
-                    if (!name.has_name)
-                    {
-                        s << "[unnamed";
-                        categorize(s, *it, true);
-                        s << "]";
-                    }
-                    else if (context.hf != *it)
-                    {
-                        name_translated(s, name);
-                    }
-                    else if (!name.first_name.empty())
-                    {
-                        s << Translation::capitalize(name.first_name);
-                    }
-                    else
-                    {
-                        name_translated(s, name, true);
-                    }
-                }
-                else
-                {
-                    event_link(s, context, *it);
-                }
-                df::matter_state state = matter_state::Solid;
-                if (10015 >= mat.material->heat.melting_point)
-                    state = matter_state::Liquid;
-                if (10015 >= mat.material->heat.boiling_point)
-                    state = matter_state::Gas;
-                s << " " << mat.material->state_name[state];
-                return;
-            }
-        }
-    }
+	if (material(s, context, mat.creature, in_link, in_attr))
+	{
+		df::matter_state state = matter_state::Solid;
+		if (10015 >= mat.material->heat.melting_point)
+			state = matter_state::Liquid;
+		if (10015 >= mat.material->heat.boiling_point)
+			state = matter_state::Gas;
+		s << " " << mat.material->state_name[state];
+		return;
+	}
     s << mat.toString();
+}
+
+bool material(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link, bool in_attr)
+{
+	if (creature->flags.is_set(creature_raw_flags::CASTE_FEATURE_BEAST) || creature->flags.is_set(creature_raw_flags::CASTE_TITAN) || creature->flags.is_set(creature_raw_flags::CASTE_UNIQUE_DEMON))
+	{
+		for (auto it = world->history.figures.begin(); it != world->history.figures.end(); it++)
+		{
+			if (df::creature_raw::find((*it)->race) == creature)
+			{
+				if (in_link)
+				{
+					const df::language_name & name = get_name(*it);
+					if (!name.has_name)
+					{
+						s << "[unnamed";
+						categorize(s, *it, true, in_attr);
+						s << "]";
+					}
+					else if (context.hf != *it)
+					{
+						if (in_attr)
+						{
+							s << Translation::TranslateName(&name, false);
+						}
+						else
+						{
+							name_translated(s, name);
+						}
+					}
+					else if (!name.first_name.empty())
+					{
+						s << Translation::capitalize(name.first_name);
+					}
+					else
+					{
+						if (in_attr)
+						{
+							s << Translation::TranslateName(&name, false, true);
+						}
+						else
+						{
+							name_translated(s, name, true);
+						}
+					}
+				}
+				else
+				{
+					event_link(s, context, *it);
+				}
+				return true;
+			}
+		}
+	}
+	return false;
 }

@@ -22,8 +22,10 @@ namespace df
 {
 #define WEBLEGENDS_TYPE(type, name) \
     struct type;
-    WEBLEGENDS_TYPES
+	WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
+	struct creature_raw;
+	struct entity_occasion_schedule_feature;
     struct history_event;
     struct knowledge_scholar_category_flag;
     struct language_name;
@@ -62,7 +64,7 @@ int32_t get_id(df::type *name); \
 const df::language_name & get_name(df::type *name); \
 void link(std::ostream & s, df::type *name); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
-void categorize(std::ostream & s, df::type *name, bool in_link = false); \
+void categorize(std::ostream & s, df::type *name, bool in_link = false, bool in_attr = false); \
 void simple_header(std::ostream & s, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
@@ -91,10 +93,12 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
     }
 }
 
-void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false);
+void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false, bool in_attr = false);
+bool material(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link = false, bool in_attr = false);
 void knowledge(std::ostream & s, df::knowledge_scholar_category_flag knowledge);
 void value_level(std::ostream & s, df::value_type type, int32_t level);
 void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author = nullptr, bool show_refs = false);
+void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature);
 
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);

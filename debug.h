@@ -1,8 +1,10 @@
 #pragma once
 
 #define SWITCH(var, expr) \
+{ \
+    auto var = expr; \
+	try \
     { \
-        auto var = expr; \
         bool var##_found = false; \
         switch (var)
 
@@ -15,5 +17,10 @@
         { \
             std::cerr << "[weblegends] missing enum-item: " << typeid(var).name() << "(" << int32_t(var) << "): " << (message) << std::endl; \
         } \
-    }
-
+    } \
+	catch (...) \
+	{ \
+		std::cerr << "[weblegends] exception in switch: " << typeid(var).name() << "(" << int32_t(var) << "): " << (message) << std::endl; \
+		throw; \
+	} \
+}

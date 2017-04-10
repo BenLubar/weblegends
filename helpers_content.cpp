@@ -6,6 +6,7 @@
 #include "df/abstract_building.h"
 #include "df/artifact_record.h"
 #include "df/dance_form.h"
+#include "df/entity_occasion_schedule_feature.h"
 #include "df/general_ref_abstract_buildingst.h"
 #include "df/general_ref_artifact.h"
 #include "df/general_ref_dance_formst.h"
@@ -2359,4 +2360,90 @@ void written_content(std::ostream & s, const event_context & context, df::writte
             }
         }
     }
+}
+
+void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature)
+{
+	SWITCH(feat, feature->feature)
+	{
+		case df::occasion_schedule_feature::STORYTELLING:
+			if (auto ref = df::history_event::find(feature->reference))
+			{
+				s << "telling of how ";
+				event_reverse(s, context, ref);
+			}
+			else
+			{
+				s << "storytelling";
+			}
+			BREAK(feat);
+		case df::occasion_schedule_feature::POETRY_RECITAL:
+			if (auto form = df::poetic_form::find(feature->reference))
+			{
+				s << "a recital of the poetry ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a poetry recital";
+			}
+			BREAK(feat);
+		case df::occasion_schedule_feature::MUSICAL_PERFORMANCE:
+			if (auto form = df::musical_form::find(feature->reference))
+			{
+				s << "a performance of the music ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a musical performance";
+			}
+			BREAK(feat);
+		case df::occasion_schedule_feature::DANCE_PERFORMANCE:
+			if (auto form = df::dance_form::find(feature->reference))
+			{
+				s << "a performance of the dance ";
+				name_translated(s, form->name);
+			}
+			else
+			{
+				s << "a dance performance";
+			}
+			BREAK(feat);
+		case df::occasion_schedule_feature::CRIERS_IN_FRONT:
+			s << "criers in front";
+			BREAK(feat);
+		case df::occasion_schedule_feature::ORDER_OF_PRECEDENCE:
+			s << "an order of precedence";
+			BREAK(feat);
+		case df::occasion_schedule_feature::BANNERS:
+			s << "banners";
+			BREAK(feat);
+		case df::occasion_schedule_feature::IMAGES:
+			s << "images";
+			BREAK(feat);
+		case df::occasion_schedule_feature::ACROBATS:
+			s << "acrobats";
+			BREAK(feat);
+		case df::occasion_schedule_feature::INCENSE_BURNING:
+			s << "the burning of incense";
+			BREAK(feat);
+		case df::occasion_schedule_feature::COSTUMES:
+			s << "costumes";
+			BREAK(feat);
+		case df::occasion_schedule_feature::CANDLES:
+			s << "candles";
+			BREAK(feat);
+		case df::occasion_schedule_feature::THE_GIVING_OF_ITEMS:
+			s << "the giving of items";
+			BREAK(feat);
+		case df::occasion_schedule_feature::THE_SACRIFICE_OF_ITEMS:
+			s << "the sacrifice of items";
+			BREAK(feat);
+		default:
+			s << ENUM_KEY_STR(occasion_schedule_feature, feat);
+			s << ":";
+			s << feature->reference;
+	}
+	END_SWITCH(feat, "");
 }
