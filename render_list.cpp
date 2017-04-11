@@ -15,7 +15,7 @@ static typename std::vector<T *>::iterator get_first()
 {
 	return std::find_if(T::get_vector().begin(), T::get_vector().end(), [](T *t) -> bool
 	{
-		return get_name(t).has_name;
+		return get_id(t) >= 0 && get_name(t).has_name;
 	});
 }
 
