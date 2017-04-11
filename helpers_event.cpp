@@ -1154,6 +1154,82 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	}
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_hf_linkst *event)
+{
+	auto hf = df::historical_figure::find(event->hf);
+	auto hf_target = df::historical_figure::find(event->hf_target);
+	SWITCH(type, event->type)
+	{
+		case df::histfig_hf_link_type::MOTHER:
+			event_link(s, context, hf);
+			s << " gave birth to ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::FATHER:
+			event_link(s, context, hf);
+			s << " fathered ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::SPOUSE:
+			event_link(s, context, hf);
+			s << " married ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::CHILD:
+			event_link(s, context, hf);
+			s << " was born to ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::DEITY:
+			event_link(s, context, hf);
+			s << " began worshipping ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::LOVER:
+			event_link(s, context, hf);
+			s << " fell in love with ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::PRISONER:
+			event_link(s, context, hf);
+			s << " was imprisoned by ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::IMPRISONER:
+			event_link(s, context, hf);
+			s << " imprisoned ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::MASTER:
+			event_link(s, context, hf);
+			s << " accepted ";
+			event_link(s, context, hf_target);
+			s << " as an apprentice";
+			BREAK(type);
+		case df::histfig_hf_link_type::APPRENTICE:
+			event_link(s, context, hf);
+			s << " started an apprenticeship under ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::COMPANION:
+			event_link(s, context, hf);
+			s << " became the companion of ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::FORMER_MASTER:
+			event_link(s, context, hf);
+			s << " was no longer the master of ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+		case df::histfig_hf_link_type::FORMER_APPRENTICE:
+			event_link(s, context, hf);
+			s << " was no longer the apprentice of ";
+			event_link(s, context, hf_target);
+			BREAK(type);
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_statest *event)
 {
 	std::string separator = " in ";
