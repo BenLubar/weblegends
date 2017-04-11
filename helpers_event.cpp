@@ -1281,13 +1281,16 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << " was wandering";
 			BREAK(substate);
 			}
-			END_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
+			END_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
 			BREAK(state);
 		case df::history_event_change_hf_statest::T_state::Settled:
 			s << " settled";
 			BREAK(state);
 		case df::history_event_change_hf_statest::T_state::Refugee:
 			s << " became a refugee";
+			BREAK(state);
+		case (df::history_event_change_hf_statest::T_state)5:
+			s << " visited";
 			BREAK(state);
 	}
 	END_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
@@ -1416,52 +1419,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		case df::history_event_hist_figure_woundedst::Smash:
 			SWITCH(part_lost, event->part_lost)
 			{
-				case 0:
-					s << " smashed";
-					BREAK(part_lost);
-				case 1:
-					s << "crushed";
-					suffix = " to a pulp";
-					BREAK(part_lost);
+		case 0:
+			s << " smashed";
+			BREAK(part_lost);
+		case 1:
+			s << "crushed";
+			suffix = " to a pulp";
+			BREAK(part_lost);
 			}
 			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash"));
 			BREAK(type);
 		case df::history_event_hist_figure_woundedst::Slash:
 			SWITCH(part_lost, event->part_lost)
 			{
-				case 0:
-					s << " cut";
-					BREAK(part_lost);
-				case 1:
-					s << " cut";
-					suffix = " off";
-					BREAK(part_lost);
+		case 0:
+			s << " cut";
+			BREAK(part_lost);
+		case 1:
+			s << " cut";
+			suffix = " off";
+			BREAK(part_lost);
 			}
 			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash"));
 			BREAK(type);
 		case df::history_event_hist_figure_woundedst::Stab:
 			SWITCH(part_lost, event->part_lost)
 			{
-				case 0:
-					s << " stabbed";
-					BREAK(part_lost);
-				case 1:
-					s << " punctured";
-					suffix = " into an indistinguishable mess";
-					BREAK(part_lost);
+		case 0:
+			s << " stabbed";
+			BREAK(part_lost);
+		case 1:
+			s << " punctured";
+			suffix = " into an indistinguishable mess";
+			BREAK(part_lost);
 			}
 			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab"));
 			BREAK(type);
 		case df::history_event_hist_figure_woundedst::Rip:
 			SWITCH(part_lost, event->part_lost)
 			{
-				case 0:
-					s << " ripped";
-					BREAK(part_lost);
-				case 1:
-					s << " tore";
-					suffix = " off";
-					BREAK(part_lost);
+		case 0:
+			s << " ripped";
+			BREAK(part_lost);
+		case 1:
+			s << " tore";
+			suffix = " off";
+			BREAK(part_lost);
 			}
 			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip"));
 			BREAK(type);
@@ -1986,6 +1989,33 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	if (auto site = df::world_site::find(event->site))
 	{
 		s << " in ";
+		event_link(s, context, site);
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_regionpop_incorporated_into_entityst *event)
+{
+	s << event->number_moved;
+	if (auto race = df::creature_raw::find(event->pop_race))
+	{
+		s << " " << race->name[event->number_moved == 1 ? 0 : 1];
+	}
+	if (auto region = df::world_region::find(event->pop_region))
+	{
+		s << " from ";
+		event_link(s, context, region);
+	}
+	if (auto layer = df::world_underground_region::find(event->pop_layer))
+	{
+		s << " from ";
+		event_link(s, context, layer);
+	}
+	s << " joined ";
+	auto ent = df::historical_entity::find(event->join_entity);
+	event_link(s, context, ent);
+	if (auto site = df::world_site::find(event->site))
+	{
+		s << " at ";
 		event_link(s, context, site);
 	}
 }
