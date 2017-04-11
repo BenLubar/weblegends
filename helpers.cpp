@@ -10,15 +10,19 @@
 #include "df/abstract_building_templest.h"
 #include "df/artifact_record.h"
 #include "df/caste_raw.h"
+#include "df/creature_interaction_effect_body_transformationst.h"
 #include "df/creature_raw.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/historical_figure_info.h"
 #include "df/history_event.h"
+#include "df/interaction_effect_add_syndromest.h"
+#include "df/interaction_effect_animatest.h"
 #include "df/item.h"
 #include "df/item_constructed.h"
 #include "df/itemimprovement_pagesst.h"
 #include "df/itemimprovement_writingst.h"
+#include "df/syndrome.h"
 #include "df/world.h"
 #include "df/world_data.h"
 #include "df/world_region.h"
@@ -487,7 +491,41 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 
 	if (hf->info && hf->info->curse)
 	{
-		s << " " << hf->info->curse->name;
+		if (!hf->info->curse->name.empty())
+		{
+			s << " " << hf->info->curse->name;
+		}
+		for (auto it = hf->info->curse->active_effects.begin(); it != hf->info->curse->active_effects.end(); it++)
+		{
+			std::vector<df::syndrome *> *syndromes = nullptr;
+			if (auto syndrome = virtual_cast<df::interaction_effect_add_syndromest>(*it))
+			{
+				syndromes = &syndrome->syndrome;
+			}
+			else if (auto zombie = virtual_cast<df::interaction_effect_animatest>(*it))
+			{
+				syndromes = &zombie->syndrome;
+			}
+			else
+			{
+				continue;
+			}
+			for (auto it2 = syndromes->begin(); it2 != syndromes->end(); it2++)
+			{
+				for (auto it3 = (*it2)->ce.begin(); it3 != (*it2)->ce.end(); it3++)
+				{
+					if (auto transformation = virtual_cast<df::creature_interaction_effect_body_transformationst>(*it3))
+					{
+						auto t_race = df::creature_raw::find(transformation->race);
+						auto t_caste = (t_race && transformation->caste != -1) ? t_race->caste.at(transformation->caste) : nullptr;
+						if (t_caste != nullptr)
+						{
+							s << " " << t_caste->caste_name[0];
+						}
+					}
+				}
+			}
+		}
 	}
 }
 void categorize(std::ostream & s, df::world_region *region, bool, bool)
