@@ -42,6 +42,7 @@
 #include "df/history_event_change_hf_jobst.h"
 #include "df/history_event_change_hf_statest.h"
 #include "df/history_event_competitionst.h"
+#include "df/history_event_context.h"
 #include "df/history_event_create_entity_positionst.h"
 #include "df/history_event_created_buildingst.h"
 #include "df/history_event_created_sitest.h"
@@ -260,7 +261,14 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 
 static void do_event(std::ostream & s, const event_context &, df::history_event *event)
 {
-	s << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id;
+	std::string df_description;
+	df::history_event_context df_context;
+	df_context.anon_1 = -1;
+	df_context.anon_2 = -1;
+	df_context.histfig_id_talker = -1;
+	df_context.histfig_id_listener = -1;
+	event->getSentence(&df_description, &df_context, 1, 0);
+	s << "<abbr title=\"" << df_description << "\">" << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id << "</abbr>";
 	std::cerr << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
 }
 
