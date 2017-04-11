@@ -13,6 +13,7 @@
 #include "df/creature_raw.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
+#include "df/historical_figure_info.h"
 #include "df/history_event.h"
 #include "df/item.h"
 #include "df/item_constructed.h"
@@ -482,6 +483,11 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 	else if (hf->flags.is_set(histfig_flags::force))
 	{
 		s << " force";
+	}
+
+	if (hf->info && hf->info->curse)
+	{
+		s << " " << hf->info->curse->name;
 	}
 }
 void categorize(std::ostream & s, df::world_region *region, bool, bool)
