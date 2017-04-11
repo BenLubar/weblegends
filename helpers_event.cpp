@@ -1397,6 +1397,101 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	do_location_2(s, context, event);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_woundedst *event)
+{
+	auto wounder = df::historical_figure::find(event->wounder);
+	event_link(s, context, wounder);
+
+	std::string suffix;
+	SWITCH(type, event->injury_type)
+	{
+		case df::history_event_hist_figure_woundedst::Smash:
+			SWITCH(part_lost, event->part_lost)
+			{
+				case 0:
+					s << " smashed";
+					BREAK(part_lost);
+				case 1:
+					s << "crushed";
+					suffix = " to a pulp";
+					BREAK(part_lost);
+			}
+			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash"));
+			BREAK(type);
+		case df::history_event_hist_figure_woundedst::Slash:
+			SWITCH(part_lost, event->part_lost)
+			{
+				case 0:
+					s << " cut";
+					BREAK(part_lost);
+				case 1:
+					s << " cut";
+					suffix = " off";
+					BREAK(part_lost);
+			}
+			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash"));
+			BREAK(type);
+		case df::history_event_hist_figure_woundedst::Stab:
+			SWITCH(part_lost, event->part_lost)
+			{
+				case 0:
+					s << " stabbed";
+					BREAK(part_lost);
+				case 1:
+					s << " punctured";
+					suffix = " into an indistinguishable mess";
+					BREAK(part_lost);
+			}
+			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab"));
+			BREAK(type);
+		case df::history_event_hist_figure_woundedst::Rip:
+			SWITCH(part_lost, event->part_lost)
+			{
+				case 0:
+					s << " ripped";
+					BREAK(part_lost);
+				case 1:
+					s << " tore";
+					suffix = " off";
+					BREAK(part_lost);
+			}
+			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip"));
+			BREAK(type);
+	}
+	END_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
+
+	df::creature_raw *race;
+	df::caste_raw *caste;
+
+	auto woundee = df::historical_figure::find(event->woundee);
+	if (woundee)
+	{
+		race = df::creature_raw::find(woundee->race);
+		caste = race->caste.at(woundee->caste);
+		s << " ";
+		event_link(s, context, woundee);
+		s << "&rsquo;s ";
+	}
+	else
+	{
+		race = df::creature_raw::find(event->woundee_race);
+		caste = race->caste.at(event->woundee_caste);
+		s << " the ";
+	}
+
+	df::body_part_raw *bp = caste->body_info.body_parts.at(event->body_part);
+	s << *bp->name_singular.at(0);
+
+	if (woundee == nullptr)
+	{
+		s << " of a " << caste->caste_name[0];
+	}
+
+	s << suffix;
+
+	do_location_2(s, context, event);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_battle_eventst *event)
 {
 	list<int32_t>(s, event->group1, [context](std::ostream & out, int32_t id)
