@@ -42,7 +42,7 @@ static void year(std::ostream & s, int32_t year, int32_t tick)
 	if (tick != -1)
 	{
 		s << "<abbr title=\"";
-		s << day(tick) << " " << month(tick) << " " << year;
+		s << dayth(tick) << " " << month(tick) << " " << year;
 		s << "\">" << year << "</abbr>";
 	}
 	else

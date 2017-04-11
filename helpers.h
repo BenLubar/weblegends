@@ -100,6 +100,7 @@ void value_level(std::ostream & s, df::value_type type, int32_t level);
 void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author = nullptr, bool show_refs = false);
 void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature);
 
+void age_years_days(int32_t year, int32_t tick, int32_t year_compare, int32_t tick_compare, int32_t & years, int32_t & days);
 int32_t day(int32_t tick);
 std::string dayth(int32_t tick);
 const std::string & month(int32_t tick);

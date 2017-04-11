@@ -540,6 +540,31 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		auto caste = race->caste.at(event->slayer_caste);
 		s << prefix << " by a " << caste->caste_name[0];
 	}
+	if (victim->born_year > -1)
+	{
+		int32_t years, days;
+		age_years_days(victim->born_year, victim->born_seconds, event->year, event->seconds, years, days);
+		if (years != 0)
+		{
+			s << " at the age of " << years;
+			if (days >= 28 * 9)
+			{
+				s << "&frac34;";
+			}
+			else if (days >= 28 * 6)
+			{
+				s << "&frac12;";
+			}
+			else if (days >= 28 * 3)
+			{
+				s << "&frac14;";
+			}
+		}
+		else
+		{
+			s << " at only " << days << " days old";
+		}
+	}
 	do_location_1(s, context, event);
 }
 

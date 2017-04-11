@@ -24,6 +24,8 @@
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
 
+REQUIRE_GLOBAL(cur_year);
+REQUIRE_GLOBAL(cur_year_tick);
 REQUIRE_GLOBAL(world);
 
 int32_t get_id(df::abstract_building *structure)
@@ -245,6 +247,18 @@ void event_link(std::ostream & s, const event_context & context, df::world_under
 	event_link_name(s, context.layer, layer);
 }
 
+void age_years_days(int32_t year, int32_t tick, int32_t year_compare, int32_t tick_compare, int32_t & years, int32_t & days)
+{
+	years = year_compare - year;
+	days = tick_compare - tick;
+	if (days < 0 && years > 0)
+	{
+		years--;
+		days += 1200 * 28 * 12;
+	}
+	days /= 1200;
+}
+
 void categorize(std::ostream & s, df::abstract_building *structure, bool in_link, bool in_attr)
 {
 	if (!structure)
@@ -412,7 +426,42 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 		{
 			s << " skeletal";
 		}
-		if (caste->caste_name[0] == race->name[0] && hf->sex != -1)
+
+		int32_t age_years, age_days;
+		if (hf->died_year == -1)
+		{
+			age_years_days(hf->born_year, hf->born_seconds, *cur_year, *cur_year_tick, age_years, age_days);
+		}
+		else
+		{
+			age_years_days(hf->born_year, hf->born_seconds, hf->died_year, hf->died_seconds, age_years, age_days);
+		}
+		std::string name(caste->caste_name[0]);
+		std::string suffix;
+		if (caste->misc.baby_age < caste->misc.child_age && age_years < caste->misc.baby_age)
+		{
+			if (caste->baby_name[0].empty())
+			{
+				suffix = " baby";
+			}
+			else
+			{
+				name = caste->baby_name[0];
+			}
+		}
+		else if (age_years < caste->misc.child_age)
+		{
+			if (caste->child_name[0].empty())
+			{
+				suffix = " child";
+			}
+			else
+			{
+				name = caste->child_name[0];
+			}
+		}
+
+		if (name == race->name[0] && hf->sex != -1)
 		{
 			if (hf->sex == 0)
 			{
@@ -423,7 +472,8 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 				s << " male";
 			}
 		}
-		s << " " << caste->caste_name[0];
+		s << " " << name << suffix;
+
 		if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
 		{
 			s << " deity";
