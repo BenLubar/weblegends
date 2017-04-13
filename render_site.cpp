@@ -7,14 +7,14 @@
 
 REQUIRE_GLOBAL(world);
 
-void WebLegends::render_site(std::ostream & s, int32_t id)
+bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
 
 	auto site = df::world_site::find(id);
 	if (site == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	simple_header(s, site);
@@ -39,7 +39,12 @@ void WebLegends::render_site(std::ostream & s, int32_t id)
 		}
 		s << "</ul>";
 	}
-	history(s, site);
-	// TODO
+	int32_t last_page;
+	if (!history(s, site, page, last_page))
+	{
+		return false;
+	}
+	pagination(s, stl_sprintf("site-%d", id), "", "?page=", page, last_page);
 	s << "</body></html>";
+	return true;
 }

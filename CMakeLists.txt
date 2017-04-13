@@ -9,6 +9,7 @@ SET(PROJECT_SRCS
     helpers_event.cpp
     render_home.cpp
     render_entity.cpp
+    render_era.cpp
     render_figure.cpp
     render_item.cpp
     render_region.cpp

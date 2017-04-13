@@ -15,6 +15,7 @@
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/historical_figure_info.h"
+#include "df/history_era.h"
 #include "df/history_event.h"
 #include "df/interaction_effect_add_syndromest.h"
 #include "df/interaction_effect_animatest.h"
@@ -61,6 +62,10 @@ int32_t get_id(df::world_underground_region *layer)
 {
 	return layer ? layer->index : -1;
 }
+int32_t get_id(df::history_era *era)
+{
+	return era ? std::find(world->history.eras.begin(), world->history.eras.end(), era) - world->history.eras.begin() : -1;
+}
 
 static const df::language_name & get_no_name()
 {
@@ -96,6 +101,21 @@ const df::language_name & get_name(df::world_site *site)
 const df::language_name & get_name(df::world_underground_region *layer)
 {
 	return layer ? layer->name : get_no_name();
+}
+const df::language_name & get_name(df::history_era *era)
+{
+	static df::language_name name;
+	name.first_name = era ? era->title.name : "";
+	name.has_name = !name.first_name.empty();
+	name.nickname = "";
+	name.words[0] = -1;
+	name.words[1] = -1;
+	name.words[2] = -1;
+	name.words[3] = -1;
+	name.words[4] = -1;
+	name.words[5] = -1;
+	name.words[6] = -1;
+	return name;
 }
 // for render_home
 const df::language_name & get_name(df::world_data *world_data)
@@ -141,6 +161,10 @@ void link(std::ostream & s, df::artifact_record *item)
 void link(std::ostream & s, df::historical_entity *ent)
 {
 	link_name(s, "ent-", ent);
+}
+void link(std::ostream & s, df::history_era *era)
+{
+	link_name(s, "era-", era);
 }
 void link(std::ostream & s, df::historical_figure *hf)
 {
@@ -238,6 +262,10 @@ void event_link(std::ostream & s, const event_context & context, df::historical_
 void event_link(std::ostream & s, const event_context & context, df::historical_figure *hf)
 {
 	event_link_name(s, context.hf, hf);
+}
+void event_link(std::ostream & s, const event_context & context, df::history_era *era)
+{
+	event_link_name(s, context.era, era);
 }
 void event_link(std::ostream & s, const event_context & context, df::world_region *region)
 {
@@ -528,6 +556,10 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 		}
 	}
 }
+void categorize(std::ostream & s, df::history_era *era, bool, bool)
+{
+	s << " era";
+}
 void categorize(std::ostream & s, df::world_region *region, bool, bool)
 {
 	if (!region)
@@ -762,6 +794,10 @@ void simple_header(std::ostream & s, df::world_underground_region *layer)
 {
 	simple_header_impl(s, layer);
 }
+void simple_header(std::ostream & s, df::history_era *era)
+{
+	simple_header_impl(s, era);
+}
 // for render_home
 void simple_header(std::ostream & s, df::world_data *world_data)
 {
@@ -817,31 +853,114 @@ const std::string & month(int32_t tick)
 	return months[(tick / 1200 / 28) % 12];
 }
 
-void history(std::ostream & s, const event_context & context)
+struct events_by_year
 {
+public:
+	events_by_year(const event_context & context)
+	{
+		for (auto it = world->history.events.begin(); it != world->history.events.end(); it++)
+		{
+			if (context.related(*it))
+			{
+				int32_t year = std::max((*it)->year, 0);
+				if (events.size() <= year)
+				{
+					events.resize(year + 1);
+				}
+				events.at(year).push_back(*it);
+			}
+		}
+	}
+
+	std::vector<std::vector<df::history_event *>> events;
+};
+
+bool history(std::ostream & s, const event_context & context, int32_t page, int32_t & last_page)
+{
+	const static size_t events_per_page = 1000;
+
+	size_t events_on_this_page = 0;
 	int32_t last_year = 0;
 	int32_t last_seconds = -1;
-	for (auto it = world->history.events.begin(); it != world->history.events.end(); it++)
+
+	last_page = 0;
+
+	events_by_year relevant(context);
+	auto it = relevant.events.begin();
+	for (int32_t pages_skipped = 0; pages_skipped < page; pages_skipped++)
 	{
-		if (!context.related(*it))
+		for (; it != relevant.events.end(); it++)
 		{
-			continue;
+			events_on_this_page += it->size();
+
+			if (events_on_this_page >= events_per_page)
+			{
+				it++;
+				break;
+			}
+		}
+		if (events_on_this_page != 0)
+		{
+			last_page = pages_skipped;
+		}
+		events_on_this_page = 0;
+	}
+
+	if (it != relevant.events.end())
+	{
+		s << "<h2 id=\"history\">History</h2>";
+	}
+	else if (page != 0)
+	{
+		return false;
+	}
+
+	for (; it != relevant.events.end(); it++)
+	{
+		if (!it->empty())
+		{
+			s << "<p id=\"history-" << (it - relevant.events.begin()) << "\">";
+			for (auto it2 = it->begin(); it2 != it->end(); it2++)
+			{
+				event(s, context, *it2, last_year, last_seconds);
+			}
+			s << "</p>";
+
+			events_on_this_page += it->size();
+			if (events_on_this_page >= events_per_page)
+			{
+				it++;
+				break;
+			}
+		}
+	}
+
+	last_page = page;
+	for (;;)
+	{
+		events_on_this_page = 0;
+		for (; it != relevant.events.end(); it++)
+		{
+			events_on_this_page += it->size();
+
+			if (events_on_this_page >= events_per_page)
+			{
+				it++;
+				break;
+			}
 		}
 
-		if (last_year == 0)
+		if (events_on_this_page != 0)
 		{
-			s << "<h2 id=\"history\">History</h2><p id=\"history-" << (*it)->year << "\">";
+			last_page++;
 		}
-		else if ((*it)->year != last_year)
+		else
 		{
-			s << "</p><p id=\"history-" << (*it)->year << "\">";
+			break;
 		}
-		event(s, context, *it, last_year, last_seconds);
 	}
-	if (last_year != 0)
-	{
-		s << "</p>";
-	}
+
+	return true;
 }
 
 bool event_context::related(df::history_event *event) const
@@ -860,6 +979,12 @@ bool event_context::related(df::history_event *event) const
 		return true;
 	if (layer && event->isRelatedToLayerID(layer->index))
 		return true;
+	if (era && era->year <= event->year)
+	{
+		auto next_era = vector_get(world->history.eras, get_id(era) + 1);
+		if (!next_era || event->year < next_era->year)
+			return true;
+	}
 	return false;
 }
 
@@ -936,4 +1061,32 @@ bool material(std::ostream & s, const event_context & context, df::creature_raw 
 		}
 	}
 	return false;
+}
+
+void pagination(std::ostream & s, const std::string & base, const std::string & page_0, const std::string & page_prefix, int32_t current_page, int32_t last_page)
+{
+	if (last_page != 0)
+	{
+		s << "<p>";
+		if (current_page > 0)
+		{
+			if (current_page - 1 == 0)
+			{
+				s << "<a href=\"" << base << page_0 << "\" rel=\"prev\">Previous</a>";
+			}
+			else
+			{
+				s << "<a href=\"" << base << page_prefix << (current_page - 1) << "\">Previous</a>";
+			}
+			if (current_page < last_page)
+			{
+				s << " - ";
+			}
+		}
+		if (current_page < last_page)
+		{
+			s << "<a href=\"" << base << page_prefix << (current_page + 1) << "\" rel=\"next\">Next</a>";
+		}
+		s << "</p>";
+	}
 }

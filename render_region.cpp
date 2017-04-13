@@ -7,14 +7,14 @@
 
 REQUIRE_GLOBAL(world)
 
-void WebLegends::render_region(std::ostream & s, int32_t id)
+bool WebLegends::render_region(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
 
 	auto region = df::world_region::find(id);
 	if (region == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	simple_header(s, region);
@@ -30,7 +30,12 @@ void WebLegends::render_region(std::ostream & s, int32_t id)
 	categorize(s, region);
 	s << "</p>";
 
-	history(s, region);
-	// TODO
+	int32_t last_page;
+	if (!history(s, region, page, last_page))
+	{
+		return false;
+	}
+	pagination(s, stl_sprintf("region-%d", id), "", "?page=", page, last_page);
 	s << "</body></html>";
+	return true;
 }

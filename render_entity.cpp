@@ -6,14 +6,14 @@
 #include "df/historical_entity.h"
 #include "df/world_site.h"
 
-void WebLegends::render_entity(std::ostream & s, int32_t id)
+bool WebLegends::render_entity(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
 
 	auto ent = df::historical_entity::find(id);
 	if (ent == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	simple_header(s, ent);
@@ -56,7 +56,12 @@ void WebLegends::render_entity(std::ostream & s, int32_t id)
 		s << "</ul>";
 	}
 
-	history(s, ent);
-	// TODO
+	int32_t last_page;
+	if (!history(s, ent, page, last_page))
+	{
+		return false;
+	}
+	pagination(s, stl_sprintf("ent-%d", id), "", "?page=", page, last_page);
 	s << "</body></html>";
+	return true;
 }

@@ -81,14 +81,14 @@ static void born_died(std::ostream & s, df::historical_figure *hf)
 	s << ")";
 }
 
-void WebLegends::render_figure(std::ostream & s, int32_t id)
+bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
 
 	auto hf = df::historical_figure::find(id);
 	if (hf == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	auto race = df::creature_raw::find(hf->race);
@@ -500,6 +500,12 @@ void WebLegends::render_figure(std::ostream & s, int32_t id)
 		}
 		s << "</ul>";
 	}
-	history(s, hf);
+	int32_t last_page;
+	if (!history(s, hf, page, last_page))
+	{
+		return false;
+	}
+	pagination(s, stl_sprintf("fig-%d", id), "", "?page=", page, last_page);
 	s << "</body></html>";
+	return true;
 }

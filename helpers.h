@@ -16,7 +16,8 @@ namespace DFHack
     WEBLEGENDS_TYPE(historical_figure, hf) \
     WEBLEGENDS_TYPE(world_region, region) \
     WEBLEGENDS_TYPE(world_site, site) \
-    WEBLEGENDS_TYPE(world_underground_region, layer)
+    WEBLEGENDS_TYPE(world_underground_region, layer) \
+	WEBLEGENDS_TYPE(history_era, era)
 
 namespace df
 {
@@ -105,8 +106,9 @@ int32_t day(int32_t tick);
 std::string dayth(int32_t tick);
 const std::string & month(int32_t tick);
 
-void history(std::ostream & s, const event_context & context);
+bool history(std::ostream & s, const event_context & context, int32_t page, int32_t & last_page);
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds);
 void event_reverse(std::ostream & s, const event_context & context, df::history_event *event);
+void pagination(std::ostream & s, const std::string & base, const std::string & page_0, const std::string & page_prefix, int32_t current_page, int32_t last_page);
 
 #undef WEBLEGENDS_TYPES

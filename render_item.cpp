@@ -35,14 +35,14 @@ static void do_written_content(std::ostream & s, const event_context & context, 
 	s << ".";
 }
 
-void WebLegends::render_item(std::ostream & s, int32_t id)
+bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
 
 	auto item = df::artifact_record::find(id);
 	if (item == nullptr)
 	{
-		return;
+		return false;
 	}
 
 	simple_header(s, item);
@@ -162,7 +162,12 @@ void WebLegends::render_item(std::ostream & s, int32_t id)
 		}
 	}
 
-	history(s, item);
-	// TODO
+	int32_t last_page;
+	if (!history(s, item, page, last_page))
+	{
+		return false;
+	}
+	pagination(s, stl_sprintf("item-%d", id), "", "?page=", page, last_page);
 	s << "</body></html>";
+	return true;
 }

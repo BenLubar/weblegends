@@ -58,19 +58,21 @@ private:
     void handle(CActiveSocket *sock, const std::string & method, const std::string & url);
 
     static void render_home(std::ostream & s);
-    static void render_entity(std::ostream & s, int32_t id);
-    static void render_figure(std::ostream & s, int32_t id);
-    static void render_item(std::ostream & s, int32_t id);
-    static void render_region(std::ostream & s, int32_t id);
-    static void render_site(std::ostream & s, int32_t id);
-    static void render_structure(std::ostream & s, int32_t site_id, int32_t id);
-    static void render_layer(std::ostream & s, int32_t id);
-    static void render_entity_list(std::ostream & s, int32_t page);
-    static void render_figure_list(std::ostream & s, int32_t page);
-    static void render_item_list(std::ostream & s, int32_t page);
-    static void render_region_list(std::ostream & s, int32_t page);
-    static void render_site_list(std::ostream & s, int32_t page);
-    static void render_layer_list(std::ostream & s, int32_t page);
+    static bool render_entity(std::ostream & s, int32_t id, int32_t page);
+	static bool render_era(std::ostream & s, int32_t id, int32_t page);
+	static bool render_figure(std::ostream & s, int32_t id, int32_t page);
+    static bool render_item(std::ostream & s, int32_t id, int32_t page);
+    static bool render_region(std::ostream & s, int32_t id, int32_t page);
+    static bool render_site(std::ostream & s, int32_t id, int32_t page);
+    static bool render_structure(std::ostream & s, int32_t site_id, int32_t id, int32_t page);
+	static bool render_layer(std::ostream & s, int32_t id, int32_t page);
+    static bool render_entity_list(std::ostream & s, int32_t page);
+	static bool render_era_list(std::ostream & s, int32_t page);
+	static bool render_figure_list(std::ostream & s, int32_t page);
+    static bool render_item_list(std::ostream & s, int32_t page);
+    static bool render_region_list(std::ostream & s, int32_t page);
+    static bool render_site_list(std::ostream & s, int32_t page);
+	static bool render_layer_list(std::ostream & s, int32_t page);
 };
 
 class Client

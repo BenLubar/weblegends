@@ -4,6 +4,10 @@
 #include <iostream>
 #include <sstream>
 
+#include "df/viewscreen_loadgamest.h"
+
+#include "modules/Gui.h"
+
 bool WebLegends::http(CActiveSocket *sock, std::string & request)
 {
 	size_t ending = request.find('\n');
@@ -73,19 +77,54 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 	return true;
 }
 
-static void not_found(CActiveSocket *sock, const std::string & method, const std::string & url)
+static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body)
 {
-	std::string body = "not found: " + url;
-	std::string not_found_header = stl_sprintf("HTTP/1.0 404 Not Found\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\n\r\n", body.length());
-	std::string not_found = method == "HEAD" ? not_found_header : (not_found_header + body);
-	if (sock->Send((const uint8_t *)not_found.c_str(), not_found.length()) != int32_t(not_found.length()))
+	std::string header = stl_sprintf("HTTP/1.0 %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\n\r\n", status_code, status_phrase.c_str(), body.length());
+	std::string payload = method == "HEAD" ? header : (header + body);
+	if (sock->Send((const uint8_t *)payload.c_str(), payload.length()) != int32_t(payload.length()))
 	{
-		std::cerr << "weblegends send 404 " << url << ": " << sock->GetSocketError() << std::endl;
+		std::cerr << "weblegends send " << status_code << " " << url << ": " << sock->GetSocketError() << std::endl;
 		std::cerr << sock->DescribeError() << std::endl;
 	}
 }
 
-static bool check_id(std::ostream & s, const std::string & url, const std::string & prefix, std::function<void(std::ostream &, int32_t)> handler)
+static void not_found(CActiveSocket *sock, const std::string & method, const std::string & url)
+{
+	http_error(sock, method, url, 404, "Not Found", "not found: " + url);
+}
+
+static bool check_page(std::ostream & s, const std::string & url, const std::string & prefix, std::function<bool(std::ostream &, int32_t)> handler)
+{
+	if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
+	{
+		return false;
+	}
+
+	size_t end = 0;
+	int32_t page = -1;
+	try
+	{
+		page = std::stoi(url.substr(prefix.length()), &end);
+	}
+	catch (...)
+	{
+		return false;
+	}
+
+	if (end != url.length() - prefix.length())
+	{
+		return false;
+	}
+
+	if (page < 0)
+	{
+		return false;
+	}
+
+	return handler(s, page);
+}
+
+static bool check_id(std::ostream & s, const std::string & url, const std::string & prefix, std::function<bool(std::ostream &, int32_t, int32_t)> handler)
 {
 	if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
 	{
@@ -103,17 +142,22 @@ static bool check_id(std::ostream & s, const std::string & url, const std::strin
 		return false;
 	}
 
-	if (end != url.length() - prefix.length())
+	if (end == url.length() - prefix.length())
 	{
-		return false;
+		return handler(s, id, 0);
 	}
 
-	handler(s, id);
-
-	return true;
+	return check_page(s, url.substr(prefix.length() + end), "?page=", [handler, id](std::ostream & out, int32_t page) -> bool
+	{
+		if (page <= 0)
+		{
+			return false;
+		}
+		return handler(out, id, page);
+	});
 }
 
-static bool check_id_2(std::ostream & s, const std::string & url, const std::string & prefix1, const std::string & prefix2, std::function<void(std::ostream &, int32_t, int32_t)> handler)
+static bool check_id_2(std::ostream & s, const std::string & url, const std::string & prefix1, const std::string & prefix2, std::function<bool(std::ostream &, int32_t, int32_t, int32_t)> handler)
 {
 	if (url.length() <= prefix1.length() + prefix2.length() || url.substr(0, prefix1.length()) != prefix1)
 	{
@@ -131,33 +175,45 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
 		return false;
 	}
 
-	return check_id(s, url.substr(prefix1.length() + end), prefix2, [handler, id1](std::ostream & out, int32_t id2)
+	return check_id(s, url.substr(prefix1.length() + end), prefix2, [handler, id1](std::ostream & out, int32_t id2, int32_t page) -> bool
 	{
-		handler(out, id1, id2);
+		return handler(out, id1, id2, page);
 	});
 }
 
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url)
 {
+	if (!DFHack::Core::getInstance().isWorldLoaded() || virtual_cast<df::viewscreen_loadgamest>(DFHack::Gui::getCurViewscreen(true)))
+	{
+		http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.");
+		return;
+	}
+
 	std::ostringstream s;
 
 	if (url == "/")
 	{
 		render_home(s);
 	}
-	else if (check_id(s, url, "/ents-", render_entity_list)) {}
+	else if (check_page(s, url, "/ents-", render_entity_list)) {}
 	else if (check_id(s, url, "/ent-", render_entity)) {}
-	else if (check_id(s, url, "/figs-", render_figure_list)) {}
+	else if (check_page(s, url, "/figs-", render_figure_list)) {}
 	else if (check_id(s, url, "/fig-", render_figure)) {}
-	else if (check_id(s, url, "/items-", render_item_list)) {}
+	else if (check_page(s, url, "/items-", render_item_list)) {}
 	else if (check_id(s, url, "/item-", render_item)) {}
-	else if (check_id(s, url, "/regions-", render_region_list)) {}
+	else if (check_page(s, url, "/regions-", render_region_list)) {}
 	else if (check_id(s, url, "/region-", render_region)) {}
-	else if (check_id(s, url, "/sites-", render_site_list)) {}
+	else if (check_page(s, url, "/sites-", render_site_list)) {}
 	else if (check_id(s, url, "/site-", render_site)) {}
 	else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
-	else if (check_id(s, url, "/layers-", render_layer_list)) {}
+	else if (check_page(s, url, "/layers-", render_layer_list)) {}
 	else if (check_id(s, url, "/layer-", render_layer)) {}
+	else if (check_page(s, url, "/eras-", render_era_list)) {}
+	else if (check_id(s, url, "/era-", render_era)) {}
+	else
+	{
+		s.clear();
+	}
 
 	std::string body = DF2UTF(s.str());
 
