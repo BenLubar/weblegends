@@ -1284,7 +1284,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			END_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
 			BREAK(state);
 		case df::history_event_change_hf_statest::T_state::Settled:
-			s << " settled";
+			if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
+			{
+				s << " was born";
+			}
+			else
+			{
+				s << " settled";
+			}
 			BREAK(state);
 		case df::history_event_change_hf_statest::T_state::Refugee:
 			s << " became a refugee";
