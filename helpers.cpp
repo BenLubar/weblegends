@@ -1090,3 +1090,55 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
 		s << "</p>";
 	}
 }
+
+void spheres(std::ostream & s, df::historical_figure *hf)
+{
+	if (hf->info && hf->info->spheres && !hf->info->spheres->empty())
+	{
+		s << " associated with ";
+		list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
+		{
+			out << toLower(ENUM_KEY_STR(sphere_type, t));
+		});
+	}
+}
+
+void year(std::ostream & s, int32_t year, int32_t tick)
+{
+	if (tick != -1)
+	{
+		s << "<abbr title=\"";
+		s << dayth(tick) << " " << month(tick) << " " << year;
+		s << "\">" << year << "</abbr>";
+	}
+	else
+	{
+		s << year;
+	}
+}
+
+void born_died(std::ostream & s, df::historical_figure *hf)
+{
+	// TODO: handle negative years
+	if (hf->born_year <= -1 && hf->died_year <= -1)
+	{
+		return;
+	}
+
+	s << " (";
+	if (hf->born_year > -1)
+	{
+		s << "b. ";
+		year(s, hf->born_year, hf->born_seconds);
+		if (hf->died_year > -1)
+		{
+			s << " ";
+		}
+	}
+	if (hf->died_year > -1)
+	{
+		s << "d. ";
+		year(s, hf->died_year, hf->died_seconds);
+	}
+	s << ")";
+}

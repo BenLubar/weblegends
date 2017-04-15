@@ -111,4 +111,8 @@ void event(std::ostream & s, const event_context & context, df::history_event *e
 void event_reverse(std::ostream & s, const event_context & context, df::history_event *event);
 void pagination(std::ostream & s, const std::string & base, const std::string & page_0, const std::string & page_prefix, int32_t current_page, int32_t last_page);
 
+void spheres(std::ostream & s, df::historical_figure *hf);
+void year(std::ostream & s, int32_t year, int32_t tick);
+void born_died(std::ostream & s, df::historical_figure *hf);
+
 #undef WEBLEGENDS_TYPES

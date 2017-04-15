@@ -47,6 +47,13 @@ static void do_extra(std::ostream & s, T *target)
 	// do nothing
 }
 
+template<>
+static void do_extra<df::historical_figure>(std::ostream & s, df::historical_figure *target)
+{
+	spheres(s, target);
+	born_died(s, target);
+}
+
 template<typename T>
 static bool render_list(std::ostream & s, int32_t page, const std::string & prefix, const std::string & title)
 {
