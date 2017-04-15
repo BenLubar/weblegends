@@ -122,19 +122,33 @@
 #include "df/plant_raw.h"
 #include "df/poetic_form.h"
 #include "df/ui.h"
+#include "df/world.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
 #include "df/written_content.h"
 
+REQUIRE_GLOBAL(gamemode);
 REQUIRE_GLOBAL(ui);
+REQUIRE_GLOBAL(world);
 
 static std::string profession_name(df::historical_figure *hf, df::profession prof, bool plural = false)
 {
-	int32_t old_race_id = ui->race_id;
-	ui->race_id = hf->race;
-	std::string str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
-	ui->race_id = old_race_id;
+	std::string str;
+	if (*gamemode == df::game_mode::ADVENTURE)
+	{
+		int32_t old_race_id = world->units.active[0]->race;
+		world->units.active[0]->race = hf->race;
+		str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
+		world->units.active[0]->race = old_race_id;
+	}
+	else
+	{
+		int16_t old_race_id = ui->race_id;
+		ui->race_id = hf->race;
+		str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
+		ui->race_id = old_race_id;
+	}
 	return toLower(str);
 }
 
