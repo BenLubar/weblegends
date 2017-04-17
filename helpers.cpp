@@ -870,6 +870,18 @@ public:
 				events.at(year).push_back(*it);
 			}
 		}
+
+		for (auto it = events.begin(); it != events.end(); it++)
+		{
+			std::stable_sort(it->begin(), it->end(), [](df::history_event *a, df::history_event *b) -> bool
+			{
+				if (a->year != b->year)
+				{
+					return a->year < b->year;
+				}
+				return a->seconds < b->seconds;
+			});
+		}
 	}
 
 	std::vector<std::vector<df::history_event *>> events;
