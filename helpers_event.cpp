@@ -1312,6 +1312,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			BREAK(state);
 		case (df::history_event_change_hf_statest::T_state)5:
 			s << " visited";
+			separator = " ";
 			BREAK(state);
 	}
 	END_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
