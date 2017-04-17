@@ -2151,7 +2151,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
-	s << "<!--" << event->id << "-->";
+	int32_t month = (event->seconds / 28 / 1200) + 1;
+	int32_t day = ((event->seconds / 1200) % 28) + 1;
+	int32_t hour = (event->seconds % 1200) / 50;
+	int32_t minute = (event->seconds % 50) * 60 / 50;
+	s << "<!--" << event->id << ", " << stl_sprintf("%04d-%02d-%02dT%02d:%02d", event->year, month, day, hour, minute) << "-->";
 	SWITCH(type, event->getType())
 	{
 	case history_event_type::WAR_ATTACKED_SITE:
