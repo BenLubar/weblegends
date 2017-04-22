@@ -1009,12 +1009,19 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 	}
 	if (material(s, context, mat.creature, in_link, in_attr))
 	{
-		df::matter_state state = matter_state::Solid;
-		if (10015 >= mat.material->heat.melting_point)
-			state = matter_state::Liquid;
-		if (10015 >= mat.material->heat.boiling_point)
-			state = matter_state::Gas;
-		s << " " << mat.material->state_name[state];
+		if (mat.material)
+		{
+			df::matter_state state = matter_state::Solid;
+			if (10015 >= mat.material->heat.melting_point)
+				state = matter_state::Liquid;
+			if (10015 >= mat.material->heat.boiling_point)
+				state = matter_state::Gas;
+			s << " " << mat.material->state_name[state];
+		}
+		else
+		{
+			s << " unknown substance";
+		}
 		return;
 	}
 	s << mat.toString();
