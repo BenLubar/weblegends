@@ -1501,29 +1501,32 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	}
 	AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
 
-	df::creature_raw *race;
-	df::caste_raw *caste;
+	df::creature_raw *race = df::creature_raw::find(event->woundee_race);
+	df::caste_raw *caste = race ? race->caste.at(event->woundee_caste) : nullptr;
 
 	auto woundee = df::historical_figure::find(event->woundee);
 	if (woundee)
 	{
-		race = df::creature_raw::find(woundee->race);
-		caste = race->caste.at(woundee->caste);
 		s << " ";
 		event_link(s, context, woundee);
 		s << "&rsquo;s ";
 	}
 	else
 	{
-		race = df::creature_raw::find(event->woundee_race);
-		caste = race->caste.at(event->woundee_caste);
 		s << " the ";
 	}
 
-	df::body_part_raw *bp = caste->body_info.body_parts.at(event->body_part);
-	s << *bp->name_singular.at(0);
+	df::body_part_raw *bp = caste ? caste->body_info.body_parts.at(event->body_part) : nullptr;
+	if (bp)
+	{
+		s << *bp->name_singular.at(0);
+	}
+	else
+	{
+		s << "[unknown body part]";
+	}
 
-	if (woundee == nullptr)
+	if (woundee == nullptr && caste != nullptr)
 	{
 		s << " of a " << caste->caste_name[0];
 	}
