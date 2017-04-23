@@ -71,93 +71,95 @@ bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
 		for (auto it = constructed->improvements.begin(); it != constructed->improvements.end(); it++)
 		{
 			s << "<p>";
-			SWITCH(type, (*it)->getType())
+			BEFORE_SWITCH(type, (*it)->getType());
+			switch (type)
 			{
-                case improvement_type::ART_IMAGE:
-					s << "ART_IMAGE"; // TODO
-					BREAK(type);
-				case improvement_type::COVERED:
-					s << "COVERED"; // TODO
-					BREAK(type);
-				case improvement_type::RINGS_HANGING:
-					s << "RINGS_HANGING"; // TODO
-					BREAK(type);
-				case improvement_type::BANDS:
-					s << "BANDS"; // TODO
-					BREAK(type);
-				case improvement_type::SPIKES:
-					s << "SPIKES"; // TODO
-					BREAK(type);
-				case improvement_type::ITEMSPECIFIC:
-					if (auto imp = virtual_cast<df::itemimprovement_itemspecificst>(*it))
+			case improvement_type::ART_IMAGE:
+				s << "ART_IMAGE"; // TODO
+				BREAK(type);
+			case improvement_type::COVERED:
+				s << "COVERED"; // TODO
+				BREAK(type);
+			case improvement_type::RINGS_HANGING:
+				s << "RINGS_HANGING"; // TODO
+				BREAK(type);
+			case improvement_type::BANDS:
+				s << "BANDS"; // TODO
+				BREAK(type);
+			case improvement_type::SPIKES:
+				s << "SPIKES"; // TODO
+				BREAK(type);
+			case improvement_type::ITEMSPECIFIC:
+				if (auto imp = virtual_cast<df::itemimprovement_itemspecificst>(*it))
+				{
+					BEFORE_SWITCH(specific_type, imp->type);
+					switch (specific_type)
 					{
-						SWITCH(specific_type, imp->type)
-						{
-				case itemimprovement_specific_type::HANDLE:
-					s << " It has a ";
-					material(s, item, imp);
-					s << " handle.";
-					BREAK(specific_type);
-				case itemimprovement_specific_type::ROLLERS:
-					s << " It has ";
-					material(s, item, imp);
-					s << " rollers.";
-					BREAK(specific_type);
-						}
-						END_SWITCH(specific_type, stl_sprintf("item-%d", id));
-					}
-					BREAK(type);
-				case improvement_type::THREAD:
-					s << "THREAD"; // TODO
-					BREAK(type);
-				case improvement_type::CLOTH:
-					s << "CLOTH"; // TODO
-					BREAK(type);
-				case improvement_type::SEWN_IMAGE:
-					s << "SEWN_IMAGE"; // TODO
-					BREAK(type);
-				case improvement_type::PAGES:
-					if (auto imp = virtual_cast<df::itemimprovement_pagesst>(*it))
-					{
-						s << "The " << ItemTypeInfo(item->item).toString() << " contains " << imp->count << " ";
+					case itemimprovement_specific_type::HANDLE:
+						s << " It has a ";
 						material(s, item, imp);
-						if (imp->count == 1)
-						{
-							s << " page.";
-						}
-						else
-						{
-							s << " pages.";
-						}
-						for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
-						{
-							if (auto content = df::written_content::find(*it2))
-							{
-								do_written_content(s, item, content);
-							}
-						}
+						s << " handle.";
+						BREAK(specific_type);
+					case itemimprovement_specific_type::ROLLERS:
+						s << " It has ";
+						material(s, item, imp);
+						s << " rollers.";
+						BREAK(specific_type);
 					}
-					BREAK(type);
-				case improvement_type::ILLUSTRATION:
-					s << "ILLUSTRATION"; // TODO
-					BREAK(type);
-				case improvement_type::INSTRUMENT_PIECE:
-					s << "INSTRUMENT_PIECE"; // TODO
-					BREAK(type);
-				case improvement_type::WRITING:
-					if (auto imp = virtual_cast<df::itemimprovement_writingst>(*it))
+					AFTER_SWITCH(specific_type, stl_sprintf("item-%d", id));
+				}
+				BREAK(type);
+			case improvement_type::THREAD:
+				s << "THREAD"; // TODO
+				BREAK(type);
+			case improvement_type::CLOTH:
+				s << "CLOTH"; // TODO
+				BREAK(type);
+			case improvement_type::SEWN_IMAGE:
+				s << "SEWN_IMAGE"; // TODO
+				BREAK(type);
+			case improvement_type::PAGES:
+				if (auto imp = virtual_cast<df::itemimprovement_pagesst>(*it))
+				{
+					s << "The " << ItemTypeInfo(item->item).toString() << " contains " << imp->count << " ";
+					material(s, item, imp);
+					if (imp->count == 1)
 					{
-						for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
+						s << " page.";
+					}
+					else
+					{
+						s << " pages.";
+					}
+					for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
+					{
+						if (auto content = df::written_content::find(*it2))
 						{
-							if (auto content = df::written_content::find(*it2))
-							{
-								do_written_content(s, item, content);
-							}
+							do_written_content(s, item, content);
 						}
 					}
-					BREAK(type);
+				}
+				BREAK(type);
+			case improvement_type::ILLUSTRATION:
+				s << "ILLUSTRATION"; // TODO
+				BREAK(type);
+			case improvement_type::INSTRUMENT_PIECE:
+				s << "INSTRUMENT_PIECE"; // TODO
+				BREAK(type);
+			case improvement_type::WRITING:
+				if (auto imp = virtual_cast<df::itemimprovement_writingst>(*it))
+				{
+					for (auto it2 = imp->contents.begin(); it2 != imp->contents.end(); it2++)
+					{
+						if (auto content = df::written_content::find(*it2))
+						{
+							do_written_content(s, item, content);
+						}
+					}
+				}
+				BREAK(type);
 			}
-			END_SWITCH(type, stl_sprintf("item-%d", id));
+			AFTER_SWITCH(type, stl_sprintf("item-%d", id));
 			s << "</p>";
 		}
 	}

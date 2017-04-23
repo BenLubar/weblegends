@@ -357,200 +357,201 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	auto victim = df::historical_figure::find(event->victim_hf);
 	event_link(s, context, victim);
 
-	SWITCH(cause, event->death_cause)
+	BEFORE_SWITCH(cause, event->death_cause);
+	switch (cause)
 	{
-        case death_type::OLD_AGE:
-			s << " died of old age";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::HUNGER:
-			s << " starved to death";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::THIRST:
-			s << " died of thirst";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::SHOT:
-			s << " was shot and killed";
-			BREAK(cause);
-		case death_type::BLEED:
-			s << " bled to death";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::DROWN:
-			s << " drowned";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::SUFFOCATE:
-			s << " suffocated";
-			prefix = ", strangled";
-			BREAK(cause);
-		case death_type::STRUCK_DOWN:
-			s << " was slain";
-			BREAK(cause);
-		case death_type::SCUTTLE:
-			s << " was scuttled";
-			BREAK(cause);
-		case death_type::COLLISION:
-			s << " died in a collision";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::MAGMA:
-			s << " was boiled alive in magma";
-			prefix = ", pushed";
-			BREAK(cause);
-		case death_type::MAGMA_MIST:
-			s << " got too close to magma";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::DRAGONFIRE:
-			s << " was burned to a crisp";
-			BREAK(cause);
-		case death_type::FIRE:
-			s << " burned to death";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::SCALD:
-			s << " was scalded";
-			BREAK(cause);
-		case death_type::CAVEIN:
-			s << " was crushed in a cave-in";
-			prefix = " caused";
-			BREAK(cause);
-		case death_type::DRAWBRIDGE:
-			s << " was crushed by a drawbridge";
-			prefix = " operated";
-			BREAK(cause);
-		case death_type::FALLING_ROCKS:
-			s << " was crushed by falling rocks";
-			prefix = " dropped";
-			BREAK(cause);
-		case death_type::CHASM:
-			s << " fell into a deep chasm";
-			prefix = ", pushed";
-			BREAK(cause);
-		case death_type::CAGE:
-			s << " died in a cage";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::MURDER:
-			s << " was murdered";
-			BREAK(cause);
-		case death_type::TRAP:
-			s << " died in a trap";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::VANISH:
-			s << " vanished into thin air";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::QUIT:
-			s << " gave into starvation";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::ABANDON:
-			s << " was abandoned";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::HEAT:
-			s << " died of heat";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::COLD:
-			s << " died of cold";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::SPIKE:
-			s << " died on a spike";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::ENCASE_LAVA:
-			s << " was encased in cooling lava";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::ENCASE_MAGMA:
-			s << " was encased in cooling magma";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::ENCASE_ICE:
-			s << " was encased in ice";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::BEHEAD:
-			s << " was beheaded";
-			BREAK(cause);
-		case death_type::CRUCIFY:
-			s << " was crucified";
-			BREAK(cause);
-		case death_type::BURY_ALIVE:
-			s << " was buried alive";
-			BREAK(cause);
-		case death_type::DROWN_ALT:
-			s << " was drowned";
-			BREAK(cause);
-		case death_type::BURN_ALIVE:
-			s << " was burned alive";
-			BREAK(cause);
-		case death_type::FEED_TO_BEASTS:
-			s << " was fed to beasts";
-			BREAK(cause);
-		case death_type::HACK_TO_PIECES:
-			s << " was hacked to pieces";
-			BREAK(cause);
-		case death_type::LEAVE_OUT_IN_AIR:
-			s << " was left out in the air";
-			BREAK(cause);
-		case death_type::BOIL:
-			s << " boiled";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::MELT:
-			s << " melted";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::CONDENSE:
-			s << " condensed";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::SOLIDIFY:
-			s << " solidified";
-			prefix = ", killed";
-			BREAK(cause);
-		case death_type::INFECTION:
-			s << " succumbed to infection";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::MEMORIALIZE:
-			s << " was put to death";
-			BREAK(cause);
-		case death_type::SCARE:
-			s << " was scared to death";
-			BREAK(cause);
-		case death_type::DARKNESS:
-			s << " died in the dark";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::COLLAPSE:
-			s << " collapsed";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::DRAIN_BLOOD:
-			s << " was drained of blood";
-			BREAK(cause);
-		case death_type::SLAUGHTER:
-			s << " was slaughtered";
-			BREAK(cause);
-		case death_type::VEHICLE:
-			s << " was killed by a vehicle";
-			prefix = " after being attacked";
-			BREAK(cause);
-		case death_type::FALLING_OBJECT:
-			s << " was killed by a falling object";
-			prefix = " after being attacked";
-			BREAK(cause);
+	case death_type::OLD_AGE:
+		s << " died of old age";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::HUNGER:
+		s << " starved to death";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::THIRST:
+		s << " died of thirst";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::SHOT:
+		s << " was shot and killed";
+		BREAK(cause);
+	case death_type::BLEED:
+		s << " bled to death";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::DROWN:
+		s << " drowned";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::SUFFOCATE:
+		s << " suffocated";
+		prefix = ", strangled";
+		BREAK(cause);
+	case death_type::STRUCK_DOWN:
+		s << " was slain";
+		BREAK(cause);
+	case death_type::SCUTTLE:
+		s << " was scuttled";
+		BREAK(cause);
+	case death_type::COLLISION:
+		s << " died in a collision";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::MAGMA:
+		s << " was boiled alive in magma";
+		prefix = ", pushed";
+		BREAK(cause);
+	case death_type::MAGMA_MIST:
+		s << " got too close to magma";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::DRAGONFIRE:
+		s << " was burned to a crisp";
+		BREAK(cause);
+	case death_type::FIRE:
+		s << " burned to death";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::SCALD:
+		s << " was scalded";
+		BREAK(cause);
+	case death_type::CAVEIN:
+		s << " was crushed in a cave-in";
+		prefix = " caused";
+		BREAK(cause);
+	case death_type::DRAWBRIDGE:
+		s << " was crushed by a drawbridge";
+		prefix = " operated";
+		BREAK(cause);
+	case death_type::FALLING_ROCKS:
+		s << " was crushed by falling rocks";
+		prefix = " dropped";
+		BREAK(cause);
+	case death_type::CHASM:
+		s << " fell into a deep chasm";
+		prefix = ", pushed";
+		BREAK(cause);
+	case death_type::CAGE:
+		s << " died in a cage";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::MURDER:
+		s << " was murdered";
+		BREAK(cause);
+	case death_type::TRAP:
+		s << " died in a trap";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::VANISH:
+		s << " vanished into thin air";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::QUIT:
+		s << " gave into starvation";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::ABANDON:
+		s << " was abandoned";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::HEAT:
+		s << " died of heat";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::COLD:
+		s << " died of cold";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::SPIKE:
+		s << " died on a spike";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::ENCASE_LAVA:
+		s << " was encased in cooling lava";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::ENCASE_MAGMA:
+		s << " was encased in cooling magma";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::ENCASE_ICE:
+		s << " was encased in ice";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::BEHEAD:
+		s << " was beheaded";
+		BREAK(cause);
+	case death_type::CRUCIFY:
+		s << " was crucified";
+		BREAK(cause);
+	case death_type::BURY_ALIVE:
+		s << " was buried alive";
+		BREAK(cause);
+	case death_type::DROWN_ALT:
+		s << " was drowned";
+		BREAK(cause);
+	case death_type::BURN_ALIVE:
+		s << " was burned alive";
+		BREAK(cause);
+	case death_type::FEED_TO_BEASTS:
+		s << " was fed to beasts";
+		BREAK(cause);
+	case death_type::HACK_TO_PIECES:
+		s << " was hacked to pieces";
+		BREAK(cause);
+	case death_type::LEAVE_OUT_IN_AIR:
+		s << " was left out in the air";
+		BREAK(cause);
+	case death_type::BOIL:
+		s << " boiled";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::MELT:
+		s << " melted";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::CONDENSE:
+		s << " condensed";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::SOLIDIFY:
+		s << " solidified";
+		prefix = ", killed";
+		BREAK(cause);
+	case death_type::INFECTION:
+		s << " succumbed to infection";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::MEMORIALIZE:
+		s << " was put to death";
+		BREAK(cause);
+	case death_type::SCARE:
+		s << " was scared to death";
+		BREAK(cause);
+	case death_type::DARKNESS:
+		s << " died in the dark";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::COLLAPSE:
+		s << " collapsed";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::DRAIN_BLOOD:
+		s << " was drained of blood";
+		BREAK(cause);
+	case death_type::SLAUGHTER:
+		s << " was slaughtered";
+		BREAK(cause);
+	case death_type::VEHICLE:
+		s << " was killed by a vehicle";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::FALLING_OBJECT:
+		s << " was killed by a falling object";
+		prefix = " after being attacked";
+		BREAK(cause);
 	}
-	END_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
+	AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
 	do_weapon(s, context, event->weapon);
 	if (auto slayer = df::historical_figure::find(event->slayer_hf))
 	{
@@ -595,147 +596,148 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	auto ent = df::historical_entity::find(event->civ);
 	auto hf = df::historical_figure::find(event->histfig);
 	df::entity_position *pos;
-	SWITCH(type, event->link_type)
+	BEFORE_SWITCH(type, event->link_type);
+	switch (type)
 	{
-		case histfig_entity_link_type::MEMBER:
-			event_link(s, context, hf);
-			s << " became a member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_MEMBER:
-			event_link(s, context, hf);
-			s << " became a former member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::MERCENARY:
-			event_link(s, context, hf);
-			s << " became a mercenary of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_MERCENARY:
-			event_link(s, context, hf);
-			s << " became a former mercenary of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::SLAVE:
-			event_link(s, context, hf);
-			s << " became a slave of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_SLAVE:
-			event_link(s, context, hf);
-			s << " became a former slave of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::PRISONER:
-			event_link(s, context, hf);
-			s << " became a prisoner of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_PRISONER:
-			event_link(s, context, hf);
-			s << " became a former prisoner of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::ENEMY:
-			event_link(s, context, hf);
-			s << " became an enemy of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::CRIMINAL:
-			event_link(s, context, hf);
-			s << " became a criminal of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::POSITION:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " became ";
-			if (pos->number == 1)
-			{
-				s << "the ";
-			}
-			else
-			{
-				s << "a ";
-			}
-			if (hf->sex == 0 && !pos->name_female[0].empty())
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1 && !pos->name_male[0].empty())
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_POSITION:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " became a former ";
-			if (hf->sex == 0)
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1)
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::POSITION_CLAIM:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " claimed the position of ";
-			if (hf->sex == 0)
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1)
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::SQUAD:
-			event_link(s, context, hf);
-			s << " became a squad member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_SQUAD:
-			event_link(s, context, hf);
-			s << " became a former squad member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::OCCUPATION:
-			event_link(s, context, hf);
-			s << " became a worker of ";
-			// TODO: get occupation type
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_OCCUPATION:
-			event_link(s, context, hf);
-			s << " became a former worker of ";
-			// TODO: get occupation type
-			event_link(s, context, ent);
-			BREAK(type);
+	case histfig_entity_link_type::MEMBER:
+		event_link(s, context, hf);
+		s << " became a member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_MEMBER:
+		event_link(s, context, hf);
+		s << " became a former member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::MERCENARY:
+		event_link(s, context, hf);
+		s << " became a mercenary of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_MERCENARY:
+		event_link(s, context, hf);
+		s << " became a former mercenary of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::SLAVE:
+		event_link(s, context, hf);
+		s << " became a slave of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_SLAVE:
+		event_link(s, context, hf);
+		s << " became a former slave of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::PRISONER:
+		event_link(s, context, hf);
+		s << " became a prisoner of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_PRISONER:
+		event_link(s, context, hf);
+		s << " became a former prisoner of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::ENEMY:
+		event_link(s, context, hf);
+		s << " became an enemy of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::CRIMINAL:
+		event_link(s, context, hf);
+		s << " became a criminal of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::POSITION:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " became ";
+		if (pos->number == 1)
+		{
+			s << "the ";
+		}
+		else
+		{
+			s << "a ";
+		}
+		if (hf->sex == 0 && !pos->name_female[0].empty())
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1 && !pos->name_male[0].empty())
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_POSITION:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " became a former ";
+		if (hf->sex == 0)
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1)
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::POSITION_CLAIM:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " claimed the position of ";
+		if (hf->sex == 0)
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1)
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::SQUAD:
+		event_link(s, context, hf);
+		s << " became a squad member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_SQUAD:
+		event_link(s, context, hf);
+		s << " became a former squad member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::OCCUPATION:
+		event_link(s, context, hf);
+		s << " became a worker of ";
+		// TODO: get occupation type
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_OCCUPATION:
+		event_link(s, context, hf);
+		s << " became a former worker of ";
+		// TODO: get occupation type
+		event_link(s, context, ent);
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_remove_hf_entity_linkst *event)
@@ -743,160 +745,161 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	auto ent = df::historical_entity::find(event->civ);
 	auto hf = df::historical_figure::find(event->histfig);
 	df::entity_position *pos;
-	SWITCH(type, event->link_type)
+	BEFORE_SWITCH(type, event->link_type);
+	switch (type)
 	{
-		case histfig_entity_link_type::MEMBER:
-			event_link(s, context, hf);
-			s << " ceased to be a member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_MEMBER:
-			event_link(s, context, hf);
-			s << " ceased to be a former member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::MERCENARY:
-			event_link(s, context, hf);
-			s << " ceased to be a mercenary of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_MERCENARY:
-			event_link(s, context, hf);
-			s << " ceased to be a former mercenary of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::SLAVE:
-			event_link(s, context, hf);
-			s << " ceased to be a slave of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_SLAVE:
-			event_link(s, context, hf);
-			s << " ceased to be a former slave of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::PRISONER:
-			event_link(s, context, hf);
-			s << " ceased to be a prisoner of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_PRISONER:
-			event_link(s, context, hf);
-			s << " ceased to be a former prisoner of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::ENEMY:
-			event_link(s, context, hf);
-			s << " ceased to be an enemy of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::CRIMINAL:
-			event_link(s, context, hf);
-			s << " ceased to be a criminal of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::POSITION:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " ceased to be ";
-			if (pos->number == 1)
-			{
-				s << "the ";
-			}
-			else
-			{
-				s << "a ";
-			}
-			if (hf->sex == 0 && !pos->name_female[0].empty())
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1 && !pos->name_male[0].empty())
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_POSITION:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " ceased to be a former ";
-			if (hf->sex == 0)
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1)
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::POSITION_CLAIM:
-			pos = binsearch_in_vector(ent->positions.own, event->position_id);
-			event_link(s, context, hf);
-			s << " relinquished ";
-			if (hf->sex == 0)
-			{
-				s << "her";
-			}
-			else if (hf->sex == 1)
-			{
-				s << "his";
-			}
-			else
-			{
-				s << "its";
-			}
-			s << " claim of the position of ";
-			if (hf->sex == 0)
-			{
-				s << pos->name_female[0];
-			}
-			else if (hf->sex == 1)
-			{
-				s << pos->name_male[0];
-			}
-			else
-			{
-				s << pos->name[0];
-			}
-			s << " of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::SQUAD:
-			event_link(s, context, hf);
-			s << " ceased to be a squad member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_SQUAD:
-			event_link(s, context, hf);
-			s << " ceased to be a former squad member of ";
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::OCCUPATION:
-			event_link(s, context, hf);
-			s << " ceased to be a worker of ";
-			// TODO: get occupation type
-			event_link(s, context, ent);
-			BREAK(type);
-		case histfig_entity_link_type::FORMER_OCCUPATION:
-			event_link(s, context, hf);
-			s << " ceased to be a former worker of ";
-			// TODO: get occupation type
-			event_link(s, context, ent);
-			BREAK(type);
+	case histfig_entity_link_type::MEMBER:
+		event_link(s, context, hf);
+		s << " ceased to be a member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_MEMBER:
+		event_link(s, context, hf);
+		s << " ceased to be a former member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::MERCENARY:
+		event_link(s, context, hf);
+		s << " ceased to be a mercenary of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_MERCENARY:
+		event_link(s, context, hf);
+		s << " ceased to be a former mercenary of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::SLAVE:
+		event_link(s, context, hf);
+		s << " ceased to be a slave of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_SLAVE:
+		event_link(s, context, hf);
+		s << " ceased to be a former slave of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::PRISONER:
+		event_link(s, context, hf);
+		s << " ceased to be a prisoner of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_PRISONER:
+		event_link(s, context, hf);
+		s << " ceased to be a former prisoner of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::ENEMY:
+		event_link(s, context, hf);
+		s << " ceased to be an enemy of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::CRIMINAL:
+		event_link(s, context, hf);
+		s << " ceased to be a criminal of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::POSITION:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " ceased to be ";
+		if (pos->number == 1)
+		{
+			s << "the ";
+		}
+		else
+		{
+			s << "a ";
+		}
+		if (hf->sex == 0 && !pos->name_female[0].empty())
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1 && !pos->name_male[0].empty())
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_POSITION:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " ceased to be a former ";
+		if (hf->sex == 0)
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1)
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::POSITION_CLAIM:
+		pos = binsearch_in_vector(ent->positions.own, event->position_id);
+		event_link(s, context, hf);
+		s << " relinquished ";
+		if (hf->sex == 0)
+		{
+			s << "her";
+		}
+		else if (hf->sex == 1)
+		{
+			s << "his";
+		}
+		else
+		{
+			s << "its";
+		}
+		s << " claim of the position of ";
+		if (hf->sex == 0)
+		{
+			s << pos->name_female[0];
+		}
+		else if (hf->sex == 1)
+		{
+			s << pos->name_male[0];
+		}
+		else
+		{
+			s << pos->name[0];
+		}
+		s << " of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::SQUAD:
+		event_link(s, context, hf);
+		s << " ceased to be a squad member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_SQUAD:
+		event_link(s, context, hf);
+		s << " ceased to be a former squad member of ";
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::OCCUPATION:
+		event_link(s, context, hf);
+		s << " ceased to be a worker of ";
+		// TODO: get occupation type
+		event_link(s, context, ent);
+		BREAK(type);
+	case histfig_entity_link_type::FORMER_OCCUPATION:
+		event_link(s, context, hf);
+		s << " ceased to be a former worker of ";
+		// TODO: get occupation type
+		event_link(s, context, ent);
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_war_peace_acceptedst *event)
@@ -999,28 +1002,29 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	{
 		event_link(s, context, ent);
 	}
-	SWITCH(type, event->abuse_type)
+	BEFORE_SWITCH(type, event->abuse_type);
+	switch (type)
 	{
-		case df::history_event_body_abusedst::T_abuse_type::Impaled:
-			s << " impaled";
-			BREAK(type);
-		case df::history_event_body_abusedst::T_abuse_type::Piled:
-			s << " added";
-			BREAK(type);
-		case df::history_event_body_abusedst::T_abuse_type::Flayed:
-			s << " flayed";
-			BREAK(type);
-		case df::history_event_body_abusedst::T_abuse_type::Hung:
-			s << " hung";
-			BREAK(type);
-		case df::history_event_body_abusedst::T_abuse_type::Mutilated:
-			s << " horribly mutilated";
-			BREAK(type);
-		case df::history_event_body_abusedst::T_abuse_type::Animated:
-			s << " animated";
-			BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Impaled:
+		s << " impaled";
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Piled:
+		s << " added";
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Flayed:
+		s << " flayed";
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Hung:
+		s << " hung";
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Mutilated:
+		s << " horribly mutilated";
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Animated:
+		s << " animated";
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
 	if (event->bodies.size() == 1)
 	{
 		s << " the body of ";
@@ -1034,31 +1038,32 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		auto hf = df::historical_figure::find(id);
 		event_link(out, context, hf);
 	});
-	SWITCH(type, event->abuse_type)
+	BEFORE_SWITCH(type, event->abuse_type);
+	switch (type)
 	{
-		case df::history_event_body_abusedst::T_abuse_type::Impaled:
+	case df::history_event_body_abusedst::T_abuse_type::Impaled:
+	{
+		ASSUME_EQUAL(event->props.item.item_type, item_type::WEAPON, stl_sprintf("event-%d (BODY_ABUSED) impaled", event->id));
+		auto idef = df::itemdef_weaponst::find(event->props.item.item_subtype);
+		s << " on ";
+		if (event->bodies.size() == 1)
 		{
-			// event->props.item.item_type == item_type::WEAPON
-			auto idef = df::itemdef_weaponst::find(event->props.item.item_subtype);
-			s << " on ";
-			if (event->bodies.size() == 1)
-			{
-				s << "a ";
-				material(s, context, &event->props.item);
-				s << " " << idef->name;
-			}
-			else
-			{
-				material(s, context, &event->props.item);
-				s << " " << idef->name_plural;
-			}
-			BREAK(type);
+			s << "a ";
+			material(s, context, &event->props.item);
+			s << " " << idef->name;
 		}
-		case df::history_event_body_abusedst::T_abuse_type::Piled:
+		else
 		{
-			s << " to a ";
-			SWITCH(pile_type, event->props.pile_type)
-			{
+			material(s, context, &event->props.item);
+			s << " " << idef->name_plural;
+		}
+		BREAK(type);
+	}
+	case df::history_event_body_abusedst::T_abuse_type::Piled:
+		s << " to a ";
+		BEFORE_SWITCH(pile_type, event->props.pile_type);
+		switch (pile_type)
+		{
 		case df::history_event_body_abusedst::T_props::T_pile_type::GrislyMound:
 			s << "grisly mound";
 			BREAK(pile_type);
@@ -1068,69 +1073,62 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		case df::history_event_body_abusedst::T_props::T_pile_type::GruesomeSculpture:
 			s << "gruesome sculpture";
 			BREAK(pile_type);
-			}
-			END_SWITCH(pile_type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
-			BREAK(type);
 		}
-		case df::history_event_body_abusedst::T_abuse_type::Flayed:
+		AFTER_SWITCH(pile_type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Flayed:
+	{
+		s << " and stretched ";
+		if (event->bodies.size() == 1)
 		{
-			s << " and stretched ";
-			if (event->bodies.size() == 1)
+			auto hf = df::historical_figure::find(event->bodies.at(0));
+			if (hf->sex == 0)
 			{
-				auto hf = df::historical_figure::find(event->bodies.at(0));
-				if (hf->sex == 0)
-				{
-					s << "her skin";
-				}
-				else if (hf->sex == 1)
-				{
-					s << "his skin";
-				}
-				else
-				{
-					s << "its skin";
-				}
+				s << "her skin";
+			}
+			else if (hf->sex == 1)
+			{
+				s << "his skin";
 			}
 			else
 			{
-				s << "their skins";
+				s << "its skin";
 			}
-			s << " over ";
-			auto site = df::world_site::find(event->site);
-			auto structure = binsearch_in_vector(site->buildings, event->props.structure);
-			event_link(s, context, structure);
-			BREAK(type);
 		}
-		case df::history_event_body_abusedst::T_abuse_type::Hung:
+		else
 		{
-			s << " from ";
-			if (auto tree = df::plant_raw::find(event->props.hung.tree))
-			{
-				s << "a " << tree->name << " tree with ";
-			}
-			if (event->bodies.size() == 1)
-			{
-				s << "a ";
-				material(s, context, &event->props.hung);
-				s << " rope";
-			}
-			else
-			{
-				material(s, context, &event->props.hung);
-				s << " ropes";
-			}
-			BREAK(type);
+			s << "their skins";
 		}
-		case df::history_event_body_abusedst::T_abuse_type::Mutilated:
-		{
-			BREAK(type);
-		}
-		case df::history_event_body_abusedst::T_abuse_type::Animated:
-		{
-			BREAK(type);
-		}
+		s << " over ";
+		auto site = df::world_site::find(event->site);
+		auto structure = binsearch_in_vector(site->buildings, event->props.structure);
+		event_link(s, context, structure);
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
+	case df::history_event_body_abusedst::T_abuse_type::Hung:
+		s << " from ";
+		if (auto tree = df::plant_raw::find(event->props.hung.tree))
+		{
+			s << "a " << tree->name << " tree with ";
+		}
+		if (event->bodies.size() == 1)
+		{
+			s << "a ";
+			material(s, context, &event->props.hung);
+			s << " rope";
+		}
+		else
+		{
+			material(s, context, &event->props.hung);
+			s << " ropes";
+		}
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Mutilated:
+		BREAK(type);
+	case df::history_event_body_abusedst::T_abuse_type::Animated:
+		BREAK(type);
+	}
+	AFTER_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
 	// TODO: int32_t anon_1;
 	do_location_2(s, context, event);
 }
@@ -1205,76 +1203,77 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 {
 	auto hf = df::historical_figure::find(event->hf);
 	auto hf_target = df::historical_figure::find(event->hf_target);
-	SWITCH(type, event->type)
+	BEFORE_SWITCH(type, event->type);
+	switch (type)
 	{
-		case df::histfig_hf_link_type::MOTHER:
-			event_link(s, context, hf);
-			s << " gave birth to ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::FATHER:
-			event_link(s, context, hf);
-			s << " fathered ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::SPOUSE:
-			event_link(s, context, hf);
-			s << " married ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::CHILD:
-			event_link(s, context, hf);
-			s << " was born to ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::DEITY:
-			event_link(s, context, hf);
-			s << " began worshipping ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::LOVER:
-			event_link(s, context, hf);
-			s << " fell in love with ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::PRISONER:
-			event_link(s, context, hf);
-			s << " was imprisoned by ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::IMPRISONER:
-			event_link(s, context, hf);
-			s << " imprisoned ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::MASTER:
-			event_link(s, context, hf);
-			s << " accepted ";
-			event_link(s, context, hf_target);
-			s << " as an apprentice";
-			BREAK(type);
-		case df::histfig_hf_link_type::APPRENTICE:
-			event_link(s, context, hf);
-			s << " started an apprenticeship under ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::COMPANION:
-			event_link(s, context, hf);
-			s << " became the companion of ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::FORMER_MASTER:
-			event_link(s, context, hf);
-			s << " was no longer the master of ";
-			event_link(s, context, hf_target);
-			BREAK(type);
-		case df::histfig_hf_link_type::FORMER_APPRENTICE:
-			event_link(s, context, hf);
-			s << " was no longer the apprentice of ";
-			event_link(s, context, hf_target);
-			BREAK(type);
+	case histfig_hf_link_type::MOTHER:
+		event_link(s, context, hf);
+		s << " gave birth to ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FATHER:
+		event_link(s, context, hf);
+		s << " fathered ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::SPOUSE:
+		event_link(s, context, hf);
+		s << " married ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::CHILD:
+		event_link(s, context, hf);
+		s << " was born to ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::DEITY:
+		event_link(s, context, hf);
+		s << " began worshipping ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::LOVER:
+		event_link(s, context, hf);
+		s << " fell in love with ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::PRISONER:
+		event_link(s, context, hf);
+		s << " was imprisoned by ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::IMPRISONER:
+		event_link(s, context, hf);
+		s << " imprisoned ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::MASTER:
+		event_link(s, context, hf);
+		s << " accepted ";
+		event_link(s, context, hf_target);
+		s << " as an apprentice";
+		BREAK(type);
+	case histfig_hf_link_type::APPRENTICE:
+		event_link(s, context, hf);
+		s << " started an apprenticeship under ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::COMPANION:
+		event_link(s, context, hf);
+		s << " became the companion of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FORMER_MASTER:
+		event_link(s, context, hf);
+		s << " was no longer the master of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FORMER_APPRENTICE:
+		event_link(s, context, hf);
+		s << " was no longer the apprentice of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_statest *event)
@@ -1282,11 +1281,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	std::string separator = " in ";
 	auto hf = df::historical_figure::find(event->hfid);
 	event_link(s, context, hf);
-	SWITCH(state, event->state)
+	BEFORE_SWITCH(state, event->state);
+	switch (state)
 	{
-		case df::history_event_change_hf_statest::T_state::Wandering:
-			SWITCH(substate, event->substate)
-			{
+	case df::history_event_change_hf_statest::T_state::Wandering:
+		BEFORE_SWITCH(substate, event->substate);
+		switch (substate)
+		{
 		case df::history_event_change_hf_statest::T_substate::Fled:
 			s << " fled";
 			separator = " to ";
@@ -1294,28 +1295,28 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		case df::history_event_change_hf_statest::T_substate::Wandered:
 			s << " was wandering";
 			BREAK(substate);
-			}
-			END_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
-			BREAK(state);
-		case df::history_event_change_hf_statest::T_state::Settled:
-			if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
-			{
-				s << " was born";
-			}
-			else
-			{
-				s << " settled";
-			}
-			BREAK(state);
-		case df::history_event_change_hf_statest::T_state::Refugee:
-			s << " became a refugee";
-			BREAK(state);
-		case (df::history_event_change_hf_statest::T_state)5:
-			s << " visited";
-			separator = " ";
-			BREAK(state);
+		}
+		AFTER_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
+		BREAK(state);
+	case df::history_event_change_hf_statest::T_state::Settled:
+		if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
+		{
+			s << " was born";
+		}
+		else
+		{
+			s << " settled";
+		}
+		BREAK(state);
+	case df::history_event_change_hf_statest::T_state::Refugee:
+		s << " became a refugee";
+		BREAK(state);
+	case (df::history_event_change_hf_statest::T_state)5:
+		s << " visited";
+		separator = " ";
+		BREAK(state);
 	}
-	END_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
+	AFTER_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
 	do_location_2(s, context, event, separator);
 }
 
@@ -1340,6 +1341,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			}
 			else
 			{
+				ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
 				s << "its";
 			}
 			s << " previous job as a " << profession_name(hf, event->old_job);
@@ -1358,6 +1360,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		}
 		else
 		{
+			ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
 			s << "its";
 		}
 		s << " job as a " << profession_name(hf, event->old_job);
@@ -1436,11 +1439,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	event_link(s, context, wounder);
 
 	std::string suffix;
-	SWITCH(type, event->injury_type)
+	BEFORE_SWITCH(type, event->injury_type);
+	switch (type)
 	{
-		case df::history_event_hist_figure_woundedst::Smash:
-			SWITCH(part_lost, event->part_lost)
-			{
+	case df::history_event_hist_figure_woundedst::T_injury_type::Smash:
+		BEFORE_SWITCH(part_lost, event->part_lost);
+		switch (part_lost)
+		{
 		case 0:
 			s << " smashed";
 			BREAK(part_lost);
@@ -1448,12 +1453,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "crushed";
 			suffix = " to a pulp";
 			BREAK(part_lost);
-			}
-			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash"));
-			BREAK(type);
-		case df::history_event_hist_figure_woundedst::Slash:
-			SWITCH(part_lost, event->part_lost)
-			{
+		}
+		AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash"));
+		BREAK(type);
+	case df::history_event_hist_figure_woundedst::T_injury_type::Slash:
+		BEFORE_SWITCH(part_lost, event->part_lost);
+		switch (part_lost)
+		{
 		case 0:
 			s << " cut";
 			BREAK(part_lost);
@@ -1461,12 +1467,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << " cut";
 			suffix = " off";
 			BREAK(part_lost);
-			}
-			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash"));
-			BREAK(type);
-		case df::history_event_hist_figure_woundedst::Stab:
-			SWITCH(part_lost, event->part_lost)
-			{
+		}
+		AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash"));
+		BREAK(type);
+	case df::history_event_hist_figure_woundedst::T_injury_type::Stab:
+		BEFORE_SWITCH(part_lost, event->part_lost);
+		switch (part_lost)
+		{
 		case 0:
 			s << " stabbed";
 			BREAK(part_lost);
@@ -1474,12 +1481,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << " punctured";
 			suffix = " into an indistinguishable mess";
 			BREAK(part_lost);
-			}
-			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab"));
-			BREAK(type);
-		case df::history_event_hist_figure_woundedst::Rip:
-			SWITCH(part_lost, event->part_lost)
-			{
+		}
+		AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab"));
+		BREAK(type);
+	case df::history_event_hist_figure_woundedst::T_injury_type::Rip:
+		BEFORE_SWITCH(part_lost, event->part_lost);
+		switch (part_lost)
+		{
 		case 0:
 			s << " ripped";
 			BREAK(part_lost);
@@ -1487,11 +1495,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << " tore";
 			suffix = " off";
 			BREAK(part_lost);
-			}
-			END_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip"));
-			BREAK(type);
+		}
+		AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip"));
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
 
 	df::creature_raw *race;
 	df::caste_raw *caste;
@@ -1532,36 +1540,37 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		auto hf = df::historical_figure::find(id);
 		event_link(out, context, hf);
 	});
-	SWITCH(type, event->subtype)
+	BEFORE_SWITCH(type, event->subtype);
+	switch (type)
 	{
-		case history_event_simple_battle_subtype::SCUFFLE:
-			s << " had a scuffle with ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::ATTACK:
-			s << " attacked ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::SURPRISE:
-			s << " surprised ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::AMBUSH:
-			s << " ambushed ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::HAPPEN_UPON:
-			s << " happened upon ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::CORNER:
-			s << " cornered ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::CONFRONT:
-			s << " confronted ";
-			BREAK(type);
-		case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
-		case history_event_simple_battle_subtype::LOSE_AFTER_INFLICT_WOUND:
-		case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
-			s << " attacked ";
-			BREAK(type);
+	case history_event_simple_battle_subtype::SCUFFLE:
+		s << " had a scuffle with ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::ATTACK:
+		s << " attacked ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::SURPRISE:
+		s << " surprised ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::AMBUSH:
+		s << " ambushed ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::HAPPEN_UPON:
+		s << " happened upon ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::CORNER:
+		s << " cornered ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::CONFRONT:
+		s << " confronted ";
+		BREAK(type);
+	case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
+	case history_event_simple_battle_subtype::LOSE_AFTER_INFLICT_WOUND:
+	case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
+		s << " attacked ";
+		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
 	list<int32_t>(s, event->group2, [context](std::ostream & out, int32_t id)
 	{
 		auto hf = df::historical_figure::find(id);
@@ -1592,7 +1601,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		event_link(out, context, hf);
 	});
 	std::string prefix = " to ";
-	SWITCH(reason, event->reason)
+	BEFORE_SWITCH(reason, event->reason);
+	switch (reason)
 	{
 	case df::history_event_hist_figure_travelst::T_reason::Journey:
 		s << " made a journey";
@@ -1605,7 +1615,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		prefix = " from ";
 		BREAK(reason);
 	}
-	END_SWITCH(reason, stl_sprintf("event-%d (HIST_FIGURE_TRAVEL)", event->id));
+	AFTER_SWITCH(reason, stl_sprintf("event-%d (HIST_FIGURE_TRAVEL)", event->id));
 	do_location_2(s, context, event, prefix);
 }
 
@@ -1636,7 +1646,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	auto hf = df::historical_figure::find(event->histfig);
 	event_link(s, context, hf);
 
-	SWITCH(action, event->action)
+	BEFORE_SWITCH(action, event->action);
+	switch (action)
 	{
 	case df::history_event_hf_act_on_buildingst::T_action::Profane:
 		s << " profaned ";
@@ -1645,7 +1656,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " disturbed ";
 		BREAK(action);
 	}
-	END_SWITCH(action, stl_sprintf("event-%d (HF_ACT_ON_BUILDING)", event->id));
+	AFTER_SWITCH(action, stl_sprintf("event-%d (HF_ACT_ON_BUILDING)", event->id));
 
 	auto site = df::world_site::find(event->site);
 	auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
@@ -1716,9 +1727,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	s << " held ";
 	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
 	auto schedule = vector_get(occasion->schedule, event->schedule);
-	SWITCH(type, schedule->type)
+	BEFORE_SWITCH(type, schedule->type);
+	switch (type)
 	{
-	case df::occasion_schedule_type::DANCE_PERFORMANCE:
+	case occasion_schedule_type::DANCE_PERFORMANCE:
 		if (auto form = df::dance_form::find(schedule->reference))
 		{
 			s << "a performance of the dance ";
@@ -1729,7 +1741,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a dance performance";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::MUSICAL_PERFORMANCE:
+	case occasion_schedule_type::MUSICAL_PERFORMANCE:
 		if (auto form = df::musical_form::find(schedule->reference))
 		{
 			s << "a performance of the song ";
@@ -1740,7 +1752,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a musical performance";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::POETRY_RECITAL:
+	case occasion_schedule_type::POETRY_RECITAL:
 		if (auto form = df::poetic_form::find(schedule->reference))
 		{
 			s << "a recital of the poetry ";
@@ -1751,7 +1763,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a poetry recital";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::STORYTELLING:
+	case occasion_schedule_type::STORYTELLING:
 		if (auto ref = df::history_event::find(schedule->reference))
 		{
 			s << "a telling of how ";
@@ -1770,8 +1782,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << schedule->reference;
 		s << ":";
 		s << schedule->reference2;
+		break;
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (PERFORMANCE)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (PERFORMANCE) ref1=%d ref2=%d", event->id, schedule->reference, schedule->reference2));
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
@@ -1792,9 +1805,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	s << " held ";
 	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
 	auto schedule = vector_get(occasion->schedule, event->schedule);
-	SWITCH(type, schedule->type)
+	BEFORE_SWITCH(type, schedule->type);
+	switch (type)
 	{
-	case df::occasion_schedule_type::DANCE_COMPETITION:
+	case occasion_schedule_type::DANCE_COMPETITION:
 		if (auto form = df::dance_form::find(schedule->reference))
 		{
 			s << "a competition of the dance ";
@@ -1805,7 +1819,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a dance competition";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::MUSICAL_COMPETITION:
+	case occasion_schedule_type::MUSICAL_COMPETITION:
 		if (auto form = df::musical_form::find(schedule->reference))
 		{
 			s << "a competition of the song ";
@@ -1816,7 +1830,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a musical competition";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::POETRY_COMPETITION:
+	case occasion_schedule_type::POETRY_COMPETITION:
 		if (auto form = df::poetic_form::find(schedule->reference))
 		{
 			s << "a competition of the poetry ";
@@ -1827,18 +1841,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << "a poetry competition";
 		}
 		BREAK(type);
-	case df::occasion_schedule_type::FOOT_RACE:
+	case occasion_schedule_type::FOOT_RACE:
 		s << "a foot race";
 		BREAK(type);
-	case df::occasion_schedule_type::WRESTLING_COMPETITION:
+	case occasion_schedule_type::WRESTLING_COMPETITION:
 		s << "a wrestling competition";
 		BREAK(type);
-	case df::occasion_schedule_type::THROWING_COMPETITION:
+	case occasion_schedule_type::THROWING_COMPETITION:
 		s << "a ";
 		s << ItemTypeInfo(df::item_type(schedule->reference), int16_t(schedule->reference2)).toString();
 		s << "-throwing competition";
 		BREAK(type);
-	case df::occasion_schedule_type::GLADIATORY_COMPETITION:
+	case occasion_schedule_type::GLADIATORY_COMPETITION:
 		s << "a gladiatory competition";
 		s << ":" << schedule->reference << ":" << schedule->reference2;
 		BREAK(type);
@@ -1850,8 +1864,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << schedule->reference;
 		s << ":";
 		s << schedule->reference2;
+		break;
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (COMPETITION)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (COMPETITION) ref1=%d ref2=%d", event->id, schedule->reference, schedule->reference2));
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
@@ -1904,9 +1919,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	s << " held ";
 	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
 	auto schedule = vector_get(occasion->schedule, event->schedule);
-	SWITCH(type, schedule->type)
+	BEFORE_SWITCH(type, schedule->type);
+	switch (type)
 	{
-	case df::occasion_schedule_type::PROCESSION:
+	case occasion_schedule_type::PROCESSION:
 		s << "a procession";
 		BREAK(type);
 	default:
@@ -1917,8 +1933,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << schedule->reference;
 		s << ":";
 		s << schedule->reference2;
+		break;
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (PROCESSION)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (PROCESSION) ref1=%d ref2=%d", event->id, schedule->reference, schedule->reference2));
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
@@ -1939,7 +1956,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	s << " held ";
 	auto occasion = binsearch_in_vector(ent->occasion_info->occasions, &df::entity_occasion::id, event->occasion);
 	auto schedule = vector_get(occasion->schedule, event->schedule);
-	SWITCH(type, schedule->type)
+	BEFORE_SWITCH(type, schedule->type);
+	switch (type)
 	{
 	case df::occasion_schedule_type::CEREMONY:
 		s << "a ceremony";
@@ -1952,8 +1970,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << schedule->reference;
 		s << ":";
 		s << schedule->reference2;
+		break;
 	}
-	END_SWITCH(type, stl_sprintf("event-%d (CEREMONY)", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d (CEREMONY) ref1=%d ref2=%d", event->id, schedule->reference, schedule->reference2));
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
@@ -1977,6 +1996,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	}
 	else
 	{
+		ASSUME_EQUAL(event->first, 1, stl_sprintf("event-%d (KNOWLEDGE_DISCOVERED)", event->id));
 		s << " was the first to discover ";
 	}
 	knowledge(s, event->knowledge);
@@ -2157,7 +2177,8 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
 	int32_t hour = (event->seconds % 1200) / 50;
 	int32_t minute = (event->seconds % 50) * 60 / 50;
 	s << "<!--" << event->id << ", " << stl_sprintf("%04d-%02d-%02dT%02d:%02d", event->year, month, day, hour, minute) << "-->";
-	SWITCH(type, event->getType())
+	BEFORE_SWITCH(type, event->getType());
+	switch (type)
 	{
 	case history_event_type::WAR_ATTACKED_SITE:
 		do_event(s, context, virtual_cast<df::history_event_war_attacked_sitest>(event));
@@ -2445,7 +2466,7 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
 		do_event(s, context, virtual_cast<df::history_event_written_content_composedst>(event));
 		BREAK(type);
 	}
-	END_SWITCH(type, stl_sprintf("event-%d", event->id));
+	AFTER_SWITCH(type, stl_sprintf("event-%d", event->id));
 }
 
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds)
