@@ -42,7 +42,7 @@ std::vector<df::history_era *> & get_vector<df::history_era>()
 }
 
 template<typename T>
-static void do_extra(std::ostream & s, T *target)
+static void do_extra(std::ostream &, T *)
 {
 	// do nothing
 }
