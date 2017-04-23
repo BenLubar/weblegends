@@ -199,28 +199,36 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
 
 	std::ostringstream s;
 
-	if (url == "/")
+	try
 	{
-		render_home(s);
+		if (url == "/")
+		{
+			render_home(s);
+		}
+		else if (check_page(s, url, "/ents-", render_entity_list)) {}
+		else if (check_id(s, url, "/ent-", render_entity)) {}
+		else if (check_page(s, url, "/figs-", render_figure_list)) {}
+		else if (check_id(s, url, "/fig-", render_figure)) {}
+		else if (check_page(s, url, "/items-", render_item_list)) {}
+		else if (check_id(s, url, "/item-", render_item)) {}
+		else if (check_page(s, url, "/regions-", render_region_list)) {}
+		else if (check_id(s, url, "/region-", render_region)) {}
+		else if (check_page(s, url, "/sites-", render_site_list)) {}
+		else if (check_id(s, url, "/site-", render_site)) {}
+		else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
+		else if (check_page(s, url, "/layers-", render_layer_list)) {}
+		else if (check_id(s, url, "/layer-", render_layer)) {}
+		else if (check_page(s, url, "/eras-", render_era_list)) {}
+		else if (check_id(s, url, "/era-", render_era)) {}
+		else
+		{
+			s.clear();
+		}
 	}
-	else if (check_page(s, url, "/ents-", render_entity_list)) {}
-	else if (check_id(s, url, "/ent-", render_entity)) {}
-	else if (check_page(s, url, "/figs-", render_figure_list)) {}
-	else if (check_id(s, url, "/fig-", render_figure)) {}
-	else if (check_page(s, url, "/items-", render_item_list)) {}
-	else if (check_id(s, url, "/item-", render_item)) {}
-	else if (check_page(s, url, "/regions-", render_region_list)) {}
-	else if (check_id(s, url, "/region-", render_region)) {}
-	else if (check_page(s, url, "/sites-", render_site_list)) {}
-	else if (check_id(s, url, "/site-", render_site)) {}
-	else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
-	else if (check_page(s, url, "/layers-", render_layer_list)) {}
-	else if (check_id(s, url, "/layer-", render_layer)) {}
-	else if (check_page(s, url, "/eras-", render_era_list)) {}
-	else if (check_id(s, url, "/era-", render_era)) {}
-	else
+	catch (...)
 	{
-		s.clear();
+		http_error(sock, method, url, 500, "Internal Server Error", "Error processing page.");
+		throw;
 	}
 
 	std::string body = DF2UTF(s.str());
