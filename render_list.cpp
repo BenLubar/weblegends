@@ -86,7 +86,7 @@ bool WebLegends::render_entity_list(std::ostream & s, int32_t page)
 }
 bool WebLegends::render_era_list(std::ostream & s, int32_t page)
 {
-	return render_list<df::history_era>(s, page, "era-", "History Eras");
+	return render_list<df::history_era>(s, page, "eras-", "History Eras");
 }
 bool WebLegends::render_figure_list(std::ostream & s, int32_t page)
 {
