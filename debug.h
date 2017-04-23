@@ -29,6 +29,12 @@ inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_ty
 	return s << df::identity_traits<E>::get()->getName() << "(" << enum_item_key(e.var) << ")";
 }
 
+inline constexpr const char *weblegends_basename(const char *p1, const char *p2)
+{
+	// https://gist.github.com/rsms/a5fa779736ea4932be91
+	return *p2 == '\0' ? p1 : *p2 == '/' || *p2 == '\\' ? weblegends_basename(p2 + 1, p2 + 1) : weblegends_basename(p1, p2 + 1);
+}
+
 #define BEFORE_SWITCH(var, expr) \
 { \
     auto var = expr; \
@@ -43,12 +49,12 @@ inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_ty
 #define AFTER_SWITCH(var, message) \
         if (!var##_found) \
         { \
-            std::cerr << "[weblegends] [" << __FILE__ << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
+            std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
         } \
     } \
 	catch (...) \
 	{ \
-		std::cerr << "[weblegends] [" << __FILE__ << ":" << __LINE__ << "] exception in switch: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
+		std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] exception in switch: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
 		throw; \
 	} \
 }
@@ -57,7 +63,7 @@ inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_ty
 if ((actual) != (expected)) \
 { \
 	typedef typename std::remove_reference<decltype((actual))>::type T; \
-	std::cerr << "[weblegends] [" << __FILE__ << ":" << __LINE__ << "] expected " << weblegends_switch_debug_enum<T>((actual)) << " to equal " << weblegends_switch_debug_enum<T>(static_cast<T>((expected))) << ": " << (message) << std::endl; \
+	std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] expected " << weblegends_switch_debug_enum<T>((actual)) << " to equal " << weblegends_switch_debug_enum<T>(static_cast<T>((expected))) << ": " << (message) << std::endl; \
 }
 
 #else
