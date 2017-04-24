@@ -66,11 +66,15 @@ if ((actual) != (expected)) \
 	std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] expected " << weblegends_switch_debug_enum<T>((actual)) << " to equal " << weblegends_switch_debug_enum<T>(static_cast<T>((expected))) << ": " << (message) << std::endl; \
 }
 
+#define UNEXPECTED(message) \
+	std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] " << (message) << std::endl;
+
 #else
 
 #define BEFORE_SWITCH(var, expr) { auto var = expr
 #define BREAK(var) break
 #define AFTER_SWITCH(var, message) }
 #define ASSUME_EQUAL(actual, expected, message)
+#define UNEXPECTED(message)
 
 #endif

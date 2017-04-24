@@ -6,6 +6,7 @@
 #include "modules/Units.h"
 
 #include "df/abstract_building.h"
+#include "df/agreement.h"
 #include "df/artifact_record.h"
 #include "df/caste_raw.h"
 #include "df/creature_raw.h"
@@ -125,6 +126,7 @@
 #include "df/musical_form.h"
 #include "df/plant_raw.h"
 #include "df/poetic_form.h"
+#include "df/sphere_type.h"
 #include "df/ui.h"
 #include "df/world.h"
 #include "df/world_region.h"
@@ -2358,10 +2360,181 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	}
 }
 
+static void do_agreement_party(std::ostream & s, const event_context & context, df::history_event *event, df::agreement *agreement, df::agreement::T_parties *party)
+{
+	if (!party)
+	{
+		UNEXPECTED(stl_sprintf("missing agreement party: event-%d %s agreement-%d", event->id, enum_item_key(event->getType()).c_str(), agreement->id));
+		s << "[unknown party]";
+		return;
+	}
+
+	std::vector<std::pair<int32_t, bool>> members;
+	for (auto it = party->histfig_ids.begin(); it != party->histfig_ids.end(); it++)
+	{
+		members.push_back(std::make_pair(*it, false));
+	}
+	for (auto it = party->entity_ids.begin(); it != party->entity_ids.end(); it++)
+	{
+		members.push_back(std::make_pair(*it, true));
+	}
+	ASSUME_EQUAL(party->anon_1.size(), 0, stl_sprintf("event-%d %s agreement-%d party-%d anon_1", event->id, enum_item_key(event->getType()).c_str(), agreement->id, party->id));
+
+	list<std::pair<int32_t, bool>>(s, members, [context](std::ostream & out, std::pair<int32_t, bool> member)
+	{
+		if (member.second)
+		{
+			event_link(out, context, df::historical_entity::find(member.first));
+		}
+		else
+		{
+			event_link(out, context, df::historical_figure::find(member.first));
+		}
+	});
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_agreement_formedst *event)
 {
-	// TODO: int32_t agreement_id;
-	do_event_missing(s, context, event, __LINE__);
+	auto agreement = df::agreement::find(event->agreement_id);
+	list<df::agreement::T_details *>(s, agreement->details, [context, event, agreement](std::ostream & out, df::agreement::T_details *details)
+	{
+		BEFORE_SWITCH(type, details->type);
+		switch (type)
+		{
+		case 0:
+		{
+			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_2));
+			out << " joined with ";
+			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_3));
+			ASSUME_EQUAL(agreement_conclusion_reason::None, 0, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::anon_1, 1, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::anon_2, 2, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::anon_7, 23, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::anon_8, 24, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::Adopted, 39, "agreement_conclusion_reason got fixed");
+			BEFORE_SWITCH(reason, static_cast<df::agreement_conclusion_reason>(details->data.data0->anon_1));
+			switch (reason)
+			{
+			case agreement_conclusion_reason::None:
+				out << " to oust ";
+				event_link(out, context, df::historical_entity::find(details->data.data0->anon_5));
+				out << " from ";
+				event_link(out, context, df::world_site::find(details->data.data0->anon_4));
+				BREAK(reason);
+			case agreement_conclusion_reason::anon_1:
+				out << " to live a life of adventure";
+				BREAK(reason);
+			case agreement_conclusion_reason::anon_2:
+				out << " as a guide to ";
+				event_link(out, context, df::world_site::find(details->data.data0->anon_4));
+				BREAK(reason);
+			case agreement_conclusion_reason::anon_7:
+				out << " in order to be brought to safety";
+				BREAK(reason);
+			case agreement_conclusion_reason::anon_8:
+				out << " to help rescue ";
+				event_link(out, context, df::historical_figure::find(details->data.data0->anon_6));
+				BREAK(reason);
+			case agreement_conclusion_reason::Adopted:
+				out << " after being compelled to serve";
+				BREAK(reason);
+			case (df::agreement_conclusion_reason)42:
+				out << " to entertain the world";
+				BREAK(reason);
+			}
+			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party) reason", event->id, agreement->id, details->id));
+			BREAK(type);
+		}
+		case 1:
+		{
+			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_2));
+			out << " aided ";
+			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_1));
+			out << " in becoming a permanent part of the living world";
+			ASSUME_EQUAL(agreement_conclusion_reason::anon_4, 4, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::PonderMisery, 5, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::MaintainBalance, 6, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::CreateMonumentToBoundaries, 7, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::SowChaos, 8, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::ProvideOpportunityForCourage, 9, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::MoreDeath, 10, "agreement_conclusion_reason got fixed");
+			ASSUME_EQUAL(agreement_conclusion_reason::AllGazeUponGruesomeVisage, 11, "agreement_conclusion_reason got fixed");
+			BEFORE_SWITCH(reason, details->data.data1->reason);
+			switch (reason)
+			{
+			case agreement_conclusion_reason::anon_4:
+				out << " after pondering the ineffable subtleties of ";
+				out << toLower(enum_item_key(static_cast<df::sphere_type>(details->data.data1->anon_3)));
+				BREAK(reason);
+			case agreement_conclusion_reason::PonderMisery:
+				out << " in order to maintain balance in the universe";
+				BREAK(reason);
+			case agreement_conclusion_reason::MaintainBalance:
+				out << " to create a monument to the boundaries between realities";
+				BREAK(reason);
+			case agreement_conclusion_reason::CreateMonumentToBoundaries:
+				out << " to sow the seeds of chaos therein";
+				BREAK(reason);
+			case agreement_conclusion_reason::SowChaos:
+				out << " to provide opportunities for courage to rise";
+				BREAK(reason);
+			case agreement_conclusion_reason::ProvideOpportunityForCourage:
+				out << " that more might die";
+				BREAK(reason);
+			case agreement_conclusion_reason::MoreDeath:
+				out << " that all should gaze upon a truly gruesome visage";
+				BREAK(reason);
+			case agreement_conclusion_reason::AllGazeUponGruesomeVisage:
+				out << " because it was destined";
+				BREAK(reason);
+			case agreement_conclusion_reason::TestFortressesInSiege:
+				out << " that great fortresses might be raised and tested in siege";
+				BREAK(reason);
+			case agreement_conclusion_reason::Whim:
+				out << " on a whim";
+				BREAK(reason);
+			case agreement_conclusion_reason::BatheInMisery:
+				out << " that it might bathe in misery forever";
+				BREAK(reason);
+			case agreement_conclusion_reason::MoreMurder:
+				out << " that more might be murdered";
+				BREAK(reason);
+			case agreement_conclusion_reason::MakeNightmaresReal:
+				out << " in order to make nightmares reality";
+				BREAK(reason);
+			case agreement_conclusion_reason::MakeEveryoneThralls:
+				out << " in order to make thralls of everyone";
+				BREAK(reason);
+			case agreement_conclusion_reason::PerpetrateTorture:
+				out << " in order that acts of torture be perpetrated";
+				BREAK(reason);
+			case agreement_conclusion_reason::ProvideOpportunityForValor:
+				out << " to provide opportunities for acts of valor to be performed";
+				BREAK(reason);
+			case agreement_conclusion_reason::EternalWar:
+				out << " that war might rage forever";
+				BREAK(reason);
+			}
+			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding) reason", event->id, agreement->id, details->id));
+
+			if (auto artifact = df::artifact_record::find(details->data.data1->artifact))
+			{
+				out << " using ";
+				event_link(out, context, artifact);
+			}
+			if (auto site = df::world_site::find(details->data.data1->site))
+			{
+				out << " in ";
+				event_link(out, context, site);
+			}
+			BREAK(type);
+		}
+		}
+		AFTER_SWITCH(type, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d type", event->id, agreement->id, details->id));
+	});
+	// TODO: int32_t anon_1;
+	// TODO: int32_t anon_2;
+	// TODO: int32_t anon_3;
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_site_disputest *event)
