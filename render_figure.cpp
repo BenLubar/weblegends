@@ -190,9 +190,27 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 					s << ", lover";
 					BREAK(link_type);
 				case histfig_hf_link_type::DEITY:
-					s << ", object of ";
-					ASSUME_EQUAL((*it)->link_strength, (*it)->link_strength + 1, stl_sprintf("hf-%d linkhf-%d", hf->id, target->id));
-					// TODO: ardent, faithful, ..., casual, dubious
+					s << ", object of";
+					if ((*it)->link_strength < 10)
+					{
+						s << " dubious";
+					}
+					else if ((*it)->link_strength < 25)
+					{
+						s << " casual";
+					}
+					else if ((*it)->link_strength < 75)
+					{
+						// statistically average worship, I guess?
+					}
+					else if ((*it)->link_strength < 90)
+					{
+						s << " faithful";
+					}
+					else
+					{
+						s << " ardent";
+					}
 					s << " worship";
 					BREAK(link_type);
 				case histfig_hf_link_type::COMPANION:
