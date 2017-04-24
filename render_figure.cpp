@@ -191,6 +191,7 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 					BREAK(link_type);
 				case histfig_hf_link_type::DEITY:
 					s << ", object of ";
+					ASSUME_EQUAL((*it)->link_strength, (*it)->link_strength + 1, stl_sprintf("hf-%d linkhf-%d", hf->id, target->id));
 					// TODO: ardent, faithful, ..., casual, dubious
 					s << " worship";
 					BREAK(link_type);
@@ -479,15 +480,16 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 				s << ", hangout";
 				BREAK(link_type);
 			case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
-			{
-				auto structure = binsearch_in_vector(site->buildings, (*it)->sub_id);
-				link(s, structure);
-				s << " in ";
+				if (auto structure = binsearch_in_vector(site->buildings, (*it)->sub_id))
+				{
+					link(s, structure);
+					s << " in ";
+				}
 				link(s, site);
 				s << ", home";
 				BREAK(link_type);
-			}
 			case histfig_site_link_type::HOME_SITE_REALIZATION_BUILDING:
+				// TODO: int32_t sub_id;
 				link(s, site);
 				s << ", home";
 				BREAK(link_type);
@@ -498,6 +500,10 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 			case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
 				link(s, site);
 				s << ", home";
+				BREAK(link_type);
+			case (df::histfig_site_link_type)6:
+				link(s, site);
+				s << ", home"; // TODO: roost?
 				BREAK(link_type);
 			}
 			AFTER_SWITCH(link_type, stl_sprintf("fig-%d target=site-%d", id, (*it)->site));

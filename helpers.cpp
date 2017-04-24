@@ -1015,7 +1015,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 		s << mat.toString();
 		return;
 	}
-	if (material(s, context, mat.creature, in_link, in_attr))
+	if (unique_creature_name(s, context, mat.creature, in_link, in_attr))
 	{
 		if (mat.material)
 		{
@@ -1035,7 +1035,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 	s << mat.toString();
 }
 
-bool material(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link, bool in_attr)
+bool unique_creature_name(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link, bool in_attr)
 {
 	if (creature->flags.is_set(creature_raw_flags::CASTE_FEATURE_BEAST) || creature->flags.is_set(creature_raw_flags::CASTE_TITAN) || creature->flags.is_set(creature_raw_flags::CASTE_UNIQUE_DEMON))
 	{

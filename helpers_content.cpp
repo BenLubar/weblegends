@@ -2365,7 +2365,7 @@ void written_content(std::ostream & s, const event_context & context, df::writte
 	}
 }
 
-void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature)
+void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature, df::history_event *event)
 {
 	BEFORE_SWITCH(feat, feature->feature);
 	switch (feat)
@@ -2416,43 +2416,47 @@ void schedule_feature(std::ostream & s, const event_context & context, df::entit
 		BREAK(feat);
 	case occasion_schedule_feature::CRIERS_IN_FRONT:
 		s << "criers in front";
-		ASSUME_EQUAL(feature->reference, -1, "feature: criers in front");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: criers in front (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::ORDER_OF_PRECEDENCE:
 		s << "an order of precedence";
-		ASSUME_EQUAL(feature->reference, -1, "feature: order of precedence");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: order of precedence (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::BANNERS:
 		s << "banners";
-		ASSUME_EQUAL(feature->reference, -1, "feature: banners");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: banners (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::IMAGES:
 		s << "images";
-		ASSUME_EQUAL(feature->reference, -1, "feature: images");
+		if (auto hf = df::historical_figure::find(feature->reference))
+		{
+			s << " of ";
+			link(s, hf);
+		}
 		BREAK(feat);
 	case occasion_schedule_feature::ACROBATS:
 		s << "acrobats";
-		ASSUME_EQUAL(feature->reference, -1, "feature: acrobats");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: acrobats (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::INCENSE_BURNING:
 		s << "the burning of incense";
-		ASSUME_EQUAL(feature->reference, -1, "feature: incense burning");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: incense burning (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::COSTUMES:
 		s << "costumes";
-		ASSUME_EQUAL(feature->reference, -1, "feature: costumes");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: costumes (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::CANDLES:
 		s << "candles";
-		ASSUME_EQUAL(feature->reference, -1, "feature: candles");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: candles (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::THE_GIVING_OF_ITEMS:
 		s << "the giving of items";
-		ASSUME_EQUAL(feature->reference, -1, "feature: the giving of items");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: the giving of items (event-%d)", event->id));
 		BREAK(feat);
 	case occasion_schedule_feature::THE_SACRIFICE_OF_ITEMS:
 		s << "the sacrifice of items";
-		ASSUME_EQUAL(feature->reference, -1, "feature: the sacrifice of items");
+		ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: the sacrifice of items (event-%d)", event->id));
 		BREAK(feat);
 	default:
 		s << ENUM_KEY_STR(occasion_schedule_feature, feat);
@@ -2460,5 +2464,5 @@ void schedule_feature(std::ostream & s, const event_context & context, df::entit
 		s << feature->reference;
 		break;
 	}
-	AFTER_SWITCH(feat, stl_sprintf("reference=%d", feature->reference));
+	AFTER_SWITCH(feat, stl_sprintf("feature: reference=%d (event-%d)", feature->reference, event->id));
 }

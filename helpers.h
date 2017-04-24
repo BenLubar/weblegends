@@ -95,11 +95,11 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
 }
 
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false, bool in_attr = false);
-bool material(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link = false, bool in_attr = false);
+bool unique_creature_name(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link = false, bool in_attr = false);
 void knowledge(std::ostream & s, df::knowledge_scholar_category_flag knowledge);
 void value_level(std::ostream & s, df::value_type type, int32_t level);
 void written_content(std::ostream & s, const event_context & context, df::written_content *content, df::historical_figure *omit_author = nullptr, bool show_refs = false);
-void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature);
+void schedule_feature(std::ostream & s, const event_context & context, df::entity_occasion_schedule_feature *feature, df::history_event *event);
 
 void age_years_days(int32_t year, int32_t tick, int32_t year_compare, int32_t tick_compare, int32_t & years, int32_t & days);
 int32_t day(int32_t tick);

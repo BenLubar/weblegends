@@ -117,6 +117,10 @@
 #include "df/history_event_written_content_composedst.h"
 #include "df/interaction.h"
 #include "df/interaction_source.h"
+#include "df/item_constructed.h"
+#include "df/item_fishst.h"
+#include "df/item_fish_rawst.h"
+#include "df/item_meatst.h"
 #include "df/itemdef_weaponst.h"
 #include "df/musical_form.h"
 #include "df/plant_raw.h"
@@ -232,17 +236,116 @@ static void do_location_2_structure(std::ostream & s, const event_context & cont
 	do_location_2(s, context, event, separator);
 }
 
+static void do_item_description(std::ostream & s, df::item *item)
+{
+	std::string str;
+	item->getItemDescriptionPrefix(&str, 0);
+	s << str;
+	str.clear();
+	item->getItemDescription(&str, 0);
+	s << str;
+}
+
+template<typename T>
+static std::void_t<decltype(T::caste)> do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
+{
+	auto item = df::allocate<T>();
+	item->race = mat_type;
+	item->caste = int16_t(mat_index);
+
+	if (auto race = df::creature_raw::find(mat_type))
+	{
+		if (auto caste = vector_get(race->caste, mat_index))
+		{
+			std::ostringstream creature;
+			if (unique_creature_name(creature, context, race))
+			{
+				std::string name = caste->caste_name[0];
+				caste->caste_name[0] = creature.str();
+
+				do_item_description(s, item);
+
+				caste->caste_name[0] = name;
+
+				delete item;
+
+				return;
+			}
+		}
+	}
+
+	do_item_description(s, item);
+
+	delete item;
+}
+
+template<typename T, typename D = std::remove_pointer<decltype(T::subtype)>::type>
+static void do_item_description(std::ostream & s, const event_context &, int16_t item_subtype, int16_t mat_type, int32_t mat_index)
+{
+	auto item = df::allocate<T>();
+	item->mat_type = mat_type;
+	item->mat_index = mat_index;
+	item->subtype = D::find(item_subtype);
+
+	if (auto race = MaterialInfo(mat_type, mat_index).creature)
+	{
+		std::ostringstream creature;
+		if (unique_creature_name(creature, context, race))
+		{
+			std::string name = race->name[0];
+			race->name[0] = creature.str();
+
+			do_item_description(s, item);
+
+			race->name[0] = name;
+
+			delete item;
+
+			return;
+		}
+	}
+
+	do_item_description(s, item);
+
+	delete item;
+}
+
+template<typename T>
+static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value, std::void_t<decltype(T::mat_type)>>::type do_item_description(std::ostream & s, const event_context & context, int16_t item_subtype, int16_t mat_type, int32_t mat_index)
+{
+	auto item = df::allocate<T>();
+	item->mat_type = mat_type;
+	item->mat_index = mat_index;
+
+	if (auto race = MaterialInfo(mat_type, mat_index).creature)
+	{
+		std::ostringstream creature;
+		if (unique_creature_name(creature, context, race))
+		{
+			std::string name = race->name[0];
+			race->name[0] = creature.str();
+
+			do_item_description(s, item);
+
+			race->name[0] = name;
+
+			delete item;
+
+			return;
+		}
+	}
+
+	do_item_description(s, item);
+
+	delete item;
+}
+
 static void do_weapon(std::ostream & s, const event_context & context, const df::history_hit_item & weapon)
 {
 	if (auto item = df::item::find(weapon.item))
 	{
 		s << " with ";
-		std::string str;
-		item->getItemDescriptionPrefix(&str, 0);
-		s << str;
-		str.clear();
-		item->getItemDescription(&str, 0);
-		s << str;
+		do_item_description(s, item);
 	}
 	else if (weapon.item_type != item_type::NONE)
 	{
@@ -256,12 +359,7 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 	if (auto item = df::item::find(weapon.shooter_item))
 	{
 		s << " fired from ";
-		std::string str;
-		item->getItemDescriptionPrefix(&str, 0);
-		s << str;
-		str.clear();
-		item->getItemDescription(&str, 0);
-		s << str;
+		do_item_description(s, item);
 	}
 	else if (weapon.shooter_item_type != item_type::NONE)
 	{
@@ -273,7 +371,7 @@ static void do_weapon(std::ostream & s, const event_context & context, const df:
 	}
 }
 
-static void do_event(std::ostream & s, const event_context &, df::history_event *event)
+static void do_event_missing(std::ostream & s, const event_context &, df::history_event *event, int line)
 {
 	std::string df_description;
 	df::history_event_context df_context;
@@ -283,7 +381,46 @@ static void do_event(std::ostream & s, const event_context &, df::history_event 
 	df_context.histfig_id_listener = -1;
 	event->getSentence(&df_description, &df_context, 1, 0);
 	s << "<abbr title=\"" << df_description << "\">" << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id << "</abbr>";
-	std::cerr << "[weblegends] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
+	std::cerr << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_attacked_sitest *event)
+{
+	auto attacker = df::historical_entity::find(event->attacker_civ);
+	event_link(s, context, attacker);
+	s << " attacked ";
+	auto site_civ = df::historical_entity::find(event->site_civ);
+	event_link(s, context, site_civ);
+	s << " of ";
+	auto defender = df::historical_entity::find(event->defender_civ);
+	event_link(s, context, defender);
+	s << " in ";
+	auto site = df::world_site::find(event->site);
+	event_link(s, context, site);
+	if (auto attacker_general = df::historical_figure::find(event->attacker_general_hf))
+	{
+		s << ". The attackers were led by ";
+		event_link(s, context, attacker_general);
+		if (auto defender_general = df::historical_figure::find(event->defender_general_hf))
+		{
+			s << ", and the defenders were led by ";
+			event_link(s, context, defender_general);
+		}
+	}
+	else if (auto defender_general = df::historical_figure::find(event->defender_general_hf))
+	{
+		s << ". The defenders were led by ";
+		event_link(s, context, defender_general);
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_destroyed_sitest *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_sitest *event)
@@ -317,36 +454,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	{
 		s << ". The new government was named ";
 		event_link(s, context, site_civ);
-	}
-}
-
-static void do_event(std::ostream & s, const event_context & context, df::history_event_war_attacked_sitest *event)
-{
-	auto attacker = df::historical_entity::find(event->attacker_civ);
-	event_link(s, context, attacker);
-	s << " attacked ";
-	auto site_civ = df::historical_entity::find(event->site_civ);
-	event_link(s, context, site_civ);
-	s << " of ";
-	auto defender = df::historical_entity::find(event->defender_civ);
-	event_link(s, context, defender);
-	s << " in ";
-	auto site = df::world_site::find(event->site);
-	event_link(s, context, site);
-	if (auto attacker_general = df::historical_figure::find(event->attacker_general_hf))
-	{
-		s << ". The attackers were led by ";
-		event_link(s, context, attacker_general);
-		if (auto defender_general = df::historical_figure::find(event->defender_general_hf))
-		{
-			s << ", and the defenders were led by ";
-			event_link(s, context, defender_general);
-		}
-	}
-	else if (auto defender_general = df::historical_figure::find(event->defender_general_hf))
-	{
-		s << ". The defenders were led by ";
-		event_link(s, context, defender_general);
 	}
 }
 
@@ -902,6 +1009,50 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_first_contactst *event)
+{
+	// TODO: int32_t contactor;
+	// TODO: int32_t contacted;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_first_contact_failedst *event)
+{
+	// TODO: int32_t contactor;
+	// TODO: int32_t rejector;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_topicagreement_concludedst *event)
+{
+	// TODO: int32_t source;
+	// TODO: int32_t destination;
+	// TODO: int32_t site;
+	// TODO: df::meeting_topic topic;
+	// TODO: int32_t result; /*!< range from -3 to +2 */
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_topicagreement_rejectedst *event)
+{
+	// TODO: df::meeting_topic topic;
+	// TODO: int32_t source;
+	// TODO: int32_t destination;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_topicagreement_madest *event)
+{
+	// TODO: df::meeting_topic topic;
+	// TODO: int32_t source;
+	// TODO: int32_t destination;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_war_peace_acceptedst *event)
 {
 	auto destination = df::historical_entity::find(event->destination);
@@ -930,6 +1081,48 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		event_link(s, context, site);
 	}
 	// TODO: df::meeting_topic topic;
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_diplomat_lostst *event)
+{
+	// TODO: int32_t entity;
+	// TODO: int32_t involved;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_agreements_voidedst *event)
+{
+	// TODO: int32_t source;
+	// TODO: int32_t destination;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_merchantst *event)
+{
+	// TODO: int32_t source;
+	// TODO: int32_t destination;
+	// TODO: int32_t site;
+	// TODO: BitArray<int> flags2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_hiddenst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t unit;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_possessedst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t unit;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_createdst *event)
@@ -985,6 +1178,533 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " in ";
 		event_link(s, context, site);
 	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_recoveredst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t unit;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_droppedst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t unit;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	// TODO: BitArray<int> flags2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_reclaim_sitest *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: int32_t flags; /*!< 1 = unretire */
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_destroyed_sitest *event)
+{
+	auto hf = df::historical_figure::find(event->attacker_hf);
+	event_link(s, context, hf);
+	s << " routed ";
+	auto ent = df::historical_entity::find(event->site_civ);
+	event_link(s, context, ent);
+	if (auto civ = df::historical_entity::find(event->defender_civ))
+	{
+		s << " of ";
+		event_link(s, context, civ);
+	}
+	auto site = df::world_site::find(event->site);
+	s << " and destroyed ";
+	event_link(s, context, site);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_site_diedst *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: int32_t flags; /*!< 1: abandoned */
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_site_retiredst *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: int32_t flags; /*!< 1: first time */
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_createdst *event)
+{
+	// TODO: int32_t entity;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_actionst *event)
+{
+	// TODO: int32_t entity;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	// TODO: df::entity_action_type action;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_incorporatedst *event)
+{
+	// TODO: int32_t migrant_entity;
+	// TODO: int32_t join_entity;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_created_buildingst *event)
+{
+	auto site = df::world_site::find(event->site);
+	auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
+
+	if (structure->getType() == abstract_building_type::UNDERWORLD_SPIRE)
+	{
+		auto builder = df::historical_figure::find(event->builder_hf);
+		event_link(s, context, builder);
+		s << " thrust a spire of slade up from the underworld, naming it ";
+		event_link(s, context, structure);
+		s << ", and established a gateway between worlds in ";
+		event_link(s, context, site);
+		return;
+	}
+
+	if (auto builder = df::historical_figure::find(event->builder_hf))
+	{
+		event_link(s, context, builder);
+		s << " built ";
+		event_link(s, context, structure);
+		if (auto site_civ = df::historical_entity::find(event->site_civ))
+		{
+			s << " for ";
+			event_link(s, context, site_civ);
+			if (auto civ = df::historical_entity::find(event->civ))
+			{
+				s << " of ";
+				event_link(s, context, civ);
+			}
+		}
+		if (auto civ = df::historical_entity::find(event->civ))
+		{
+			s << " for ";
+			event_link(s, context, civ);
+		}
+	}
+	else if (auto site_civ = df::historical_entity::find(event->site_civ))
+	{
+		event_link(s, context, site_civ);
+		if (auto civ = df::historical_entity::find(event->civ))
+		{
+			s << " of ";
+			event_link(s, context, civ);
+		}
+		s << " built ";
+		event_link(s, context, structure);
+	}
+	else if (auto civ = df::historical_entity::find(event->civ))
+	{
+		event_link(s, context, civ);
+		s << " built ";
+		event_link(s, context, structure);
+	}
+	else
+	{
+		event_link(s, context, structure);
+		s << " was built";
+	}
+	if (site)
+	{
+		s << " at ";
+		event_link(s, context, site);
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_replaced_buildingst *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: int32_t old_structure;
+	// TODO: int32_t new_structure;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_site_linkst *event)
+{
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	// TODO: int32_t histfig;
+	// TODO: int32_t civ;
+	// TODO: df::histfig_site_link_type type;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_remove_hf_site_linkst *event)
+{
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	// TODO: int32_t histfig;
+	// TODO: int32_t civ;
+	// TODO: df::histfig_site_link_type type;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_hf_linkst *event)
+{
+	auto hf = df::historical_figure::find(event->hf);
+	auto hf_target = df::historical_figure::find(event->hf_target);
+	BEFORE_SWITCH(type, event->type);
+	switch (type)
+	{
+	case histfig_hf_link_type::MOTHER:
+		event_link(s, context, hf);
+		s << " gave birth to ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FATHER:
+		event_link(s, context, hf);
+		s << " fathered ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::SPOUSE:
+		event_link(s, context, hf);
+		s << " married ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::CHILD:
+		event_link(s, context, hf);
+		s << " was born to ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::DEITY:
+		event_link(s, context, hf);
+		s << " began worshipping ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::LOVER:
+		event_link(s, context, hf);
+		s << " fell in love with ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::PRISONER:
+		event_link(s, context, hf);
+		s << " was imprisoned by ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::IMPRISONER:
+		event_link(s, context, hf);
+		s << " imprisoned ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::MASTER:
+		event_link(s, context, hf);
+		s << " accepted ";
+		event_link(s, context, hf_target);
+		s << " as an apprentice";
+		BREAK(type);
+	case histfig_hf_link_type::APPRENTICE:
+		event_link(s, context, hf);
+		s << " started an apprenticeship under ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::COMPANION:
+		event_link(s, context, hf);
+		s << " became the companion of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FORMER_MASTER:
+		event_link(s, context, hf);
+		s << " was no longer the master of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	case histfig_hf_link_type::FORMER_APPRENTICE:
+		event_link(s, context, hf);
+		s << " was no longer the apprentice of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
+	}
+	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_remove_hf_hf_linkst *event)
+{
+	// TODO: int32_t hf;
+	// TODO: int32_t hf_target;
+	// TODO: df::histfig_hf_link_type type;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_razed_buildingst *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_arch_designst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: int32_t anon_1;
+	// TODO: int16_t building_type;
+	// TODO: int16_t building_subtype;
+	// TODO: int32_t building_custom;
+	// TODO: int32_t anon_2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_arch_constructst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: int32_t anon_1;
+	// TODO: int16_t building_type;
+	// TODO: int16_t building_subtype;
+	// TODO: int32_t building_custom;
+	// TODO: int32_t anon_2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_itemst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: enum_field<df::job_skill, int32_t> skill_used;
+	// TODO: df::item_type item_type;
+	// TODO: int16_t item_subtype;
+	// TODO: int16_t mat_type;
+	// TODO: int16_t mat_index;
+	// TODO: int32_t item_id;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_dye_itemst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: int32_t anon_1;
+	// TODO: df::item_type item_type;
+	// TODO: int16_t item_subtype;
+	// TODO: int16_t mat_type;
+	// TODO: int32_t mat_index;
+	// TODO: int32_t anon_2;
+	// TODO: int16_t dye_mat_type;
+	// TODO: int32_t dye_mat_index;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_item_improvementst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: int32_t anon_1;
+	// TODO: df::item_type item_type;
+	// TODO: int16_t item_subtype;
+	// TODO: int16_t mat_type;
+	// TODO: int32_t mat_index;
+	// TODO: int32_t anon_2;
+	// TODO: enum_field<df::improvement_type, int16_t> improvement_type;
+	// TODO: int32_t improvement_subtype;
+	// TODO: int16_t imp_mat_type;
+	// TODO: int32_t imp_mat_index;
+	// TODO: int32_t art_id;
+	// TODO: int16_t art_subid;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_foodst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: int32_t unk1;
+	// TODO: int16_t item_subtype;
+	// TODO: int32_t item_id;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_engravingst *event)
+{
+	// TODO: int32_t maker;
+	// TODO: int32_t maker_entity;
+	// TODO: int32_t site;
+	// TODO: df::skill_rating skill_rating; /*!< at the moment of creation */
+	// TODO: int32_t art_id;
+	// TODO: int16_t art_subid;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_lostst *event)
+{
+	// TODO: int32_t creation_event;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	// TODO: df::masterpiece_loss_type method;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_statest *event)
+{
+	std::string separator = " in ";
+	auto hf = df::historical_figure::find(event->hfid);
+	event_link(s, context, hf);
+	BEFORE_SWITCH(state, event->state);
+	switch (state)
+	{
+	case df::history_event_change_hf_statest::T_state::Wandering:
+		BEFORE_SWITCH(substate, event->substate);
+		switch (substate)
+		{
+		case df::history_event_change_hf_statest::T_substate::Fled:
+			s << " fled";
+			separator = " to ";
+			BREAK(substate);
+		case df::history_event_change_hf_statest::T_substate::Wandered:
+			s << " was wandering";
+			BREAK(substate);
+		}
+		AFTER_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
+		BREAK(state);
+	case df::history_event_change_hf_statest::T_state::Settled:
+		if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
+		{
+			s << " was born";
+		}
+		else
+		{
+			s << " settled";
+		}
+		BREAK(state);
+	case df::history_event_change_hf_statest::T_state::Refugee:
+		s << " became a refugee";
+		BREAK(state);
+	case (df::history_event_change_hf_statest::T_state)5:
+		s << " visited";
+		separator = " ";
+		BREAK(state);
+	}
+	AFTER_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
+	do_location_2(s, context, event, separator);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_jobst *event)
+{
+	auto hf = df::historical_figure::find(event->hfid);
+	event_link(s, context, hf);
+	if (event->new_job != profession::STANDARD)
+	{
+		s << " became a " << profession_name(hf, event->new_job);
+		do_location_2(s, context, event);
+		if (event->old_job != profession::STANDARD)
+		{
+			s << ", leaving ";
+			if (hf->sex == 0)
+			{
+				s << "her";
+			}
+			else if (hf->sex == 1)
+			{
+				s << "his";
+			}
+			else
+			{
+				ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
+				s << "its";
+			}
+			s << " previous job as a " << profession_name(hf, event->old_job);
+		}
+	}
+	else
+	{
+		s << " left ";
+		if (hf->sex == 0)
+		{
+			s << "her";
+		}
+		else if (hf->sex == 1)
+		{
+			s << "his";
+		}
+		else
+		{
+			ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
+			s << "its";
+		}
+		s << " job as a " << profession_name(hf, event->old_job);
+		do_location_2(s, context, event);
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_field_battlest *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::coord2d region_pos;
+	// TODO: int32_t attacker_general_hf;
+	// TODO: int32_t defender_general_hf;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_plundered_sitest *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_site_new_leaderst *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t new_site_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: std::vector<int32_t > new_leaders;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_site_tribute_forcedst *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_war_site_taken_overst *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t new_site_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_body_abusedst *event)
@@ -1133,239 +1853,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	do_location_2(s, context, event);
 }
 
-static void do_event(std::ostream & s, const event_context & context, df::history_event_created_buildingst *event)
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_abductedst *event)
 {
-	auto site = df::world_site::find(event->site);
-	auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
-
-	if (structure->getType() == abstract_building_type::UNDERWORLD_SPIRE)
-	{
-		auto builder = df::historical_figure::find(event->builder_hf);
-		event_link(s, context, builder);
-		s << " thrust a spire of slade up from the underworld, naming it ";
-		event_link(s, context, structure);
-		s << ", and established a gateway between worlds in ";
-		event_link(s, context, site);
-		return;
-	}
-
-	if (auto builder = df::historical_figure::find(event->builder_hf))
-	{
-		event_link(s, context, builder);
-		s << " built ";
-		event_link(s, context, structure);
-		if (auto site_civ = df::historical_entity::find(event->site_civ))
-		{
-			s << " for ";
-			event_link(s, context, site_civ);
-			if (auto civ = df::historical_entity::find(event->civ))
-			{
-				s << " of ";
-				event_link(s, context, civ);
-			}
-		}
-		if (auto civ = df::historical_entity::find(event->civ))
-		{
-			s << " for ";
-			event_link(s, context, civ);
-		}
-	}
-	else if (auto site_civ = df::historical_entity::find(event->site_civ))
-	{
-		event_link(s, context, site_civ);
-		if (auto civ = df::historical_entity::find(event->civ))
-		{
-			s << " of ";
-			event_link(s, context, civ);
-		}
-		s << " built ";
-		event_link(s, context, structure);
-	}
-	else if (auto civ = df::historical_entity::find(event->civ))
-	{
-		event_link(s, context, civ);
-		s << " built ";
-		event_link(s, context, structure);
-	}
-	else
-	{
-		event_link(s, context, structure);
-		s << " was built";
-	}
-	if (site)
-	{
-		s << " at ";
-		event_link(s, context, site);
-	}
-}
-
-static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_hf_linkst *event)
-{
-	auto hf = df::historical_figure::find(event->hf);
-	auto hf_target = df::historical_figure::find(event->hf_target);
-	BEFORE_SWITCH(type, event->type);
-	switch (type)
-	{
-	case histfig_hf_link_type::MOTHER:
-		event_link(s, context, hf);
-		s << " gave birth to ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::FATHER:
-		event_link(s, context, hf);
-		s << " fathered ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::SPOUSE:
-		event_link(s, context, hf);
-		s << " married ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::CHILD:
-		event_link(s, context, hf);
-		s << " was born to ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::DEITY:
-		event_link(s, context, hf);
-		s << " began worshipping ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::LOVER:
-		event_link(s, context, hf);
-		s << " fell in love with ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::PRISONER:
-		event_link(s, context, hf);
-		s << " was imprisoned by ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::IMPRISONER:
-		event_link(s, context, hf);
-		s << " imprisoned ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::MASTER:
-		event_link(s, context, hf);
-		s << " accepted ";
-		event_link(s, context, hf_target);
-		s << " as an apprentice";
-		BREAK(type);
-	case histfig_hf_link_type::APPRENTICE:
-		event_link(s, context, hf);
-		s << " started an apprenticeship under ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::COMPANION:
-		event_link(s, context, hf);
-		s << " became the companion of ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::FORMER_MASTER:
-		event_link(s, context, hf);
-		s << " was no longer the master of ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	case histfig_hf_link_type::FORMER_APPRENTICE:
-		event_link(s, context, hf);
-		s << " was no longer the apprentice of ";
-		event_link(s, context, hf_target);
-		BREAK(type);
-	}
-	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
-}
-
-static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_statest *event)
-{
-	std::string separator = " in ";
-	auto hf = df::historical_figure::find(event->hfid);
-	event_link(s, context, hf);
-	BEFORE_SWITCH(state, event->state);
-	switch (state)
-	{
-	case df::history_event_change_hf_statest::T_state::Wandering:
-		BEFORE_SWITCH(substate, event->substate);
-		switch (substate)
-		{
-		case df::history_event_change_hf_statest::T_substate::Fled:
-			s << " fled";
-			separator = " to ";
-			BREAK(substate);
-		case df::history_event_change_hf_statest::T_substate::Wandered:
-			s << " was wandering";
-			BREAK(substate);
-		}
-		AFTER_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
-		BREAK(state);
-	case df::history_event_change_hf_statest::T_state::Settled:
-		if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
-		{
-			s << " was born";
-		}
-		else
-		{
-			s << " settled";
-		}
-		BREAK(state);
-	case df::history_event_change_hf_statest::T_state::Refugee:
-		s << " became a refugee";
-		BREAK(state);
-	case (df::history_event_change_hf_statest::T_state)5:
-		s << " visited";
-		separator = " ";
-		BREAK(state);
-	}
-	AFTER_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
-	do_location_2(s, context, event, separator);
-}
-
-static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_jobst *event)
-{
-	auto hf = df::historical_figure::find(event->hfid);
-	event_link(s, context, hf);
-	if (event->new_job != profession::STANDARD)
-	{
-		s << " became a " << profession_name(hf, event->new_job);
-		do_location_2(s, context, event);
-		if (event->old_job != profession::STANDARD)
-		{
-			s << ", leaving ";
-			if (hf->sex == 0)
-			{
-				s << "her";
-			}
-			else if (hf->sex == 1)
-			{
-				s << "his";
-			}
-			else
-			{
-				ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
-				s << "its";
-			}
-			s << " previous job as a " << profession_name(hf, event->old_job);
-		}
-	}
-	else
-	{
-		s << " left ";
-		if (hf->sex == 0)
-		{
-			s << "her";
-		}
-		else if (hf->sex == 1)
-		{
-			s << "his";
-		}
-		else
-		{
-			ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
-			s << "its";
-		}
-		s << " job as a " << profession_name(hf, event->old_job);
-		do_location_2(s, context, event);
-	}
+	// TODO: int32_t target;
+	// TODO: int32_t snatcher;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_item_stolenst *event)
@@ -1375,12 +1870,19 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	s << " stole ";
 	if (auto item = df::item::find(event->item))
 	{
-		std::string str;
-		item->getItemDescriptionPrefix(&str, 0);
-		s << str;
-		str.clear();
-		item->getItemDescription(&str, 0);
-		s << str;
+		do_item_description(s, item);
+	}
+	else if (event->item_type == item_type::FISH)
+	{
+		do_item_description<df::item_fishst>(s, context, event->item_subtype, event->mattype, event->matindex);
+	}
+	else if (event->item_type == item_type::FISH_RAW)
+	{
+		do_item_description<df::item_fish_rawst>(s, context, event->item_subtype, event->mattype, event->matindex);
+	}
+	else if (event->item_type == item_type::MEAT)
+	{
+		do_item_description<df::item_meatst>(s, context, event->item_subtype, event->mattype, event->matindex);
 	}
 	else
 	{
@@ -1389,7 +1891,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		{
 			auto creature = df::creature_raw::find(event->mattype);
 			auto caste = creature->caste.at(event->matindex);
-			if (!material(s, context, creature))
+			if (!unique_creature_name(s, context, creature))
 			{
 				s << caste->caste_name[0];
 			}
@@ -1408,7 +1910,19 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		event_link(s, context, ent);
 	}
 	do_location_2_structure(s, context, event, " from ");
-	// TODO: int32_t anon_1;
+	if (auto site = df::world_site::find(event->anon_1))
+	{
+		s << " and brought it to ";
+		event_link(s, context, site);
+	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_razed_buildingst *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_creature_devouredst *event)
@@ -1596,6 +2110,37 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	do_location_2(s, context, event);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_created_world_constructionst *event)
+{
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t construction;
+	// TODO: int32_t master_construction;
+	// TODO: int32_t site1;
+	// TODO: int32_t site2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_reunionst *event)
+{
+	// TODO: std::vector<int32_t > missing;
+	// TODO: std::vector<int32_t > reunited_with;
+	// TODO: int32_t assistant;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_reach_summitst *event)
+{
+	// TODO: std::vector<int32_t > group;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::coord2d region_pos;
+	do_event_missing(s, context, event, __LINE__);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_travelst *event)
 {
 	list<int32_t>(s, event->group, [context](std::ostream & out, int32_t id)
@@ -1642,6 +2187,68 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		}
 	});
 	do_location_2(s, context, event, " of ");
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_assume_identityst *event)
+{
+	// TODO: int32_t trickster;
+	// TODO: int32_t identity;
+	// TODO: int32_t target;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_create_entity_positionst *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: int32_t civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t position;
+	// TODO: int16_t reason;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_creature_typest *event)
+{
+	// TODO: int32_t changee;
+	// TODO: int32_t changer;
+	// TODO: int32_t old_race;
+	// TODO: int32_t old_caste;
+	// TODO: int32_t new_race;
+	// TODO: int32_t new_caste;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_revivedst *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::ghost_type ghost_type;
+	// TODO: int32_t flags; /*!< 1:again */
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_learns_secretst *event)
+{
+	// TODO: int32_t student;
+	// TODO: int32_t teacher;
+	// TODO: int32_t artifact;
+	// TODO: int32_t interaction;
+	// TODO: int32_t anon_1;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_body_statest *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: df::histfig_body_state body_state;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::coord2d region_pos;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_act_on_buildingst *event)
@@ -1702,6 +2309,34 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	do_location_2(s, context, event);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_confrontedst *event)
+{
+	// TODO: int32_t target;
+	// TODO: int32_t accuser;
+	// TODO: std::vector<int32_t > reasons;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::coord2d region_pos;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_lawst *event)
+{
+	// TODO: int32_t entity;
+	// TODO: int32_t histfig;
+	// TODO: int32_t add_flags;
+	// TODO: int32_t remove_flags;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_gains_secret_goalst *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: df::goal_type goal;
+	do_event_missing(s, context, event, __LINE__);
+}
+
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_storedst *event)
 {
 	auto item = df::artifact_record::find(event->artifact);
@@ -1721,6 +2356,63 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " in ";
 		event_link(s, context, site);
 	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_agreement_formedst *event)
+{
+	// TODO: int32_t agreement_id;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_site_disputest *event)
+{
+	// TODO: df::site_dispute_type dispute_type;
+	// TODO: int32_t entity_1;
+	// TODO: int32_t entity_2;
+	// TODO: int32_t site_1;
+	// TODO: int32_t site_2;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_agreement_concludedst *event)
+{
+	// TODO: int32_t agreement_id;
+	// TODO: int32_t subject_id;
+	// TODO: df::agreement_conclusion_reason reason;
+	// TODO: int32_t concluder_hf;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_insurrection_startedst *event)
+{
+	// TODO: int32_t target_civ;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_insurrection_endedst *event)
+{
+	// TODO: int32_t target_civ;
+	// TODO: int32_t site;
+	// TODO: df::insurrection_outcome outcome;
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_attacked_sitest *event)
+{
+	auto hf = df::historical_figure::find(event->attacker_hf);
+	event_link(s, context, hf);
+	s << " attacked ";
+	auto ent = df::historical_entity::find(event->site_civ);
+	event_link(s, context, ent);
+	if (auto civ = df::historical_entity::find(event->defender_civ))
+	{
+		s << " of ";
+		event_link(s, context, civ);
+	}
+	auto site = df::world_site::find(event->site);
+	s << " at ";
+	event_link(s, context, site);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_performancest *event)
@@ -1791,9 +2483,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
-		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context, event](std::ostream & out, df::entity_occasion_schedule_feature *feature)
 		{
-			schedule_feature(out, context, feature);
+			schedule_feature(out, context, feature, event);
 		});
 	}
 	s << " as part of ";
@@ -1873,9 +2565,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
-		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context, event](std::ostream & out, df::entity_occasion_schedule_feature *feature)
 		{
-			schedule_feature(out, context, feature);
+			schedule_feature(out, context, feature, event);
 		});
 	}
 	s << " as part of ";
@@ -1942,9 +2634,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
-		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context, event](std::ostream & out, df::entity_occasion_schedule_feature *feature)
 		{
-			schedule_feature(out, context, feature);
+			schedule_feature(out, context, feature, event);
 		});
 	}
 	s << " as part of ";
@@ -1979,9 +2671,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	if (!schedule->features.empty())
 	{
 		s << " featuring ";
-		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context](std::ostream & out, df::entity_occasion_schedule_feature *feature)
+		list<df::entity_occasion_schedule_feature *>(s, schedule->features, [context, event](std::ostream & out, df::entity_occasion_schedule_feature *feature)
 		{
-			schedule_feature(out, context, feature);
+			schedule_feature(out, context, feature, event);
 		});
 	}
 	s << " as part of ";
@@ -2003,6 +2695,16 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " was the first to discover ";
 	}
 	knowledge(s, event->knowledge);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_transformedst *event)
+{
+	// TODO: int32_t new_artifact;
+	// TODO: std::vector<int32_t > old_artifact;
+	// TODO: int32_t unit;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_destroyedst *event)
@@ -2036,6 +2738,19 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " in ";
 		event_link(s, context, site);
 	}
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_relationship_deniedst *event)
+{
+	// TODO: int32_t seeker_hf;
+	// TODO: int32_t target_hf;
+	// TODO: int32_t type;
+	// TODO: int32_t reason;
+	// TODO: int32_t reason2;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_regionpop_incorporated_into_entityst *event)
@@ -2175,11 +2890,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
-	int32_t month = (event->seconds / 28 / 1200) + 1;
-	int32_t day = ((event->seconds / 1200) % 28) + 1;
-	int32_t hour = (event->seconds % 1200) / 50;
-	int32_t minute = (event->seconds % 50) * 60 / 50;
-	s << "<!--" << event->id << ", " << stl_sprintf("%04d-%02d-%02dT%02d:%02d", event->year, month, day, hour, minute) << "-->";
+	if (event->seconds != -1)
+	{
+		int32_t month = (event->seconds / 28 / 1200) + 1;
+		int32_t day = ((event->seconds / 1200) % 28) + 1;
+		int32_t hour = (event->seconds % 1200) / 50;
+		int32_t minute = (event->seconds % 50) * 60 / 50;
+		s << "<!--" << event->id << ", " << stl_sprintf("%04d-%02d-%02dT%02d:%02d", event->year, month, day, hour, minute) << "-->";
+	}
+	else
+	{
+		s << "<!--" << event->id << ", year " << event->year << ", time unknown-->";
+	}
 	BEFORE_SWITCH(type, event->getType());
 	switch (type)
 	{
