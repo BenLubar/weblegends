@@ -1375,12 +1375,12 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	{
 	case histfig_hf_link_type::MOTHER:
 		event_link(s, context, hf);
-		s << " gave birth to ";
+		s << " was born to ";
 		event_link(s, context, hf_target);
 		BREAK(type);
 	case histfig_hf_link_type::FATHER:
 		event_link(s, context, hf);
-		s << " fathered ";
+		s << " was fathered by ";
 		event_link(s, context, hf_target);
 		BREAK(type);
 	case histfig_hf_link_type::SPOUSE:
@@ -1390,7 +1390,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		BREAK(type);
 	case histfig_hf_link_type::CHILD:
 		event_link(s, context, hf);
-		s << " was born to ";
+		if (hf->sex == 1)
+		{
+			s << " fathered ";
+		}
+		else
+		{
+			s << " gave birth to ";
+		}
 		event_link(s, context, hf_target);
 		BREAK(type);
 	case histfig_hf_link_type::DEITY:
@@ -1405,24 +1412,24 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		BREAK(type);
 	case histfig_hf_link_type::PRISONER:
 		event_link(s, context, hf);
-		s << " was imprisoned by ";
+		s << " imprisoned ";
 		event_link(s, context, hf_target);
 		BREAK(type);
 	case histfig_hf_link_type::IMPRISONER:
 		event_link(s, context, hf);
-		s << " imprisoned ";
+		s << " was imprisoned by ";
 		event_link(s, context, hf_target);
 		BREAK(type);
 	case histfig_hf_link_type::MASTER:
 		event_link(s, context, hf);
-		s << " accepted ";
+		s << " started an apprenticeship under ";
 		event_link(s, context, hf_target);
-		s << " as an apprentice";
 		BREAK(type);
 	case histfig_hf_link_type::APPRENTICE:
 		event_link(s, context, hf);
-		s << " started an apprenticeship under ";
+		s << " accepted ";
 		event_link(s, context, hf_target);
+		s << " as an apprentice";
 		BREAK(type);
 	case histfig_hf_link_type::COMPANION:
 		event_link(s, context, hf);
