@@ -1,5 +1,7 @@
 #pragma once
 
+#include <typeinfo>
+
 #include "Core.h"
 #include <Console.h>
 #include <Export.h>
@@ -17,10 +19,10 @@
 #define nullptr 0L
 #endif
 
-#include "debug.h"
-
 using namespace DFHack;
 using namespace df::enums;
+
+#include "debug.h"
 
 DFhackDataExport extern std::vector<std::string> *plugin_globals;
 

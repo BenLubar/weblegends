@@ -15,6 +15,18 @@ REQUIRE_GLOBAL(world);
 const static int32_t items_per_page = 250;
 
 template<typename T>
+static typename std::vector<T *> & get_vector()
+{
+	return T::get_vector();
+}
+
+template<>
+std::vector<df::history_era *> & get_vector<df::history_era>()
+{
+	return world->history.eras;
+}
+
+template<typename T>
 static typename std::vector<T *>::iterator get_first()
 {
 	return std::find_if(get_vector<T>().begin(), get_vector<T>().end(), [](T *t) -> bool
@@ -30,25 +42,13 @@ std::vector<df::world_underground_region *>::iterator get_first<df::world_underg
 }
 
 template<typename T>
-static typename std::vector<T *> & get_vector()
-{
-	return T::get_vector();
-}
-
-template<>
-std::vector<df::history_era *> & get_vector<df::history_era>()
-{
-	return world->history.eras;
-}
-
-template<typename T>
 static void do_extra(std::ostream &, T *)
 {
 	// do nothing
 }
 
 template<>
-static void do_extra<df::historical_figure>(std::ostream & s, df::historical_figure *target)
+void do_extra<df::historical_figure>(std::ostream & s, df::historical_figure *target)
 {
 	spheres(s, target);
 	born_died(s, target);

@@ -249,7 +249,7 @@ static void do_item_description(std::ostream & s, df::item *item)
 }
 
 template<typename T>
-static std::void_t<decltype(T::caste)> do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
+static typename void_t<decltype(T::caste)>::type do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
 {
 	auto item = df::allocate<T>();
 	item->race = mat_type;
@@ -281,8 +281,8 @@ static std::void_t<decltype(T::caste)> do_item_description(std::ostream & s, con
 	delete item;
 }
 
-template<typename T, typename D = std::remove_pointer<decltype(T::subtype)>::type>
-static void do_item_description(std::ostream & s, const event_context &, int16_t item_subtype, int16_t mat_type, int32_t mat_index)
+template<typename T, typename D = typename std::remove_pointer<decltype(T::subtype)>::type>
+static void do_item_description(std::ostream & s, const event_context & context, int16_t item_subtype, int16_t mat_type, int32_t mat_index)
 {
 	auto item = df::allocate<T>();
 	item->mat_type = mat_type;
@@ -313,7 +313,7 @@ static void do_item_description(std::ostream & s, const event_context &, int16_t
 }
 
 template<typename T>
-static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value, std::void_t<decltype(T::mat_type)>>::type do_item_description(std::ostream & s, const event_context & context, int16_t item_subtype, int16_t mat_type, int32_t mat_index)
+static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value, typename void_t<decltype(T::mat_type)>::type>::type do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
 {
 	auto item = df::allocate<T>();
 	item->mat_type = mat_type;
@@ -1608,7 +1608,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	case df::history_event_change_hf_statest::T_state::Refugee:
 		s << " became a refugee";
 		BREAK(state);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wswitch"
 	case (df::history_event_change_hf_statest::T_state)5:
+#pragma GCC diagnostic pop
 		s << " visited";
 		separator = " ";
 		BREAK(state);
@@ -2445,9 +2448,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			case agreement_conclusion_reason::Adopted:
 				out << " after being compelled to serve";
 				BREAK(reason);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wswitch"
 			case (df::agreement_conclusion_reason)42:
+#pragma GCC diagnostic pop
 				out << " to entertain the world";
 				BREAK(reason);
+            default:
+                break;
 			}
 			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party) reason", event->id, agreement->id, details->id));
 			BREAK(type);
@@ -2521,6 +2529,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			case agreement_conclusion_reason::EternalWar:
 				out << " that war might rage forever";
 				BREAK(reason);
+            default:
+                break;
 			}
 			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding) reason", event->id, agreement->id, details->id));
 

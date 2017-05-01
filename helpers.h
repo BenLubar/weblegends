@@ -60,6 +60,12 @@ WEBLEGENDS_TYPES
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last = false);
 
+template<typename ...>
+struct void_t
+{
+    typedef void type;
+};
+
 #define WEBLEGENDS_TYPE(type, name) \
 int32_t get_id(df::type *name); \
 const df::language_name & get_name(df::type *name); \

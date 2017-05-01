@@ -29,58 +29,6 @@
 #include "df/syndrome.h"
 #include "df/world_site.h"
 
-static void spheres(std::ostream & s, df::historical_figure *hf)
-{
-	if (hf->info && hf->info->spheres && !hf->info->spheres->empty())
-	{
-		s << " associated with ";
-		list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
-		{
-			out << toLower(ENUM_KEY_STR(sphere_type, t));
-		});
-	}
-}
-
-static void year(std::ostream & s, int32_t year, int32_t tick)
-{
-	if (tick != -1)
-	{
-		s << "<abbr title=\"";
-		s << dayth(tick) << " " << month(tick) << " " << year;
-		s << "\">" << year << "</abbr>";
-	}
-	else
-	{
-		s << year;
-	}
-}
-
-static void born_died(std::ostream & s, df::historical_figure *hf)
-{
-	// TODO: handle negative years
-	if (hf->born_year <= -1 && hf->died_year <= -1)
-	{
-		return;
-	}
-
-	s << " (";
-	if (hf->born_year > -1)
-	{
-		s << "b. ";
-		year(s, hf->born_year, hf->born_seconds);
-		if (hf->died_year > -1)
-		{
-			s << " ";
-		}
-	}
-	if (hf->died_year > -1)
-	{
-		s << "d. ";
-		year(s, hf->died_year, hf->died_seconds);
-	}
-	s << ")";
-}
-
 bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 {
 	CoreSuspender suspend;
@@ -519,7 +467,10 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 				link(s, site);
 				s << ", home";
 				BREAK(link_type);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wswitch"
 			case (df::histfig_site_link_type)6:
+#pragma GCC diagnostic pop
 				link(s, site);
 				s << ", home"; // TODO: roost?
 				BREAK(link_type);

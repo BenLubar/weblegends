@@ -559,7 +559,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 		}
 	}
 }
-void categorize(std::ostream & s, df::history_era *era, bool, bool)
+void categorize(std::ostream & s, df::history_era *, bool, bool)
 {
 	s << " era";
 }
@@ -870,7 +870,7 @@ public:
 		{
 			if (context.related(*it))
 			{
-				int32_t year = std::max((*it)->year, 0);
+				size_t year = size_t(std::max((*it)->year, 0));
 				if (events.size() <= year)
 				{
 					events.resize(year + 1);
