@@ -22,6 +22,9 @@ static command_result do_unload(color_ostream & out)
 	{
 		delete weblegends;
 		weblegends = nullptr;
+#ifdef WEBLEGENDS_DEBUG
+		weblegends_debug_close_log();
+#endif
 	}
 	return res;
 }

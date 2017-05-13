@@ -4,6 +4,11 @@
 
 #ifdef WEBLEGENDS_DEBUG
 
+#define WEBLEGENDS_DEBUG_LOG weblegends_debug_log()
+
+std::ostream & weblegends_debug_log();
+void weblegends_debug_close_log();
+
 template<typename E>
 struct weblegends_switch_debug_enum_base
 {
@@ -49,12 +54,12 @@ inline constexpr const char *weblegends_basename(const char *p1, const char *p2)
 #define AFTER_SWITCH(var, message) \
         if (!var##_found) \
         { \
-            std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
+            weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
         } \
     } \
 	catch (...) \
 	{ \
-		std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] exception in switch: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
+		weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] exception in switch: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
 		throw; \
 	} \
 }
@@ -63,14 +68,15 @@ inline constexpr const char *weblegends_basename(const char *p1, const char *p2)
 if ((actual) != (expected)) \
 { \
 	typedef typename std::remove_reference<decltype((actual))>::type T; \
-	std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] expected " << weblegends_switch_debug_enum<T>((actual)) << " to equal " << weblegends_switch_debug_enum<T>(static_cast<T>((expected))) << ": " << (message) << std::endl; \
+	weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] expected " << weblegends_switch_debug_enum<T>((actual)) << " to equal " << weblegends_switch_debug_enum<T>(static_cast<T>((expected))) << ": " << (message) << std::endl; \
 }
 
 #define UNEXPECTED(message) \
-	std::cerr << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] " << (message) << std::endl;
+	weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] " << (message) << std::endl;
 
 #else
 
+#define WEBLEGENDS_DEBUG_LOG std::cerr
 #define BEFORE_SWITCH(var, expr) { auto var = expr
 #define BREAK(var) break
 #define AFTER_SWITCH(var, message) }

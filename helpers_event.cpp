@@ -383,7 +383,9 @@ static void do_event_missing(std::ostream & s, const event_context &, df::histor
 	df_context.histfig_id_listener = -1;
 	event->getSentence(&df_description, &df_context, 1, 0);
 	s << "<abbr title=\"" << df_description << "\">" << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id << "</abbr>";
-	std::cerr << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
+#ifdef WEBLEGENDS_DEBUG
+	weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
+#endif
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_war_attacked_sitest *event)

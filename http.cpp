@@ -78,7 +78,7 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 	}
 	catch (...)
 	{
-		std::cerr << "[weblegends] exception in request: " << method << " " << url << " (" << sock->GetClientAddr() << ")" << std::endl;
+		WEBLEGENDS_DEBUG_LOG << "[weblegends] exception in request: " << method << " " << url << " (" << sock->GetClientAddr() << ")" << std::endl;
 		throw;
 	}
 

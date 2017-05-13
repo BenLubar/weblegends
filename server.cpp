@@ -6,17 +6,27 @@
 
 command_result WebLegends::init(color_ostream & out)
 {
-	if (!sock.Initialize() || !sock.Listen("0.0.0.0", 5080))
+	for (uint16 port = 5080; port < 5090; port++)
 	{
-		out << "weblegends startup failed: " << sock.GetSocketError() << std::endl;
-		out << sock.DescribeError() << std::endl;
-		return CR_FAILURE;
+		if (!sock.Initialize() || !sock.Listen("0.0.0.0", port))
+		{
+			if (sock.GetSocketError() == CPassiveSocket::SocketAddressInUse)
+			{
+				continue;
+			}
+			break;
+		}
+
+		out << "weblegends listening on http://localhost:" << port << "/" << std::endl;
+
+		thread = new tthread::thread(WebLegends::run, this);
+
+		return CR_OK;
 	}
-	out << "weblegends listening on http://localhost:5080/" << std::endl;
 
-	thread = new tthread::thread(WebLegends::run, this);
-
-	return CR_OK;
+	out << "weblegends startup failed: " << sock.GetSocketError() << std::endl;
+	out << sock.DescribeError() << std::endl;
+	return CR_FAILURE;
 }
 
 command_result WebLegends::shutdown(color_ostream & out)
@@ -184,7 +194,7 @@ void Client::run()
 		}
 		catch (std::exception & ex)
 		{
-			std::cerr << "weblegends ex: " << ex.what() << std::endl;
+			WEBLEGENDS_DEBUG_LOG << "weblegends ex: " << ex.what() << std::endl;
 			sock->Close();
 			continue;
 		}
