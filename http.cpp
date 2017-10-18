@@ -222,7 +222,32 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
 		else if (check_id(s, url, "/era-", render_era)) {}
 		else
 		{
-			s.clear();
+			size_t pos = url.find('/', 1);
+			if (pos != 0)
+			{
+				std::string prefix, rest;
+				if (pos == std::string::npos)
+				{
+					prefix = url.substr(1);
+					rest = "";
+				}
+				else
+				{
+					prefix = url.substr(1, pos - 1);
+					rest = url.substr(pos);
+				}
+
+				CoreSuspender suspend;
+				auto handlers = get_handlers_v0();
+				if (handlers != nullptr)
+				{
+					auto handler = handlers->find(prefix);
+					if (handler != handlers->end())
+					{
+						handler->second.second(s, rest);
+					}
+				}
+			}
 		}
 	}
 	catch (...)
