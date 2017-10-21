@@ -1,11 +1,21 @@
 #include "weblegends.h"
+#include "helpers.h"
 
 #include <cerrno>
 #include <cstring>
 #include <iostream>
 
+static std::function<void(std::ostream &, df::history_event *)> weblegends_describe_event_v0 = [](std::ostream & out, df::history_event *e)
+{
+    int32_t last_year = -1;
+    int32_t last_seconds = -1;
+    event(out, event_context(), e, last_year, last_seconds);
+};
+
 command_result WebLegends::init(color_ostream & out)
 {
+    Core::getInstance().RegisterData(&weblegends_describe_event_v0, WEBLEGENDS_DESCRIBE_EVENT_V0);
+
 	for (uint16 port = 5080; port < 5090; port++)
 	{
 		if (!sock.Initialize() || !sock.Listen("0.0.0.0", port))
@@ -35,6 +45,8 @@ command_result WebLegends::shutdown(color_ostream & out)
 	{
 		return CR_FAILURE;
 	}
+
+    Core::getInstance().RegisterData(nullptr, WEBLEGENDS_DESCRIBE_EVENT_V0);
 
 	out << "weblegends cleaning up..." << std::endl;
 	std::cerr << "weblegends sending shutdown request" << std::endl;
