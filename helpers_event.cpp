@@ -634,7 +634,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		prefix = " after being attacked";
 		BREAK(cause);
 	case death_type::MEMORIALIZE:
-		s << " was put to death";
+		s << " was laid to rest";
 		BREAK(cause);
 	case death_type::SCARE:
 		s << " was scared to death";
