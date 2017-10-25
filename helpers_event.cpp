@@ -2234,13 +2234,59 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_revivedst *event)
 {
-	// TODO: int32_t histfig;
-	// TODO: int32_t site;
-	// TODO: int32_t region;
-	// TODO: int32_t layer;
-	// TODO: df::ghost_type ghost_type;
-	// TODO: int32_t flags; /*!< 1:again */
-	do_event_missing(s, context, event, __LINE__);
+	event_link(s, context, df::historical_figure::find(event->histfig));
+	s << " came back to life ";
+	BEFORE_SWITCH(flags, event->flags);
+	switch (flags)
+	{
+		case 0:
+			BREAK(flags);
+		case 1:
+			s << "again ";
+			BREAK(flags);
+	}
+	AFTER_SWITCH(flags, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
+
+	s << "as ";
+	BEFORE_SWITCH(type, event->ghost_type);
+	switch (type)
+	{
+	case ghost_type::MurderousGhost:
+		s << "a murderous ghost";
+		BREAK(type);
+	case ghost_type::SadisticGhost:
+		s << "a sadistic ghost";
+		BREAK(type);
+	case ghost_type::SecretivePoltergeist:
+		s << "a secretive poltergeist";
+		BREAK(type);
+	case ghost_type::EnergeticPoltergeist:
+		s << "an energetic poltergeist";
+		BREAK(type);
+	case ghost_type::AngryGhost:
+		s << "an angry ghost";
+		BREAK(type);
+	case ghost_type::ViolentGhost:
+		s << "a violent ghost";
+		BREAK(type);
+	case ghost_type::MoaningSpirit:
+		s << "a moaning spirit";
+		BREAK(type);
+	case ghost_type::HowlingSpirit:
+		s << "a howling spirit";
+		BREAK(type);
+	case ghost_type::TroublesomePoltergeist:
+		s << "a troublesome poltergeist";
+		BREAK(type);
+	case ghost_type::RestlessHaunt:
+		s << "a restless haunt";
+		BREAK(type);
+	case ghost_type::ForlornHaunt:
+		s << "a forlorn haunt";
+		BREAK(type);
+	}
+	AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
+	do_location_2(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_learns_secretst *event)
