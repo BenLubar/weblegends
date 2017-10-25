@@ -1496,16 +1496,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_itemst *event)
 {
-	// TODO: int32_t maker;
-	// TODO: int32_t maker_entity;
-	// TODO: int32_t site;
-	// TODO: enum_field<df::job_skill, int32_t> skill_used;
-	// TODO: df::item_type item_type;
-	// TODO: int16_t item_subtype;
-	// TODO: int16_t mat_type;
-	// TODO: int16_t mat_index;
-	// TODO: int32_t item_id;
-	do_event_missing(s, context, event, __LINE__);
+	if (auto maker = df::historical_figure::find(event->maker))
+	{
+		event_link(s, context, maker);
+	}
+	else if (event->skill_used != job_skill::NONE)
+	{
+		s << "a " << toLower(ENUM_ATTR(job_skill, caption_noun, event->skill_used));
+	}
+	else
+	{
+		s << "an unknown person";
+	}
+	if (auto maker_entity = df::historical_entity::find(event->maker_entity))
+	{
+		s << " of ";
+		event_link(s, context, maker_entity);
+	}
+	if (auto art = get_artifact(df::item::find(event->item_id)))
+	{
+		event_link(s, context, art);
+	}
+	else
+	{
+		s << "a masterwork ";
+		if (ENUM_ATTR(item_type, is_caste_mat, event->item_type))
+		{
+			auto creature = df::creature_raw::find(event->mat_type);
+			auto caste = creature->caste.at(event->mat_index);
+			if (!unique_creature_name(s, context, creature))
+			{
+				s << caste->caste_name[0];
+			}
+		}
+		else
+		{
+			MaterialInfo mat(event->mat_type, event->mat_index);
+			material(s, context, mat);
+		}
+		ItemTypeInfo type(event->item_type, event->item_subtype);
+		s << " " << type.toString();
+	}
+	if (auto site = df::world_site::find(event->site))
+	{
+		s << " at ";
+		event_link(s, context, site);
+	}
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_dye_itemst *event)

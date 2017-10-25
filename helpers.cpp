@@ -12,6 +12,7 @@
 #include "df/caste_raw.h"
 #include "df/creature_interaction_effect_body_transformationst.h"
 #include "df/creature_raw.h"
+#include "df/general_ref_is_artifactst.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/historical_figure_info.h"
@@ -810,6 +811,23 @@ void simple_header(std::ostream & s, df::history_era *era)
 void simple_header(std::ostream & s, df::world_data *world_data)
 {
 	simple_header_impl(s, world_data);
+}
+
+df::artifact_record *get_artifact(df::item *i)
+{
+	if (!i)
+	{
+		return nullptr;
+	}
+
+	for (auto ref : i->general_refs)
+	{
+		if (auto art = virtual_cast<df::general_ref_is_artifactst>(ref))
+		{
+			return df::artifact_record::find(art->artifact_id);
+		}
+	}
+	return nullptr;
 }
 
 int32_t day(int32_t tick)

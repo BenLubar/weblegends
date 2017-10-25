@@ -28,6 +28,7 @@ namespace df
 	struct creature_raw;
 	struct entity_occasion_schedule_feature;
 	struct history_event;
+	struct item;
 	struct knowledge_scholar_category_flag;
 	struct language_name;
 	struct written_content;
@@ -75,6 +76,8 @@ void categorize(std::ostream & s, df::type *name, bool in_link = false, bool in_
 void simple_header(std::ostream & s, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
+
+df::artifact_record *get_artifact(df::item *item);
 
 template<typename T>
 inline void list(std::ostream & s, const std::vector<T> & vec, std::function<void(std::ostream &, T)> f)
