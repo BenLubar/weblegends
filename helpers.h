@@ -6,56 +6,56 @@
 
 namespace DFHack
 {
-    struct MaterialInfo;
+	struct MaterialInfo;
 }
 
 #define WEBLEGENDS_TYPES \
-    WEBLEGENDS_TYPE(abstract_building, structure) \
-    WEBLEGENDS_TYPE(artifact_record, item) \
-    WEBLEGENDS_TYPE(historical_entity, ent) \
-    WEBLEGENDS_TYPE(historical_figure, hf) \
-    WEBLEGENDS_TYPE(world_region, region) \
-    WEBLEGENDS_TYPE(world_site, site) \
-    WEBLEGENDS_TYPE(world_underground_region, layer) \
+	WEBLEGENDS_TYPE(abstract_building, structure) \
+	WEBLEGENDS_TYPE(artifact_record, item) \
+	WEBLEGENDS_TYPE(historical_entity, ent) \
+	WEBLEGENDS_TYPE(historical_figure, hf) \
+	WEBLEGENDS_TYPE(world_region, region) \
+	WEBLEGENDS_TYPE(world_site, site) \
+	WEBLEGENDS_TYPE(world_underground_region, layer) \
 	WEBLEGENDS_TYPE(history_era, era)
 
 namespace df
 {
 #define WEBLEGENDS_TYPE(type, name) \
-    struct type;
+	struct type;
 	WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 	struct creature_raw;
 	struct entity_occasion_schedule_feature;
-    struct history_event;
-    struct knowledge_scholar_category_flag;
-    struct language_name;
-    struct written_content;
+	struct history_event;
+	struct knowledge_scholar_category_flag;
+	struct language_name;
+	struct written_content;
 }
 
 struct event_context
 {
 #define WEBLEGENDS_TYPE(type, name) \
-    df::type *name;
+	df::type *name;
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 
-    event_context() { clear(); }
+	event_context() { clear(); }
 #define WEBLEGENDS_TYPE(type, name) \
-    event_context(df::type *name) { clear(); this->name = name; }
+	event_context(df::type *name) { clear(); this->name = name; }
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 
-    bool related(df::history_event *event) const;
+	bool related(df::history_event *event) const;
 
 private:
-    inline void clear()
-    {
+	inline void clear()
+	{
 #define WEBLEGENDS_TYPE(type, name) \
-        this->name = nullptr;
+		this->name = nullptr;
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
-    }
+	}
 };
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last = false);
@@ -63,7 +63,7 @@ void name_translated(std::ostream & s, const df::language_name & name, bool only
 template<typename ...>
 struct void_t
 {
-    typedef void type;
+	typedef void type;
 };
 
 #define WEBLEGENDS_TYPE(type, name) \
@@ -79,25 +79,25 @@ WEBLEGENDS_TYPES
 template<typename T>
 inline void list(std::ostream & s, const std::vector<T> & vec, std::function<void(std::ostream &, T)> f)
 {
-    for (auto it = vec.begin(); it != vec.end(); it++)
-    {
-        if (it + 1 == vec.end())
-        {
-            if (vec.size() == 2)
-            {
-                s << " and ";
-            }
-            else if (vec.size() > 2)
-            {
-                s << ", and ";
-            }
-        }
-        else if (it != vec.begin())
-        {
-            s << ", ";
-        }
-        f(s, *it);
-    }
+	for (auto it = vec.begin(); it != vec.end(); it++)
+	{
+		if (it + 1 == vec.end())
+		{
+			if (vec.size() == 2)
+			{
+				s << " and ";
+			}
+			else if (vec.size() > 2)
+			{
+				s << ", and ";
+			}
+		}
+		else if (it != vec.begin())
+		{
+			s << ", ";
+		}
+		f(s, *it);
+	}
 }
 
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false, bool in_attr = false);

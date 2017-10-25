@@ -2502,8 +2502,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 #pragma GCC diagnostic pop
 				out << " to entertain the world";
 				BREAK(reason);
-            default:
-                break;
+			default:
+				break;
 			}
 			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party) reason", event->id, agreement->id, details->id));
 			BREAK(type);
@@ -2577,8 +2577,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			case agreement_conclusion_reason::EternalWar:
 				out << " that war might rage forever";
 				BREAK(reason);
-            default:
-                break;
+			default:
+				break;
 			}
 			AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding) reason", event->id, agreement->id, details->id));
 

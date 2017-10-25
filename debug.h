@@ -42,21 +42,21 @@ inline constexpr const char *weblegends_basename(const char *p1, const char *p2)
 
 #define BEFORE_SWITCH(var, expr) \
 { \
-    auto var = expr; \
+	auto var = expr; \
 	try \
-    { \
-        bool var##_found = false
+	{ \
+		bool var##_found = false
 
 #define BREAK(var) \
-    var##_found = true; \
-    break
+	var##_found = true; \
+	break
 
 #define AFTER_SWITCH(var, message) \
-        if (!var##_found) \
-        { \
-            weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
-        } \
-    } \
+		if (!var##_found) \
+		{ \
+			weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] missing enum-item: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \
+		} \
+	} \
 	catch (...) \
 	{ \
 		weblegends_debug_log() << "[weblegends] [" << weblegends_basename(__FILE__, __FILE__) << ":" << __LINE__ << "] exception in switch: " << weblegends_switch_debug_enum<decltype(var)>(var) << ": " << (message) << std::endl; \

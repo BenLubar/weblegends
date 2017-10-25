@@ -52,26 +52,26 @@ static inline bool remove_weblegends_handler(const std::string & prefix)
 
 static inline void weblegends_describe_event(std::ostream & out, df::history_event *event)
 {
-    using describe_event_fn = std::function<void(std::ostream &, df::history_event *)>;
-    describe_event_fn *ptr = static_cast<describe_event_fn *>(Core::getInstance().GetData(WEBLEGENDS_DESCRIBE_EVENT_V0));
-    if (ptr == nullptr)
-    {
-        if (!event)
-        {
-            out << "(unknown event)";
-            return;
-        }
+	using describe_event_fn = std::function<void(std::ostream &, df::history_event *)>;
+	describe_event_fn *ptr = static_cast<describe_event_fn *>(Core::getInstance().GetData(WEBLEGENDS_DESCRIBE_EVENT_V0));
+	if (ptr == nullptr)
+	{
+		if (!event)
+		{
+			out << "(unknown event)";
+			return;
+		}
 
-        static df::history_event_context context;
-        context.anon_1 = 0;
-        context.anon_2 = 0;
-        context.histfig_id_talker = -1;
-        context.histfig_id_listener = -1;
+		static df::history_event_context context;
+		context.anon_1 = 0;
+		context.anon_2 = 0;
+		context.histfig_id_talker = -1;
+		context.histfig_id_listener = -1;
 
-        std::string str;
-        event->getSentence(&str, &context, 1, 0);
-        out << str;
-        return;
-    }
-    (*ptr)(out, event);
+		std::string str;
+		event->getSentence(&str, &context, 1, 0);
+		out << str;
+		return;
+	}
+	(*ptr)(out, event);
 }

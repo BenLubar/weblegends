@@ -2359,8 +2359,8 @@ void written_content(std::ostream & s, const event_context & context, df::writte
 					}
 				}
 				BREAK(type);
-            default:
-                break;
+			default:
+				break;
 			}
 			AFTER_SWITCH(type, stl_sprintf("content-%d", content->id));
 		}
