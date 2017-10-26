@@ -1513,7 +1513,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " of ";
 		event_link(s, context, maker_entity);
 	}
-	out << " created ";
+	s << " created ";
 	if (auto art = get_artifact(df::item::find(event->item_id)))
 	{
 		event_link(s, context, art);
@@ -2632,7 +2632,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			BREAK(type);
 		}
 		default:
-			do_event_missing(s, context, event, __LINE__);
+			do_event_missing(out, context, event, __LINE__);
 			break;
 		}
 		AFTER_SWITCH(type, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d type", event->id, agreement->id, details->id));
