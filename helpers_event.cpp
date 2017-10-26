@@ -1513,6 +1513,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " of ";
 		event_link(s, context, maker_entity);
 	}
+	out << " created ";
 	if (auto art = get_artifact(df::item::find(event->item_id)))
 	{
 		event_link(s, context, art);
