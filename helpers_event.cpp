@@ -2631,6 +2631,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			}
 			BREAK(type);
 		}
+		default:
+			do_event_missing(s, context, event, __LINE__);
+			break;
 		}
 		AFTER_SWITCH(type, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d type", event->id, agreement->id, details->id));
 	});
