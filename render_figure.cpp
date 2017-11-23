@@ -437,6 +437,11 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 			BEFORE_SWITCH(link_type, (*it)->getType());
 			switch (link_type)
 			{
+			case histfig_site_link_type::OCCUPATION:
+                // TODO: int32_t sub_id;
+				link(s, site);
+				s << ", occupation";
+				BREAK(link_type);
 			case histfig_site_link_type::SEAT_OF_POWER:
 				link(s, site);
 				s << ", seat of power";
