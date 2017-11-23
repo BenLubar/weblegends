@@ -465,14 +465,11 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
 				BREAK(link_type);
 			case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
 				link(s, site);
-				s << ", home";
-				BREAK(link_type);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wswitch"
-			case (df::histfig_site_link_type)6:
-#pragma GCC diagnostic pop
-				link(s, site);
 				s << ", home"; // TODO: roost?
+				BREAK(link_type);
+			case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
+				link(s, site);
+				s << ", home";
 				BREAK(link_type);
 			}
 			AFTER_SWITCH(link_type, stl_sprintf("fig-%d target=site-%d", id, (*it)->site));
