@@ -1621,18 +1621,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	switch (state)
 	{
 	case df::history_event_change_hf_statest::T_state::Wandering:
-		BEFORE_SWITCH(substate, event->substate);
-		switch (substate)
+		BEFORE_SWITCH(reason, event->reason);
+		switch (reason)
 		{
-		case df::history_event_change_hf_statest::T_substate::Fled:
+		case history_event_reason::flight:
 			s << " fled";
 			separator = " to ";
-			BREAK(substate);
-		case df::history_event_change_hf_statest::T_substate::Wandered:
+			BREAK(reason);
+		case (df::history_event_reason)-1:
 			s << " was wandering";
-			BREAK(substate);
+			BREAK(reason);
 		}
-		AFTER_SWITCH(substate, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
+		AFTER_SWITCH(reason, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
 		BREAK(state);
 	case df::history_event_change_hf_statest::T_state::Settled:
 		if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
@@ -2501,42 +2501,33 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_2));
 			out << " joined with ";
 			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_3));
-			ASSUME_EQUAL(agreement_conclusion_reason::None, 0, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::anon_1, 1, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::anon_2, 2, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::anon_7, 23, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::anon_8, 24, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::Adopted, 39, "agreement_conclusion_reason got fixed");
-			BEFORE_SWITCH(reason, static_cast<df::agreement_conclusion_reason>(details->data.data0->anon_1));
+			BEFORE_SWITCH(reason, static_cast<df::history_event_reason>(details->data.data0->anon_1));
 			switch (reason)
 			{
-			case agreement_conclusion_reason::None:
+			case history_event_reason::insurrection:
 				out << " to oust ";
 				event_link(out, context, df::historical_entity::find(details->data.data0->anon_5));
 				out << " from ";
 				event_link(out, context, df::world_site::find(details->data.data0->anon_4));
 				BREAK(reason);
-			case agreement_conclusion_reason::anon_1:
+			case history_event_reason::adventure:
 				out << " to live a life of adventure";
 				BREAK(reason);
-			case agreement_conclusion_reason::anon_2:
+			case history_event_reason::guide:
 				out << " as a guide to ";
 				event_link(out, context, df::world_site::find(details->data.data0->anon_4));
 				BREAK(reason);
-			case agreement_conclusion_reason::anon_7:
+			case history_event_reason::be_brought_to_safety:
 				out << " in order to be brought to safety";
 				BREAK(reason);
-			case agreement_conclusion_reason::anon_8:
+			case history_event_reason::help_with_rescue:
 				out << " to help rescue ";
 				event_link(out, context, df::historical_figure::find(details->data.data0->anon_6));
 				BREAK(reason);
-			case agreement_conclusion_reason::Adopted:
+			case history_event_reason::true_name_invocation: // TODO: ???
 				out << " after being compelled to serve";
 				BREAK(reason);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wswitch"
-			case (df::agreement_conclusion_reason)42:
-#pragma GCC diagnostic pop
+			case history_event_reason::entertain_people:
 				out << " to entertain the world";
 				BREAK(reason);
 			default:
@@ -2551,67 +2542,59 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			out << " aided ";
 			do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_1));
 			out << " in becoming a permanent part of the living world";
-			ASSUME_EQUAL(agreement_conclusion_reason::anon_4, 4, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::PonderMisery, 5, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::MaintainBalance, 6, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::CreateMonumentToBoundaries, 7, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::SowChaos, 8, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::ProvideOpportunityForCourage, 9, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::MoreDeath, 10, "agreement_conclusion_reason got fixed");
-			ASSUME_EQUAL(agreement_conclusion_reason::AllGazeUponGruesomeVisage, 11, "agreement_conclusion_reason got fixed");
 			BEFORE_SWITCH(reason, details->data.data1->reason);
 			switch (reason)
 			{
-			case agreement_conclusion_reason::anon_4:
+			case history_event_reason::sphere_alignment:
 				out << " after pondering the ineffable subtleties of ";
 				out << toLower(enum_item_key(static_cast<df::sphere_type>(details->data.data1->anon_3)));
 				BREAK(reason);
-			case agreement_conclusion_reason::PonderMisery:
+			case history_event_reason::maintain_balance_in_universe:
 				out << " in order to maintain balance in the universe";
 				BREAK(reason);
-			case agreement_conclusion_reason::MaintainBalance:
+			case history_event_reason::highlight_boundaries_between_worlds:
 				out << " to create a monument to the boundaries between realities";
 				BREAK(reason);
-			case agreement_conclusion_reason::CreateMonumentToBoundaries:
+			case history_event_reason::sow_the_seeds_of_chaos_in_the_world:
 				out << " to sow the seeds of chaos therein";
 				BREAK(reason);
-			case agreement_conclusion_reason::SowChaos:
+			case history_event_reason::provide_opportunities_for_courage:
 				out << " to provide opportunities for courage to rise";
 				BREAK(reason);
-			case agreement_conclusion_reason::ProvideOpportunityForCourage:
+			case history_event_reason::bring_death_to_the_world:
 				out << " that more might die";
 				BREAK(reason);
-			case agreement_conclusion_reason::MoreDeath:
+			case history_event_reason::liked_appearance:
 				out << " that all should gaze upon a truly gruesome visage";
 				BREAK(reason);
-			case agreement_conclusion_reason::AllGazeUponGruesomeVisage:
+			case history_event_reason::because_it_was_destined:
 				out << " because it was destined";
 				BREAK(reason);
-			case agreement_conclusion_reason::TestFortressesInSiege:
+			case history_event_reason::great_fortresses_built_and_tested:
 				out << " that great fortresses might be raised and tested in siege";
 				BREAK(reason);
-			case agreement_conclusion_reason::Whim:
+			case history_event_reason::whim:
 				out << " on a whim";
 				BREAK(reason);
-			case agreement_conclusion_reason::BatheInMisery:
+			case history_event_reason::bring_misery_to_the_world:
 				out << " that it might bathe in misery forever";
 				BREAK(reason);
-			case agreement_conclusion_reason::MoreMurder:
+			case history_event_reason::bring_murder_to_the_world:
 				out << " that more might be murdered";
 				BREAK(reason);
-			case agreement_conclusion_reason::MakeNightmaresReal:
+			case history_event_reason::bring_nightmares_into_reality:
 				out << " in order to make nightmares reality";
 				BREAK(reason);
-			case agreement_conclusion_reason::MakeEveryoneThralls:
+			case history_event_reason::bring_thralldom_to_the_world:
 				out << " in order to make thralls of everyone";
 				BREAK(reason);
-			case agreement_conclusion_reason::PerpetrateTorture:
+			case history_event_reason::bring_torture_to_the_world:
 				out << " in order that acts of torture be perpetrated";
 				BREAK(reason);
-			case agreement_conclusion_reason::ProvideOpportunityForValor:
+			case history_event_reason::provide_opportunities_for_acts_of_valor:
 				out << " to provide opportunities for acts of valor to be performed";
 				BREAK(reason);
-			case agreement_conclusion_reason::EternalWar:
+			case history_event_reason::bring_war_to_the_world:
 				out << " that war might rage forever";
 				BREAK(reason);
 			default:
