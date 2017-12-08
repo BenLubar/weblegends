@@ -25,10 +25,13 @@
 #include "df/history_event_agreement_concludedst.h"
 #include "df/history_event_agreement_formedst.h"
 #include "df/history_event_agreements_voidedst.h"
+#include "df/history_event_artifact_claim_formedst.h"
+#include "df/history_event_artifact_copiedst.h"
 #include "df/history_event_artifact_createdst.h"
 #include "df/history_event_artifact_destroyedst.h"
 #include "df/history_event_artifact_droppedst.h"
 #include "df/history_event_artifact_foundst.h"
+#include "df/history_event_artifact_givenst.h"
 #include "df/history_event_artifact_hiddenst.h"
 #include "df/history_event_artifact_lostst.h"
 #include "df/history_event_artifact_possessedst.h"
@@ -41,6 +44,7 @@
 #include "df/history_event_change_creature_typest.h"
 #include "df/history_event_change_hf_body_statest.h"
 #include "df/history_event_change_hf_jobst.h"
+#include "df/history_event_change_hf_moodst.h"
 #include "df/history_event_change_hf_statest.h"
 #include "df/history_event_competitionst.h"
 #include "df/history_event_context.h"
@@ -56,23 +60,29 @@
 #include "df/history_event_entity_incorporatedst.h"
 #include "df/history_event_entity_lawst.h"
 #include "df/history_event_entity_razed_buildingst.h"
+#include "df/history_event_entity_searched_sitest.h"
 #include "df/history_event_first_contact_failedst.h"
 #include "df/history_event_first_contactst.h"
+#include "df/history_event_hf_act_on_artifactst.h"
 #include "df/history_event_hf_act_on_buildingst.h"
 #include "df/history_event_hf_attacked_sitest.h"
 #include "df/history_event_hf_confrontedst.h"
 #include "df/history_event_hf_destroyed_sitest.h"
 #include "df/history_event_hf_does_interactionst.h"
+#include "df/history_event_hf_freedst.h"
 #include "df/history_event_hf_gains_secret_goalst.h"
 #include "df/history_event_hf_learns_secretst.h"
 #include "df/history_event_hf_razed_buildingst.h"
+#include "df/history_event_hf_recruited_unit_type_for_entityst.h"
 #include "df/history_event_hf_relationship_deniedst.h"
+#include "df/history_event_hfs_formed_reputation_relationshipst.h"
 #include "df/history_event_hist_figure_abductedst.h"
 #include "df/history_event_hist_figure_diedst.h"
 #include "df/history_event_hist_figure_new_petst.h"
 #include "df/history_event_hist_figure_reach_summitst.h"
 #include "df/history_event_hist_figure_reunionst.h"
 #include "df/history_event_hist_figure_revivedst.h"
+#include "df/history_event_hist_figure_simple_actionst.h"
 #include "df/history_event_hist_figure_simple_battle_eventst.h"
 #include "df/history_event_hist_figure_travelst.h"
 #include "df/history_event_hist_figure_woundedst.h"
@@ -102,6 +112,8 @@
 #include "df/history_event_site_diedst.h"
 #include "df/history_event_site_disputest.h"
 #include "df/history_event_site_retiredst.h"
+#include "df/history_event_sneak_into_sitest.h"
+#include "df/history_event_spotted_leaving_sitest.h"
 #include "df/history_event_topicagreement_concludedst.h"
 #include "df/history_event_topicagreement_madest.h"
 #include "df/history_event_topicagreement_rejectedst.h"
@@ -660,6 +672,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	case death_type::FALLING_OBJECT:
 		s << " was killed by a falling object";
 		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::LEAPT_FROM_HEIGHT:
+		s << " fell off a cliff";
+		prefix = " after being attacked";
+		BREAK(cause);
+	case death_type::DROWN_ALT2:
+		s << " drowned";
+		prefix = ", killed";
 		BREAK(cause);
 	}
 	AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
@@ -1448,6 +1468,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		s << " was no longer the apprentice of ";
 		event_link(s, context, hf_target);
 		BREAK(type);
+	case histfig_hf_link_type::PET_OWNER:
+		event_link(s, context, hf);
+		s << " was adopted as the pet of ";
+		event_link(s, context, hf_target);
+		BREAK(type);
 	}
 	AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
 }
@@ -1628,9 +1653,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 			s << " fled";
 			separator = " to ";
 			BREAK(reason);
+#pragma GCC diagnostic push
+#pragma GCC diagnostic warning "-Wswitch"
 		case (df::history_event_reason)-1:
+#pragma GCC diagnostic pop
 			s << " was wandering";
 			BREAK(reason);
+		default:
+			break;
 		}
 		AFTER_SWITCH(reason, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
 		BREAK(state);
@@ -1647,10 +1677,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	case df::history_event_change_hf_statest::T_state::Refugee:
 		s << " became a refugee";
 		BREAK(state);
-#pragma GCC diagnostic push
-#pragma GCC diagnostic warning "-Wswitch"
-	case (df::history_event_change_hf_statest::T_state)5:
-#pragma GCC diagnostic pop
+	case df::history_event_change_hf_statest::T_state::anon_1:
+		break;
+	case df::history_event_change_hf_statest::T_state::anon_2:
+		break;
+	case df::history_event_change_hf_statest::T_state::Visiting:
 		s << " visited";
 		separator = " ";
 		BREAK(state);
@@ -2361,6 +2392,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 		BREAK(action);
 	case df::history_event_hf_act_on_buildingst::T_action::Disturb:
 		s << " disturbed ";
+		BREAK(action);
+	case df::history_event_hf_act_on_buildingst::T_action::PrayedInside:
+		s << " prayed inside ";
 		BREAK(action);
 	}
 	AFTER_SWITCH(action, stl_sprintf("event-%d (HF_ACT_ON_BUILDING)", event->id));
@@ -3149,6 +3183,154 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	// TODO: int32_t reason_id;
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_moodst *event)
+{
+	// TODO: int32_t histfig;
+	// TODO: df::mood_type mood;
+	// TODO: df::history_event_reason reason;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+	// TODO: df::coord2d region_pos;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_claim_formedst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t histfig;
+	// TODO: int32_t entity;
+	// TODO: int32_t position_profile;
+	// TODO: T_claim_type claim_type;
+	// TODO: df::unit_thought_type circumstance;
+	// TODO: int32_t circumstance_id;
+	// TODO: df::history_event_reason reason;
+	// TODO: int32_t reason_id;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_givenst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t giver_hf;
+	// TODO: int32_t giver_entity;
+	// TODO: int32_t receiver_hf;
+	// TODO: int32_t receiver_entity;
+	// TODO: df::unit_thought_type circumstance;
+	// TODO: int32_t circumstance_id;
+	// TODO: df::history_event_reason reason;
+	// TODO: int32_t reason_id;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_act_on_artifactst *event)
+{
+	// TODO: T_action action;
+	// TODO: int32_t artifact;
+	// TODO: int32_t histfig;
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_recruited_unit_type_for_entityst *event)
+{
+	// TODO: int32_t entity;
+	// TODO: int32_t histfig;
+	// TODO: df::profession profession;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hfs_formed_reputation_relationshipst *event)
+{
+	// TODO: int32_t histfig1;
+	// TODO: int32_t identity1;
+	// TODO: int32_t histfig2;
+	// TODO: int32_t identity2;
+	// TODO: df::reputation_type rep1;
+	// TODO: df::reputation_type rep2;
+	// TODO: int32_t site;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_copiedst *event)
+{
+	// TODO: int32_t artifact;
+	// TODO: int32_t entity_dest;
+	// TODO: int32_t entity_src;
+	// TODO: int32_t site_dest;
+	// TODO: int32_t site_src;
+	// TODO: int32_t structure_dest;
+	// TODO: int32_t structure_src;
+	// TODO: T_flags flags;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_sneak_into_sitest *event)
+{
+	// TODO: int32_t attacker_civ;
+	// TODO: int32_t defender_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_spotted_leaving_sitest *event)
+{
+	// TODO: int32_t spotter_hf;
+	// TODO: int32_t leaver_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_searched_sitest *event)
+{
+	// TODO: int32_t searcher_civ;
+	// TODO: int32_t site;
+	// TODO: int32_t result; /*!< 0 = found nothing */
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_freedst *event)
+{
+	// TODO: int32_t freeing_civ;
+	// TODO: int32_t freeing_hf;
+	// TODO: int32_t holding_civ;
+	// TODO: int32_t site_civ;
+	// TODO: int32_t site;
+	// TODO: std::vector<int32_t > rescued_hfs;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_actionst *event)
+{
+	// TODO: std::vector<int32_t > group_hfs;
+	// TODO: int32_t type; /*!< 0 = hf carouse */
+	// TODO: int32_t site;
+	// TODO: int32_t structure;
+	// TODO: int32_t region;
+	// TODO: int32_t layer;
+
+	do_event_missing(s, context, event, __LINE__);
+}
+
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
 	if (event->seconds != -1)
@@ -3450,6 +3632,42 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
 		BREAK(type);
 	case history_event_type::WRITTEN_CONTENT_COMPOSED:
 		do_event(s, context, virtual_cast<df::history_event_written_content_composedst>(event));
+		BREAK(type);
+	case history_event_type::CHANGE_HF_MOOD:
+		do_event(s, context, virtual_cast<df::history_event_change_hf_moodst>(event));
+		BREAK(type);
+	case history_event_type::ARTIFACT_CLAIM_FORMED:
+		do_event(s, context, virtual_cast<df::history_event_artifact_claim_formedst>(event));
+		BREAK(type);
+	case history_event_type::ARTIFACT_GIVEN:
+		do_event(s, context, virtual_cast<df::history_event_artifact_givenst>(event));
+		BREAK(type);
+	case history_event_type::HF_ACT_ON_ARTIFACT:
+		do_event(s, context, virtual_cast<df::history_event_hf_act_on_artifactst>(event));
+		BREAK(type);
+	case history_event_type::HF_RECRUITED_UNIT_TYPE_FOR_ENTITY:
+		do_event(s, context, virtual_cast<df::history_event_hf_recruited_unit_type_for_entityst>(event));
+		BREAK(type);
+	case history_event_type::HFS_FORMED_REPUTATION_RELATIONSHIP:
+		do_event(s, context, virtual_cast<df::history_event_hfs_formed_reputation_relationshipst>(event));
+		BREAK(type);
+	case history_event_type::ARTIFACT_COPIED:
+		do_event(s, context, virtual_cast<df::history_event_artifact_copiedst>(event));
+		BREAK(type);
+	case history_event_type::SNEAK_INTO_SITE:
+		do_event(s, context, virtual_cast<df::history_event_sneak_into_sitest>(event));
+		BREAK(type);
+	case history_event_type::SPOTTED_LEAVING_SITE:
+		do_event(s, context, virtual_cast<df::history_event_spotted_leaving_sitest>(event));
+		BREAK(type);
+	case history_event_type::ENTITY_SEARCHED_SITE:
+		do_event(s, context, virtual_cast<df::history_event_entity_searched_sitest>(event));
+		BREAK(type);
+	case history_event_type::HF_FREED:
+		do_event(s, context, virtual_cast<df::history_event_hf_freedst>(event));
+		BREAK(type);
+	case history_event_type::HIST_FIGURE_SIMPLE_ACTION:
+		do_event(s, context, virtual_cast<df::history_event_hist_figure_simple_actionst>(event));
 		BREAK(type);
 	}
 	AFTER_SWITCH(type, stl_sprintf("event-%d", event->id));
