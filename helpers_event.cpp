@@ -483,6 +483,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 	BEFORE_SWITCH(cause, event->death_cause);
 	switch (cause)
 	{
+	case death_type::NONE:
+#ifdef WEBLEGENDS_DEBUG
+		weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << __LINE__ << "] history_event_hist_figure_diedst.death_cause is NONE: event-" << event->id << std::endl;
+#endif
+		s << " died";
+		prefix = ", killed by";
+		BREAK(cause);
 	case death_type::OLD_AGE:
 		s << " died of old age";
 		prefix = " after being attacked";
