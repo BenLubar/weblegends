@@ -737,6 +737,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     BEFORE_SWITCH(type, event->link_type);
     switch (type)
     {
+    case death_type::NONE:
+        s << " died";
+        BREAK(cause);
     case histfig_entity_link_type::MEMBER:
         event_link(s, context, hf);
         s << " became a member of ";
