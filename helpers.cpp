@@ -1187,3 +1187,19 @@ void born_died(std::ostream & s, df::historical_figure *hf)
     }
     s << ")";
 }
+
+void render_map_coords(std::ostream &s, const df::coord2d_path &coords)
+{
+    s << "<svg width=\"100%\" style=\"max-width:500px;border:1px solid;float:right\" viewBox=\"0 0 " << world->world_data->world_width << " " << world->world_data->world_height << "\">";
+    for (size_t i = 0; i < coords.size(); i++)
+    {
+        int height = 1;
+        while (i + 1 < coords.size() && coords.x.at(i) == coords.x.at(i + 1) && coords.y.at(i) + 1 == coords.y.at(i + 1))
+        {
+            height++;
+            i++;
+        }
+        s << "<rect width=\"1\" height=\"" << height << "\" x=\"" << coords.x.at(i) << "\" y=\"" << (coords.y.at(i) - height + 1) << "\"></rect>";
+    }
+    s << "</svg>";
+}

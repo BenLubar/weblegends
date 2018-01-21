@@ -25,6 +25,7 @@ namespace df
     struct type;
     WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
+    struct coord2d_path;
     struct creature_raw;
     struct entity_occasion_schedule_feature;
     struct history_event;
@@ -123,5 +124,7 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
 void spheres(std::ostream & s, df::historical_figure *hf);
 void year(std::ostream & s, int32_t year, int32_t tick);
 void born_died(std::ostream & s, df::historical_figure *hf);
+
+void render_map_coords(std::ostream &s, const df::coord2d_path &coords);
 
 #undef WEBLEGENDS_TYPES

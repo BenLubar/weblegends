@@ -19,12 +19,7 @@ bool WebLegends::render_layer(std::ostream & s, int32_t id, int32_t page)
 
     simple_header(s, layer);
 
-    s << "<svg width=\"100%\" style=\"max-width:500px;border:1px solid;float:right\" viewBox=\"0 0 " << world->world_data->world_width << " " << world->world_data->world_height << "\">";
-    for (size_t i = 0; i < layer->region_coords.size(); i++)
-    {
-        s << "<rect width=\"1\" height=\"1\" x=\"" << layer->region_coords.x.at(i) << "\" y=\"" << layer->region_coords.y.at(i) << "\"></rect>";
-    }
-    s << "</svg>";
+    render_map_coords(s, layer->region_coords);
 
     s << "<p>";
     categorize(s, layer);
