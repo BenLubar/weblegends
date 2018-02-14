@@ -513,6 +513,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     std::string weapon_prefix = " with ";
     std::string prefix;
     std::string no_weapon_text;
+    std::string no_weapon_prefix;
 
     auto victim = df::historical_figure::find(event->victim_hf);
     event_link(s, context, victim);
@@ -525,19 +526,27 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << __LINE__ << "] history_event_hist_figure_diedst.death_cause is NONE: event-" << event->id << std::endl;
 #endif
         s << " died";
-        prefix = ", killed by";
+        weapon_prefix = ", killed with ";
+        no_weapon_prefix = " ";
+        prefix = ", killed";
         BREAK(cause);
     case death_type::OLD_AGE:
         s << " died of old age";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::HUNGER:
         s << " starved to death";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::THIRST:
         s << " died of thirst";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::SHOT:
         s << " was shot and killed";
@@ -552,6 +561,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::SUFFOCATE:
         s << " suffocated";
+        weapon_prefix = " after being hit with ";
         prefix = ", strangled";
         BREAK(cause);
     case death_type::STRUCK_DOWN:
@@ -562,7 +572,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::COLLISION:
         s << " died in a collision";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::MAGMA:
         s << " was boiled alive in magma";
@@ -596,30 +608,42 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::CHASM:
         s << " fell into a deep chasm";
-        prefix = ", pushed";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = ", pushed";
+        prefix = " ";
         BREAK(cause);
     case death_type::CAGE:
         s << " died in a cage";
-        prefix = ", killed";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::MURDER:
         s << " was murdered";
         BREAK(cause);
     case death_type::TRAP:
         s << " died in a trap";
-        prefix = ", killed";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::VANISH:
         s << " vanished into thin air";
-        prefix = ", killed";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::QUIT:
         s << " gave into starvation";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::ABANDON:
         s << " was abandoned";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::HEAT:
         s << " died of heat";
@@ -635,15 +659,21 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::ENCASE_LAVA:
         s << " was encased in cooling lava";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::ENCASE_MAGMA:
         s << " was encased in cooling magma";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::ENCASE_ICE:
         s << " was encased in ice";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::BEHEAD:
         s << " was beheaded";
@@ -687,7 +717,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::INFECTION:
         s << " succumbed to infection";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::MEMORIALIZE:
         s << " was laid to rest";
@@ -697,11 +729,15 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::DARKNESS:
         s << " died in the dark";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::COLLAPSE:
         s << " collapsed";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::DRAIN_BLOOD:
         s << " was drained of blood";
@@ -710,7 +746,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " was slaughtered";
         BREAK(cause);
     case death_type::VEHICLE:
-        s << " was killed by a vehicle";
+        s << " was killed by ";
+        weapon_prefix = "the vehicle ";
+        no_weapon_text = "a vehicle";
         prefix = " after being attacked";
         BREAK(cause);
     case death_type::FALLING_OBJECT:
@@ -721,7 +759,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     case death_type::LEAPT_FROM_HEIGHT:
         s << " fell off a cliff";
-        prefix = " after being attacked";
+        weapon_prefix = " after being attacked with ";
+        no_weapon_prefix = " after being attacked";
+        prefix = " ";
         BREAK(cause);
     case death_type::DROWN_ALT2:
         s << " drowned";
@@ -732,6 +772,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     if (!do_weapon(s, context, event->weapon, weapon_prefix))
     {
         s << no_weapon_text;
+        if (!no_weapon_prefix.empty())
+        {
+            prefix = no_weapon_prefix;
+        }
     }
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
