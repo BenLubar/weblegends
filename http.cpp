@@ -38,15 +38,18 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 
     std::string url;
     std::string method = request.substr(0, 5) == "GET /" ? "GET" : request.substr(0, 6) == "HEAD /" ? "HEAD" : "";
+    char http1Point = request.at(ending - 1);
+    bool keepAlive = http1Point == '1';
 
-    if (!method.empty() && request.substr(method.length(), 2) == " /" && request.substr(ending - 9, 8) == " HTTP/1." && (request.at(ending - 1) == '0' || request.at(ending - 1) == '1'))
+    if (!method.empty() && request.substr(method.length(), 2) == " /" && request.substr(ending - 9, 8) == " HTTP/1." && (http1Point == '0' || http1Point == '1'))
     {
         url = request.substr(method.length() + 1, ending - 10 - method.length());
     }
 
     while (true)
     {
-        ending = request.find('\n', ending + ending_size);
+        size_t start = ending + ending_size;
+        ending = request.find('\n', start);
         if (ending == std::string::npos)
         {
             return false;
@@ -56,6 +59,15 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
         {
             ending--;
             ending_size++;
+        }
+
+        if (request.substr(start, ending - start) == "Connection: keep-alive")
+        {
+            keepAlive = true;
+        }
+        else if (request.substr(start, ending - start) == "Connection: close")
+        {
+            keepAlive = false;
         }
 
         if (request.at(ending - 1) == '\n')
@@ -74,7 +86,7 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 
     try
     {
-        handle(sock, method, url);
+        handle(sock, method, url, http1Point, keepAlive);
     }
     catch (...)
     {
@@ -82,12 +94,18 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
         throw;
     }
 
+    if (!keepAlive)
+    {
+        sock->Close();
+        return false;
+    }
+
     return true;
 }
 
-static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body)
+static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body, char http1Point, bool keepAlive)
 {
-    std::string header = stl_sprintf("HTTP/1.0 %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\n\r\n", status_code, status_phrase.c_str(), body.length());
+    std::string header = stl_sprintf("HTTP/1.%c %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, status_code, status_phrase.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
     std::string payload = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)payload.c_str(), payload.length()) != int32_t(payload.length()))
     {
@@ -96,9 +114,9 @@ static void http_error(CActiveSocket *sock, const std::string & method, const st
     }
 }
 
-static void not_found(CActiveSocket *sock, const std::string & method, const std::string & url)
+static void not_found(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
-    http_error(sock, method, url, 404, "Not Found", "not found: " + url);
+    http_error(sock, method, url, 404, "Not Found", "not found: " + url, http1Point, keepAlive);
 }
 
 static bool check_page(std::ostream & s, const std::string & url, const std::string & prefix, std::function<bool(std::ostream &, int32_t)> handler)
@@ -189,11 +207,11 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
     });
 }
 
-void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url)
+void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
     if (!DFHack::Core::getInstance().isWorldLoaded() || virtual_cast<df::viewscreen_loadgamest>(DFHack::Gui::getCurViewscreen(true)))
     {
-        http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.");
+        http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.", http1Point, keepAlive);
         return;
     }
 
@@ -252,7 +270,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
     }
     catch (...)
     {
-        http_error(sock, method, url, 500, "Internal Server Error", "Error processing page.");
+        http_error(sock, method, url, 500, "Internal Server Error", "Error processing page.", http1Point, keepAlive);
         throw;
     }
 
@@ -260,11 +278,11 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
 
     if (body.empty())
     {
-        not_found(sock, method, url);
+        not_found(sock, method, url, http1Point, keepAlive);
         return;
     }
 
-    std::string header = stl_sprintf("HTTP/1.0 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\n\r\n", body.length());
+    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, body.length(), keepAlive ? "keep-alive" : "close");
     std::string transport = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)transport.c_str(), transport.length()) != int32_t(transport.length()))
     {

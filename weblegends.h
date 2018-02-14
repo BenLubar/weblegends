@@ -64,7 +64,7 @@ private:
         return static_cast<weblegends_handlers_v0_t *>(Core::getInstance().GetData(WEBLEGENDS_PLUGIN_HANDLERS_V0));
     }
 
-    void handle(CActiveSocket *sock, const std::string & method, const std::string & url);
+    void handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive);
 
     static void render_home(std::ostream & s);
     static bool render_entity(std::ostream & s, int32_t id, int32_t page);
