@@ -1518,6 +1518,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         event_link(s, context, hf_target);
         BREAK(type);
     case histfig_hf_link_type::PET_OWNER:
+        if (auto race = hf ? df::creature_raw::find(hf->race) : nullptr)
+        {
+            auto caste = race->caste.at(hf->caste);
+            if (caste->flags.is_set(caste_raw_flags::ADOPTS_OWNER))
+            {
+                std::swap(hf, hf_target);
+            }
+        }
         event_link(s, context, hf);
         s << " was adopted as the pet of ";
         event_link(s, context, hf_target);

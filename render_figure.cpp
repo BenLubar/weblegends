@@ -183,6 +183,15 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     s << ", former apprentice";
                     BREAK(link_type);
                 case histfig_hf_link_type::PET_OWNER:
+                    if (auto race = hf ? df::creature_raw::find(hf->race) : nullptr)
+                    {
+                        auto caste = race->caste.at(hf->caste);
+                        if (caste->flags.is_set(caste_raw_flags::ADOPTS_OWNER))
+                        {
+                            s << ", pet";
+                            BREAK(link_type);
+                        }
+                    }
                     s << ", owner";
                     BREAK(link_type);
                 }
