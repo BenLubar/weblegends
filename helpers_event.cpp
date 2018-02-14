@@ -3,6 +3,7 @@
 
 #include "modules/Items.h"
 #include "modules/Materials.h"
+#include "modules/Translation.h"
 #include "modules/Units.h"
 
 #include "df/abstract_building.h"
@@ -130,6 +131,7 @@
 #include "df/history_event_written_content_composedst.h"
 #include "df/interaction.h"
 #include "df/interaction_source.h"
+#include "df/item_body_component.h"
 #include "df/item_constructed.h"
 #include "df/item_fishst.h"
 #include "df/item_fish_rawst.h"
@@ -257,6 +259,23 @@ static void do_item_description(std::ostream & s, df::item *item)
     s << str;
     str.clear();
     item->getItemDescription(&str, 0);
+    if (auto corpse = virtual_cast<df::item_body_component>(item))
+    {
+        if (auto hf = df::historical_figure::find(corpse->hist_figure_id))
+        {
+            std::string name = Translation::capitalize(Translation::TranslateName(&hf->name, false), true);
+            size_t start = 0;
+            size_t pos;
+            while ((pos = str.find(name, start)) != std::string::npos)
+            {
+                s << str.substr(start, pos - start);
+                link(s, hf);
+                start = pos + name.length();
+            }
+            s << str.substr(start);
+            return;
+        }
+    }
     s << str;
 }
 
@@ -354,35 +373,51 @@ static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value,
     delete item;
 }
 
-static void do_weapon(std::ostream & s, const event_context & context, const df::history_hit_item & weapon)
+static bool do_weapon(std::ostream & s, const event_context & context, const df::history_hit_item & weapon, const std::string & prefix = " with ")
 {
+    bool any = false;
+
     if (auto item = df::item::find(weapon.item))
     {
-        s << " with ";
+        s << prefix;
         do_item_description(s, item);
+        any = true;
     }
     else if (weapon.item_type != item_type::NONE)
     {
         ItemTypeInfo type(weapon.item_type, weapon.item_subtype);
         MaterialInfo mat(weapon.mattype, weapon.matindex);
-        s << " with a ";
+        s << prefix << "a ";
         material(s, context, mat);
         s << " " << type.toString();
+        any = true;
     }
 
     if (auto item = df::item::find(weapon.shooter_item))
     {
+        if (!any)
+        {
+            s << prefix << "a projectile";
+            any = true;
+        }
         s << " fired from ";
         do_item_description(s, item);
     }
     else if (weapon.shooter_item_type != item_type::NONE)
     {
+        if (!any)
+        {
+            s << prefix << "a projectile";
+            any = true;
+        }
         ItemTypeInfo type(weapon.shooter_item_type, weapon.shooter_item_subtype);
         MaterialInfo mat(weapon.shooter_mattype, weapon.shooter_matindex);
         s << " fired from a ";
         material(s, context, mat);
         s << " " << type.toString();
     }
+
+    return any;
 }
 
 static void do_event_missing(std::ostream & s, const event_context &, df::history_event *event, int line)
@@ -475,7 +510,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_diedst *event)
 {
+    std::string weapon_prefix = " with ";
     std::string prefix;
+    std::string no_weapon_text;
 
     auto victim = df::historical_figure::find(event->victim_hf);
     event_link(s, context, victim);
@@ -677,7 +714,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         prefix = " after being attacked";
         BREAK(cause);
     case death_type::FALLING_OBJECT:
-        s << " was killed by a falling object";
+        s << " was killed by a falling ";
+        weapon_prefix = "";
+        no_weapon_text = "object";
         prefix = " after being attacked";
         BREAK(cause);
     case death_type::LEAPT_FROM_HEIGHT:
@@ -690,7 +729,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(cause);
     }
     AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
-    do_weapon(s, context, event->weapon);
+    if (!do_weapon(s, context, event->weapon, weapon_prefix))
+    {
+        s << no_weapon_text;
+    }
     if (auto slayer = df::historical_figure::find(event->slayer_hf))
     {
         s << prefix << " by ";
