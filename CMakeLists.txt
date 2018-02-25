@@ -53,6 +53,7 @@ SET(PROJECT_HDRS
     weblegends.h
     helpers.h
     debug.h
+    weblegends-plugin.h
     weblegends-git-describe.h
 )
 

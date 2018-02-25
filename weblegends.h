@@ -64,6 +64,11 @@ private:
         return static_cast<weblegends_handlers_v0_t *>(Core::getInstance().GetData(WEBLEGENDS_PLUGIN_HANDLERS_V0));
     }
 
+    inline static weblegends_handlers_v1_t *get_handlers_v1()
+    {
+        return static_cast<weblegends_handlers_v1_t *>(Core::getInstance().GetData(WEBLEGENDS_PLUGIN_HANDLERS_V1));
+    }
+
     void handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive);
 
     static void render_home(std::ostream & s);
@@ -82,6 +87,44 @@ private:
     static bool render_region_list(std::ostream & s, int32_t page);
     static bool render_site_list(std::ostream & s, int32_t page);
     static bool render_layer_list(std::ostream & s, int32_t page);
+};
+
+class weblegends_handler_v1_impl : public weblegends_handler_v1
+{
+    class cp437_streambuf : public std::streambuf
+    {
+    public:
+        cp437_streambuf(std::ostream & raw) : raw(raw) {}
+        std::ostream & raw;
+    protected:
+        virtual std::streamsize xsputn(const char *s, std::streamsize n)
+        {
+            raw << DF2UTF(std::string(s, size_t(n)));
+            return n;
+        }
+    };
+
+    weblegends_handler_v1_impl() :
+        current_status_code(200),
+        current_status_description("OK"),
+        current_headers(),
+        body_raw(),
+        body_cp437(new cp437_streambuf(body_raw))
+    {
+        current_headers["Content-Type"] = "text/html; charset=utf-8";
+    }
+    friend class WebLegends;
+    int32_t current_status_code;
+    std::string current_status_description;
+    std::map<std::string, std::string> current_headers;
+    std::ostringstream body_raw;
+    std::ostream body_cp437;
+public:
+    virtual int32_t & status_code() { return current_status_code; }
+    virtual std::string & status_description() { return current_status_description; }
+    virtual std::map<std::string, std::string> & headers() { return current_headers; }
+    virtual std::ostream & cp437_out() { return body_cp437; }
+    virtual std::ostream & raw_out() { return body_raw; }
 };
 
 class Client

@@ -256,11 +256,46 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
                 }
 
                 CoreSuspender suspend;
-                auto handlers = get_handlers_v0();
-                if (handlers != nullptr)
+                auto handlers_1 = get_handlers_v1();
+                if (handlers_1 != nullptr)
                 {
-                    auto handler = handlers->find(prefix);
-                    if (handler != handlers->end())
+                    auto handler = handlers_1->find(prefix);
+                    if (handler != handlers_1->end())
+                    {
+                        weblegends_handler_v1_impl impl;
+                        if (handler->second.second(impl, rest))
+                        {
+                            std::string body = impl.body_raw.str();
+                            if (!body.empty())
+                            {
+                                std::ostringstream header;
+                                header << "HTTP/1." << http1Point << " " << impl.current_status_code << " " << impl.current_status_description << "\r\n";
+                                impl.current_headers.erase("Content-Length");
+                                impl.current_headers.erase("Connection");
+                                for (auto h : impl.current_headers)
+                                {
+                                    header << h.first << ": " << h.second << "\r\n";
+                                }
+                                header << "Content-Length: " << body.length() << "\r\n";
+                                header << "Connection: " << (keepAlive ? "keep-alive" : "close") << "\r\n";
+                                header << "\r\n";
+
+                                std::string transport = method == "HEAD" ? header.str() : header.str() + body;
+                                if (size_t(sock->Send((const uint8_t *)transport.c_str(), transport.length())) != transport.length())
+                                {
+                                    std::cerr << "weblegends send 200 " << url << ": " << sock->GetSocketError() << std::endl;
+                                    std::cerr << sock->DescribeError() << std::endl;
+                                }
+                                return;
+                            }
+                        }
+                    }
+                }
+                auto handlers_0 = get_handlers_v0();
+                if (handlers_0 != nullptr)
+                {
+                    auto handler = handlers_0->find(prefix);
+                    if (handler != handlers_0->end())
                     {
                         handler->second.second(s, rest);
                     }

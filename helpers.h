@@ -127,4 +127,26 @@ void born_died(std::ostream & s, df::historical_figure *hf);
 
 void render_map_coords(std::ostream &s, const df::coord2d_path &coords);
 
+// https://stackoverflow.com/a/24315631/2664560
+static inline void replace_all(std::string & str, const std::string & from, const std::string & to)
+{
+    size_t pos = 0;
+    while ((pos = str.find(from, pos)) != std::string::npos)
+    {
+        str.replace(pos, from.length(), to);
+        pos += to.length();
+    }
+}
+
+static inline std::string html_escape(const std::string & str)
+{
+    std::string escaped(str);
+    replace_all(escaped, "&", "&amp;");
+    replace_all(escaped, "\"", "&quot;");
+    replace_all(escaped, "<", "&lt;");
+    replace_all(escaped, ">", "&gt;");
+    replace_all(escaped, "\n", "<br/>");
+    return escaped;
+}
+
 #undef WEBLEGENDS_TYPES
