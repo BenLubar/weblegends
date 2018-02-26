@@ -94,13 +94,20 @@ class weblegends_handler_v1_impl : public weblegends_handler_v1
     class cp437_streambuf : public std::streambuf
     {
     public:
-        cp437_streambuf(std::ostream & raw) : raw(raw) {}
-        std::ostream & raw;
+        cp437_streambuf(std::streambuf *raw) : raw(raw) {}
+        std::streambuf *raw;
     protected:
-        virtual std::streamsize xsputn(const char *s, std::streamsize n)
+        virtual int_type overflow(int_type c)
         {
-            raw << DF2UTF(std::string(s, size_t(n)));
-            return n;
+            if (c != EOF)
+            {
+                auto utf8 = DF2UTF(std::string(1, char(c)));
+                if (raw->sputn(utf8.c_str(), std::streamsize(utf8.size())) != std::streamsize(utf8.size()))
+                {
+                    c = EOF;
+                }
+            }
+            return c;
         }
     };
 
@@ -109,7 +116,8 @@ class weblegends_handler_v1_impl : public weblegends_handler_v1
         current_status_description("OK"),
         current_headers(),
         body_raw(),
-        body_cp437(new cp437_streambuf(body_raw))
+        cp437_buf(body_raw.rdbuf()),
+        body_cp437(&cp437_buf)
     {
         current_headers["Content-Type"] = "text/html; charset=utf-8";
     }
@@ -118,6 +126,7 @@ class weblegends_handler_v1_impl : public weblegends_handler_v1
     std::string current_status_description;
     std::map<std::string, std::string> current_headers;
     std::ostringstream body_raw;
+    cp437_streambuf cp437_buf;
     std::ostream body_cp437;
 public:
     virtual int32_t & status_code() { return current_status_code; }
