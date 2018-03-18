@@ -2703,9 +2703,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 out << " to entertain the world";
                 BREAK(reason);
             default:
+                do_event_missing(out, context, event, __LINE__);
                 break;
             }
-            AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party) reason", event->id, agreement->id, details->id));
+            AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party)", event->id, agreement->id, details->id));
             BREAK(type);
         }
         case 1:
@@ -2770,9 +2771,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 out << " that war might rage forever";
                 BREAK(reason);
             default:
+                do_event_missing(out, context, event, __LINE__);
                 break;
             }
-            AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding) reason", event->id, agreement->id, details->id));
+            AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding)", event->id, agreement->id, details->id));
 
             if (auto artifact = df::artifact_record::find(details->data.data1->artifact))
             {
@@ -2784,6 +2786,41 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
                 out << " in ";
                 event_link(out, context, site);
             }
+            BREAK(type);
+        }
+        case 2:
+        {
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_1));
+            out << " made an agreement with ";
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_2));
+            out << ", becoming a resident of ";
+            event_link(out, context, df::world_site::find(details->data.data1->site));
+            BEFORE_SWITCH(reason, details->data.data1->reason);
+            switch (reason)
+            {
+            case history_event_reason::eradicate_beasts:
+                out << " to eradicate monsters";
+                BREAK(reason);
+            case history_event_reason::entertain_people:
+                out << " to entertain the citizenry";
+                BREAK(reason);
+            case history_event_reason::make_a_living_as_a_warrior:
+                out << " to work as a mercenary";
+                BREAK(reason);
+            default:
+                do_event_missing(out, context, event, __LINE__);
+                break;
+            }
+            AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (become resident)", event->id, agreement->id, details->id));
+            BREAK(type);
+        }
+        case 3:
+        {
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_1));
+            out << " made an agreement with ";
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_2));
+            out << ", becoming a citizen of ";
+            event_link(out, context, df::world_site::find(details->data.data0->anon_3));
             BREAK(type);
         }
         default:
