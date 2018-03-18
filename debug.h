@@ -17,9 +17,22 @@ struct weblegends_switch_debug_enum_base
 };
 
 template<typename E>
-struct weblegends_switch_debug_enum : public weblegends_switch_debug_enum_base<E>
+class weblegends_extract_enum
 {
-    weblegends_switch_debug_enum(E var) : weblegends_switch_debug_enum_base<E>(var) {}
+public:
+    typedef typename std::enable_if<std::is_scalar<E>::value, E>::type type;
+};
+template<typename E, typename I>
+class weblegends_extract_enum<df::enum_field<E, I>>
+{
+public:
+    typedef E type;
+};
+
+template<typename E>
+struct weblegends_switch_debug_enum : public weblegends_switch_debug_enum_base<typename weblegends_extract_enum<E>::type>
+{
+    weblegends_switch_debug_enum(E var) : weblegends_switch_debug_enum_base<typename weblegends_extract_enum<E>::type>(var) {}
 };
 
 template<typename E>
@@ -30,6 +43,12 @@ inline typename std::ostream & operator<<(std::ostream & s, const weblegends_swi
 
 template<typename E>
 inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_type, E>::value, std::ostream &>::type operator<<(std::ostream & s, const weblegends_switch_debug_enum<E> e)
+{
+    return s << df::identity_traits<E>::get()->getName() << "(" << enum_item_key(e.var) << ")";
+}
+
+template<typename E, typename I>
+inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_type, E>::value, std::ostream &>::type operator<<(std::ostream & s, const weblegends_switch_debug_enum<df::enum_field<E, I>> e)
 {
     return s << df::identity_traits<E>::get()->getName() << "(" << enum_item_key(e.var) << ")";
 }
