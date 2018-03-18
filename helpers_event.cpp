@@ -1434,20 +1434,33 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     if (auto hf = df::historical_figure::find(event->hfid))
     {
         event_link(s, context, hf);
-        s << " created ";
+        if ((event->flags2 & 1) == 1)
+        {
+            s << " bestowed a name upon ";
+        }
+        else
+        {
+            s << " created ";
+        }
         event_link(s, context, item);
     }
     else
     {
         event_link(s, context, item);
-        s << " was created";
+        if ((event->flags2 & 1) == 1)
+        {
+            s << " was given a name";
+        }
+        else
+        {
+            s << " was created";
+        }
     }
     if (auto site = df::world_site::find(event->site))
     {
         s << " in ";
         event_link(s, context, site);
     }
-    // TODO uint32_t flags2; /*!< 1 = name_only */
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_lostst *event)
