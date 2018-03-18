@@ -4275,17 +4275,65 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hfs_formed_reputation_relationshipst *event)
 {
-    // TODO: int32_t histfig1;
-    // TODO: int32_t identity1;
-    // TODO: int32_t histfig2;
-    // TODO: int32_t identity2;
-    // TODO: df::reputation_type rep1;
-    // TODO: df::reputation_type rep2;
-    // TODO: int32_t site;
-    // TODO: int32_t region;
-    // TODO: int32_t layer;
+    auto histfig1 = df::historical_figure::find(event->histfig1);
+    auto identity1 = df::identity::find(event->identity1);
+    auto histfig2 = df::historical_figure::find(event->histfig2);
+    auto identity2 = df::identity::find(event->identity2);
 
-    do_event_missing(s, context, event, __LINE__);
+    event_link(s, context, histfig1);
+    if (identity1)
+    {
+        s << ", as ";
+        do_identity(s, context, identity1);
+        s << ",";
+    }
+
+    std::string before;
+    std::string after;
+
+    BEFORE_SWITCH(rep1, event->rep1);
+    switch (rep1)
+    {
+    case reputation_type::InformationSource:
+        BEFORE_SWITCH(rep2, event->rep2);
+        switch (rep2)
+        {
+        case reputation_type::Buddy:
+            before = " formed a false friendship with ";
+            after = " in order to extract information";
+            BREAK(rep2);
+        case reputation_type::InformationSource:
+            before = " and ";
+            after = " formed a false friendship where each used the other for information";
+            BREAK(rep2);
+        default:
+            do_event_missing(s, context, event, __LINE__);
+            break;
+        }
+        AFTER_SWITCH(rep2, stl_sprintf("event-%d (HFS_FORMED_REPUTATION_RELATIONSHIP:InformationSource)", event->id));
+        BREAK(rep1);
+    default:
+        do_event_missing(s, context, event, __LINE__);
+        break;
+    }
+    AFTER_SWITCH(rep1, stl_sprintf("event-%d (HFS_FORMED_REPUTATION_RELATIONSHIP)", event->id));
+
+    s << before;
+
+    event_link(s, context, histfig2);
+    if (identity2)
+    {
+        s << ", disguised as ";
+        do_identity(s, context, identity2);
+        if (!after.empty())
+        {
+            s << ",";
+        }
+    }
+
+    s << after;
+
+    do_location_2(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_copiedst *event)
