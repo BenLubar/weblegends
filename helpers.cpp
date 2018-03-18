@@ -957,10 +957,24 @@ bool history(std::ostream & s, const event_context & context, int32_t page, int3
     {
         if (!it->empty())
         {
-            s << "<p id=\"history-" << (it - relevant.events.begin()) << "\">";
-            for (auto it2 = it->begin(); it2 != it->end(); it2++)
+            int32_t year = (it - relevant.events.begin());
+            int32_t cur_month = 12;
+            s << "<p id=\"history-" << year;
+            if (year != 0 && it->size() > 20)
             {
-                event(s, context, *it2, last_year, last_seconds);
+                cur_month = std::max(0, it->at(0)->seconds / 1200 / 28);
+                s << "-" << cur_month;
+            }
+            s << "\">";
+            for (auto e : *it)
+            {
+                if (cur_month < e->seconds / 1200 / 28)
+                {
+                    cur_month = e->seconds / 1200 / 28;
+                    s << "</p><p id=\"history-" << year << "-" << cur_month << "\">";
+                }
+
+                event(s, context, e, last_year, last_seconds);
             }
             s << "</p>";
 
