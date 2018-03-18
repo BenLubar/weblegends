@@ -4153,17 +4153,61 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_claim_formedst *event)
 {
-    // TODO: int32_t artifact;
-    // TODO: int32_t histfig;
-    // TODO: int32_t entity;
-    // TODO: int32_t position_profile;
-    // TODO: T_claim_type claim_type;
-    // TODO: df::unit_thought_type circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: df::history_event_reason reason;
-    // TODO: int32_t reason_id;
+    auto artifact = df::artifact_record::find(event->artifact);
+    auto histfig = df::historical_figure::find(event->histfig);
+    auto entity = df::historical_entity::find(event->entity);
 
-    do_event_missing(s, context, event, __LINE__);
+    event_link(s, context, artifact);
+
+    std::string before;
+    std::string after;
+
+    BEFORE_SWITCH(type, event->claim_type);
+    using claim_type = df::history_event_artifact_claim_formedst::T_claim_type;
+    switch (type)
+    {
+    case claim_type::Symbol:
+        before = " was made a symbol of ";
+        BREAK(type);
+    case claim_type::Heirloom:
+        before = " was claimed by ";
+        after = " as a family heirloom";
+        BREAK(type);
+    case claim_type::Treasure:
+        before = " was claimed by ";
+        BREAK(type);
+    case claim_type::HolyRelic:
+        before = " was sanctified by ";
+        BREAK(type);
+    }
+    AFTER_SWITCH(type, stl_sprintf("event-%d (ARTIFACT_CLAIM_FORMED)", event->id));
+
+    s << before;
+
+    if (histfig)
+    {
+        event_link(s, context, histfig);
+    }
+    if (!histfig || entity)
+    {
+        if (auto pos = entity ? vector_get(entity->positions.own, event->position_profile) : nullptr)
+        {
+            if (histfig)
+            {
+                s << ", ";
+            }
+            s << " the " << pos->name[0] << " of ";
+        }
+        else if (histfig)
+        {
+            s << " of ";
+        }
+        event_link(s, context, entity);
+    }
+
+    s << after;
+
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_givenst *event)
