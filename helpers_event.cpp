@@ -1936,11 +1936,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         s << " the bodies of ";
     }
-    list<int32_t>(s, event->bodies, [context](std::ostream & out, int32_t id)
-    {
-        auto hf = df::historical_figure::find(id);
-        event_link(out, context, hf);
-    });
+    list_event_link<df::historical_figure>(s, context, event->bodies);
     BEFORE_SWITCH(type, event->abuse_type);
     switch (type)
     {
@@ -2235,11 +2231,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_simple_battle_eventst *event)
 {
-    list<int32_t>(s, event->group1, [context](std::ostream & out, int32_t id)
-    {
-        auto hf = df::historical_figure::find(id);
-        event_link(out, context, hf);
-    });
+    list_event_link<df::historical_figure>(s, context, event->group1);
     BEFORE_SWITCH(type, event->subtype);
     switch (type)
     {
@@ -2271,11 +2263,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
-    list<int32_t>(s, event->group2, [context](std::ostream & out, int32_t id)
-    {
-        auto hf = df::historical_figure::find(id);
-        event_link(out, context, hf);
-    });
+    list_event_link<df::historical_figure>(s, context, event->group2);
     switch (event->subtype)
     {
     case history_event_simple_battle_subtype::LOSE_AFTER_RECEIVE_WOUND:
@@ -2326,11 +2314,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_travelst *event)
 {
-    list<int32_t>(s, event->group, [context](std::ostream & out, int32_t id)
-    {
-        auto hf = df::historical_figure::find(id);
-        event_link(out, context, hf);
-    });
+    list_event_link<df::historical_figure>(s, context, event->group);
     std::string prefix = " to ";
     BEFORE_SWITCH(reason, event->reason);
     switch (reason)
@@ -2352,11 +2336,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_new_petst *event)
 {
-    list<int32_t>(s, event->group, [context](std::ostream & out, int32_t id)
-    {
-        auto hf = df::historical_figure::find(id);
-        event_link(out, context, hf);
-    });
+    list_event_link<df::historical_figure>(s, context, event->group);
     s << " tamed ";
     list<int16_t>(s, event->pets, [](std::ostream & out, int16_t id)
     {
@@ -2979,11 +2959,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         {
             s << ". Competing were ";
         }
-        list<int32_t>(s, event->competitor_hf, [context](std::ostream & out, int32_t id)
-        {
-            auto hf = df::historical_figure::find(id);
-            event_link(out, context, hf);
-        });
+        list_event_link<df::historical_figure>(s, context, event->competitor_hf);
     }
     if (!event->winner_hf.empty())
     {
@@ -2995,11 +2971,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         {
             s << ". The winners were ";
         }
-        list<int32_t>(s, event->winner_hf, [context](std::ostream & out, int32_t id)
-        {
-            auto hf = df::historical_figure::find(id);
-            event_link(out, context, hf);
-        });
+        list_event_link<df::historical_figure>(s, context, event->winner_hf);
     }
 }
 

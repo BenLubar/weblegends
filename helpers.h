@@ -104,6 +104,15 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
     }
 }
 
+template<typename T, typename I = T::key_field_type>
+inline void list_event_link(std::ostream & s, const event_context & context, const std::vector<I> & vec)
+{
+    list<I>(s, vec, [context](std::ostream & out, I id)
+    {
+        event_link(out, context, T::find(id));
+    });
+}
+
 void material(std::ostream & s, const event_context & context, MaterialInfo mat, bool in_link = false, bool in_attr = false);
 bool unique_creature_name(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link = false, bool in_attr = false);
 void knowledge(std::ostream & s, df::knowledge_scholar_category_flag knowledge);
