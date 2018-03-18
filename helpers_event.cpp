@@ -4371,12 +4371,21 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_spotted_leaving_sitest *event)
 {
-    // TODO: int32_t spotter_hf;
-    // TODO: int32_t leaver_civ;
-    // TODO: int32_t site_civ;
-    // TODO: int32_t site;
+    auto spotter_hf = df::historical_figure::find(event->spotter_hf);
+    auto leaver_civ = df::historical_entity::find(event->leaver_civ);
+    auto site_civ = df::historical_entity::find(event->site_civ);
+    auto site = df::world_site::find(event->site);
 
-    do_event_missing(s, context, event, __LINE__);
+    event_link(s, context, spotter_hf);
+    if (site_civ)
+    {
+        s << " of ";
+        event_link(s, context, site_civ);
+    }
+    s << " spotted the forces of ";
+    event_link(s, context, leaver_civ);
+    s << " slipping out of ";
+    event_link(s, context, site);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_searched_sitest *event)
