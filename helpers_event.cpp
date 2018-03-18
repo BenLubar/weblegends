@@ -3298,10 +3298,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << "[unknown document]";
     }
     do_location_2(s, context, event);
-    // TODO: int32_t circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: int32_t reason;
-    // TODO: int32_t reason_id;
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_change_hf_moodst *event)
