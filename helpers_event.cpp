@@ -1930,10 +1930,15 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_razed_buildingst *event)
 {
-    // TODO: int32_t civ;
-    // TODO: int32_t site;
-    // TODO: int32_t structure;
-    do_event_missing(s, context, event, __LINE__);
+    auto civ = df::historical_entity::find(event->civ);
+    auto site = df::world_site::find(event->site);
+    auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
+
+    event_link(s, context, civ);
+    s << " razed ";
+    event_link(s, context, structure);
+    s << " in ";
+    event_link(s, context, site);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_arch_designst *event)
