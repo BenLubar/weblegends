@@ -2872,10 +2872,32 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_assume_identityst *event)
 {
-    // TODO: int32_t trickster;
-    // TODO: int32_t identity;
-    // TODO: int32_t target;
-    do_event_missing(s, context, event, __LINE__);
+    auto trickster = df::historical_figure::find(event->trickster);
+    auto identity = df::identity::find(event->identity);
+    auto target = df::historical_entity::find(event->target);
+
+    event_link(s, context, trickster);
+    s << " tricked ";
+    event_link(s, context, target);
+    s << " into thinking ";
+
+    BEFORE_SWITCH(sex, trickster ? trickster->sex : -1);
+    switch (sex)
+    {
+    case -1:
+        s << "it";
+        BREAK(sex);
+    case 0:
+        s << "she";
+        BREAK(sex);
+    case 1:
+        s << "he";
+        BREAK(sex);
+    }
+    AFTER_SWITCH(sex, stl_sprintf("event-%d (ASSUME_IDENTITY)", event->id));
+
+    s << " was ";
+    do_identity(s, context, identity);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_create_entity_positionst *event)
