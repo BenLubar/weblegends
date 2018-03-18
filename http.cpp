@@ -4,6 +4,7 @@
 #include <iostream>
 #include <sstream>
 
+#include "df/viewscreen_adopt_regionst.h"
 #include "df/viewscreen_loadgamest.h"
 
 #include "modules/Gui.h"
@@ -207,9 +208,30 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
     });
 }
 
+static bool is_world_loaded()
+{
+    if (!Core::getInstance().isWorldLoaded())
+    {
+        return false;
+    }
+
+    auto view = Gui::getCurViewscreen(true);
+    if (virtual_cast<df::viewscreen_adopt_regionst>(view))
+    {
+        return false;
+    }
+
+    if (virtual_cast<df::viewscreen_loadgamest>(view))
+    {
+        return false;
+    }
+
+    return true;
+}
+
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
-    if (!DFHack::Core::getInstance().isWorldLoaded() || virtual_cast<df::viewscreen_loadgamest>(DFHack::Gui::getCurViewscreen(true)))
+    if (!is_world_loaded())
     {
         http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.", http1Point, keepAlive);
         return;
