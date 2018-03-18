@@ -1520,11 +1520,22 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_reclaim_sitest *event)
 {
-    // TODO: int32_t civ;
-    // TODO: int32_t site_civ;
-    // TODO: int32_t site;
-    // TODO: int32_t flags; /*!< 1 = unretire */
-    do_event_missing(s, context, event, __LINE__);
+    auto civ = df::historical_entity::find(event->civ);
+    auto site_civ = df::historical_entity::find(event->site_civ);
+    auto site = df::world_site::find(event->site);
+
+    event_link(s, context, site_civ);
+    s << " of ";
+    event_link(s, context, civ);
+    if ((event->flags & 1) == 1)
+    {
+        s << " were taken by a mood to act against their better judgment at ";
+    }
+    else
+    {
+        s << " launched an expedition to reclaim ";
+    }
+    event_link(s, context, site);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_destroyed_sitest *event)
