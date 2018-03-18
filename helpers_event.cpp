@@ -1537,7 +1537,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     event_link(s, context, site_civ);
     s << " of ";
     event_link(s, context, civ);
-    if ((event->flags & 1) == 1)
+    if ((event->flags2 & 1) == 1)
     {
         s << " were taken by a mood to act against their better judgment at ";
     }
@@ -1571,14 +1571,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     auto site_civ = df::historical_entity::find(event->site_civ);
     auto site = df::world_site::find(event->site);
 
-    if ((event->flags & 1) == 0)
+    if ((event->flags2 & 1) == 0)
     {
         s << "The ";
     }
 
     event_link(s, context, site_civ);
 
-    if ((event->flags & 1) == 1)
+    if ((event->flags2 & 1) == 1)
     {
         s << " abandoned the";
     }
@@ -1591,7 +1591,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     s << " settlement of ";
     event_link(s, context, site);
 
-    if ((event->flags & 1) == 0)
+    if ((event->flags2 & 1) == 0)
     {
         s << " withered";
     }
@@ -2993,7 +2993,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 {
     event_link(s, context, df::historical_figure::find(event->histfig));
     s << " came back to life ";
-    BEFORE_SWITCH(flags, event->flags);
+    BEFORE_SWITCH(flags, event->flags2);
     switch (flags)
     {
         case 0:
