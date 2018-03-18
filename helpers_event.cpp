@@ -4635,7 +4635,37 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     }
     else
     {
-        do_event_missing(s, context, event, __LINE__);
+        // XXX: as of 0.44.07, the game gives a nonsensical "the forced shifted" or "the forced were arrayed" for this case
+
+        BEFORE_SWITCH(situation, event->situation);
+        switch (situation)
+        {
+        case tactical_situation::attacker_strongly_favored:
+            s << "The attackers had a strong positional advantage";
+            BREAK(situation);
+        case tactical_situation::attacker_favored:
+            s << "The attackers had a position advantage";
+            BREAK(situation);
+        case tactical_situation::attacker_slightly_favored:
+            s << "The attackers had a slight position advantage";
+            BREAK(situation);
+        case tactical_situation::defender_strongly_favored:
+            s << "The defenders had a strong position advantage";
+            BREAK(situation);
+        case tactical_situation::defender_favored:
+            s << "The defenders had a position advantage";
+            BREAK(situation);
+        case tactical_situation::defender_slightly_favored:
+            s << "The defenders had a slight position advantage";
+            BREAK(situation);
+        case tactical_situation::neither_favored:
+            s << "Neither side had a position advantage";
+            BREAK(situation);
+        }
+        AFTER_SWITCH(situation, stl_sprintf("event-%d (TACTICAL_SITUATION)", event->id));
+
+        do_location_1_structure(s, context, event);
+
         return;
     }
 
