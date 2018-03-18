@@ -104,7 +104,7 @@ inline void list(std::ostream & s, const std::vector<T> & vec, std::function<voi
     }
 }
 
-template<typename T, typename I = T::key_field_type>
+template<typename T, typename I = typename T::key_field_type>
 inline void list_event_link(std::ostream & s, const event_context & context, const std::vector<I> & vec)
 {
     list<I>(s, vec, [context](std::ostream & out, I id)
