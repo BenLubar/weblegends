@@ -144,6 +144,7 @@
 #include "df/sphere_type.h"
 #include "df/ui.h"
 #include "df/world.h"
+#include "df/world_construction.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
 #include "df/world_underground_region.h"
@@ -2422,13 +2423,67 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_created_world_constructionst *event)
 {
-    // TODO: int32_t civ;
-    // TODO: int32_t site_civ;
-    // TODO: int32_t construction;
-    // TODO: int32_t master_construction;
-    // TODO: int32_t site1;
-    // TODO: int32_t site2;
-    do_event_missing(s, context, event, __LINE__);
+    auto civ = df::historical_entity::find(event->civ);
+    auto site_civ = df::historical_entity::find(event->site_civ);
+    auto construction = df::world_construction::find(event->construction);
+    auto master_construction = df::world_construction::find(event->master_construction);
+    auto site1 = df::world_site::find(event->site1);
+    auto site2 = df::world_site::find(event->site2);
+
+    if (civ != site_civ)
+    {
+        event_link(s, context, site_civ);
+        s << " of ";
+    }
+    event_link(s, context, civ);
+    s << " finished the construction of ";
+    if (!construction)
+    {
+        s << "[unknown construction]";
+        return;
+    }
+
+    if (auto name = construction->getName())
+    {
+        name_translated(s, *name);
+    }
+    else
+    {
+        s << "[unnamed]";
+    }
+
+    s << ", a " << toLower(enum_item_key(construction->getType()));
+
+    if (site1 && site2)
+    {
+        s << " connecting ";
+        event_link(s, context, site1);
+        s << " and ";
+        event_link(s, context, site2);
+    }
+    else if (site1)
+    {
+        s << " at ";
+        event_link(s, context, site1);
+    }
+    else if (site2)
+    {
+        s << " at ";
+        event_link(s, context, site2);
+    }
+
+    if (master_construction)
+    {
+        s << " as part of the " << toLower(enum_item_key(master_construction->getType())) << " ";
+        if (auto name = master_construction->getName())
+        {
+            name_translated(s, *name);
+        }
+        else
+        {
+            s << "[unnamed]";
+        }
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_reunionst *event)
