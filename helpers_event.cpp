@@ -1557,11 +1557,34 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_site_diedst *event)
 {
-    // TODO: int32_t civ;
-    // TODO: int32_t site_civ;
-    // TODO: int32_t site;
-    // TODO: int32_t flags; /*!< 1: abandoned */
-    do_event_missing(s, context, event, __LINE__);
+    auto civ = df::historical_entity::find(event->civ);
+    auto site_civ = df::historical_entity::find(event->site_civ);
+    auto site = df::world_site::find(event->site);
+
+    if ((event->flags & 1) == 0)
+    {
+        s << "The ";
+    }
+
+    event_link(s, context, site_civ);
+
+    if ((event->flags & 1) == 1)
+    {
+        s << " abandoned the";
+    }
+    else
+    {
+        s << " and ";
+        event_link(s, context, civ);
+    }
+
+    s << " settlement of ";
+    event_link(s, context, site);
+
+    if ((event->flags & 1) == 0)
+    {
+        s << " withered";
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_site_retiredst *event)
