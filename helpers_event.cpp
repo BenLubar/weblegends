@@ -1498,11 +1498,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_recoveredst *event)
 {
-    // TODO: int32_t artifact;
-    // TODO: int32_t unit;
-    // TODO: int32_t histfig;
-    // TODO: int32_t site;
-    do_event_missing(s, context, event, __LINE__);
+    auto artifact = df::artifact_record::find(event->artifact);
+    auto histfig = df::historical_figure::find(event->histfig);
+
+    event_link(s, context, artifact);
+    s << " was recovered by ";
+    event_link(s, context, histfig);
+
+    do_location_2_structure(s, context, event, " from ");
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_droppedst *event)
