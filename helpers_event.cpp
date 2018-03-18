@@ -1775,12 +1775,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_remove_hf_site_linkst *event)
 {
-    // TODO: int32_t site;
-    // TODO: int32_t structure;
-    // TODO: int32_t histfig;
-    // TODO: int32_t civ;
-    // TODO: df::histfig_site_link_type type;
-    do_event_missing(s, context, event, __LINE__);
+    auto site = df::world_site::find(event->site);
+    auto structure = site ? binsearch_in_vector(site->buildings, event->structure) : nullptr;
+    auto histfig = df::historical_figure::find(event->histfig);
+    auto civ = df::historical_entity::find(event->civ);
+
+    event_link(s, context, histfig);
+    BEFORE_SWITCH(type, event->type);
+    switch (type)
+    {
+    case histfig_site_link_type::OCCUPATION:
+        s << " stopped working at ";
+        BREAK(type);
+    case histfig_site_link_type::SEAT_OF_POWER:
+        s << " stopped ruling from ";
+        BREAK(type);
+    case histfig_site_link_type::HANGOUT:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
+        s << " moved out of ";
+        BREAK(type);
+    case histfig_site_link_type::HOME_SITE_REALIZATION_BUILDING:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::LAIR:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    }
+    AFTER_SWITCH(type, stl_sprintf("event-%d (REMOVE_HF_SITE_LINK)", event->id));
+    event_link(s, context, structure);
+    if (civ)
+    {
+        s << " of ";
+        event_link(s, context, civ);
+    }
+    if (civ)
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_hf_linkst *event)
