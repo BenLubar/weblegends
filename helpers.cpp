@@ -1112,27 +1112,28 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
 {
     if (last_page != 0)
     {
-        s << "<p>";
+        s << "<nav class=\"pagination\"><p>";
         if (current_page > 0)
         {
-            if (current_page - 1 == 0)
+            s << "<a href=\"" << base << page_0 << "\" rel=\"first\">First</a>";
+            if (current_page - 1 > 0)
             {
-                s << "<a href=\"" << base << page_0 << "\" rel=\"prev\">Previous</a>";
-            }
-            else
-            {
-                s << "<a href=\"" << base << page_prefix << (current_page - 1) << "\">Previous</a>";
+                s << " - <a href=\"" << base << page_prefix << (current_page - 1) << "\" rel=\"prev\">Previous</a>";
             }
             if (current_page < last_page)
             {
                 s << " - ";
             }
         }
+        if (current_page + 1 < last_page)
+        {
+            s << "<a href=\"" << base << page_prefix << (current_page + 1) << "\" rel=\"next\">Next</a> - ";
+        }
         if (current_page < last_page)
         {
-            s << "<a href=\"" << base << page_prefix << (current_page + 1) << "\" rel=\"next\">Next</a>";
+            s << "<a href=\"" << base << page_prefix << last_page << "\" rel=\"last\">Last</a>";
         }
-        s << "</p>";
+        s << "</p></nav>";
     }
 }
 
