@@ -3918,15 +3918,52 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_relationship_deniedst *event)
 {
-    // TODO: int32_t seeker_hf;
-    // TODO: int32_t target_hf;
-    // TODO: int32_t type;
-    // TODO: int32_t reason;
-    // TODO: int32_t reason2;
-    // TODO: int32_t site;
-    // TODO: int32_t region;
-    // TODO: int32_t layer;
-    do_event_missing(s, context, event, __LINE__);
+    auto seeker_hf = df::historical_figure::find(event->seeker_hf);
+    auto target_hf = df::historical_figure::find(event->target_hf);
+
+    event_link(s, context, seeker_hf);
+
+    BEFORE_SWITCH(type, event->type);
+    switch (type)
+    {
+    case unit_relationship_type::Apprentice:
+        s << " was denied an apprenticeship under ";
+        BREAK(type);
+    default:
+        break;
+    }
+    AFTER_SWITCH(type, stl_sprintf("event-%d (HF_RELATIONSHIP_DENIED)", event->id));
+
+    event_link(s, context, target_hf);
+
+    s << " as ";
+
+    if (event->reason_id == event->seeker_hf)
+    {
+        s << "the former";
+    }
+    else if (event->reason_id == event->target_hf)
+    {
+        s << "the latter";
+    }
+    else
+    {
+        event_link(s, context, df::historical_figure::find(event->reason_id));
+    }
+
+    BEFORE_SWITCH(reason, event->reason);
+    switch (reason)
+    {
+    case history_event_reason::prefers_working_alone:
+        s << " prefers to work alone";
+        BREAK(reason);
+    default:
+        s << enum_item_key(reason);
+        break;
+    }
+    AFTER_SWITCH(reason, stl_sprintf("event-%d (HF_RELATIONSHIP_DENIED)", event->id));
+
+    do_location_2(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_regionpop_incorporated_into_entityst *event)
