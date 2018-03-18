@@ -60,8 +60,10 @@
 #include "df/history_event_diplomat_lostst.h"
 #include "df/history_event_entity_actionst.h"
 #include "df/history_event_entity_createdst.h"
+#include "df/history_event_entity_fled_sitest.h"
 #include "df/history_event_entity_incorporatedst.h"
 #include "df/history_event_entity_lawst.h"
+#include "df/history_event_entity_rampaged_in_sitest.h"
 #include "df/history_event_entity_razed_buildingst.h"
 #include "df/history_event_entity_searched_sitest.h"
 #include "df/history_event_first_contact_failedst.h"
@@ -117,6 +119,8 @@
 #include "df/history_event_site_retiredst.h"
 #include "df/history_event_sneak_into_sitest.h"
 #include "df/history_event_spotted_leaving_sitest.h"
+#include "df/history_event_squad_vs_squadst.h"
+#include "df/history_event_tactical_situationst.h"
 #include "df/history_event_topicagreement_concludedst.h"
 #include "df/history_event_topicagreement_madest.h"
 #include "df/history_event_topicagreement_rejectedst.h"
@@ -133,6 +137,8 @@
 #include "df/history_event_written_content_composedst.h"
 #include "df/identity.h"
 #include "df/interaction.h"
+#include "df/interaction_effect.h"
+#include "df/interaction_effect_animatest.h"
 #include "df/interaction_source.h"
 #include "df/item_body_component.h"
 #include "df/item_constructed.h"
@@ -144,6 +150,8 @@
 #include "df/plant_raw.h"
 #include "df/poetic_form.h"
 #include "df/sphere_type.h"
+#include "df/squad.h"
+#include "df/syndrome.h"
 #include "df/ui.h"
 #include "df/world.h"
 #include "df/world_construction.h"
@@ -4421,6 +4429,333 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     do_event_missing(s, context, event, __LINE__);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_rampaged_in_sitest *event)
+{
+    // TODO: int32_t rampage_civ_id;
+    // TODO: int32_t site_id;
+
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_fled_sitest *event)
+{
+    // TODO: int32_t fled_civ_id;
+    // TODO: int32_t site_id;
+
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_tactical_situationst *event)
+{
+    auto a_tactician = df::historical_figure::find(event->a_tactician_hfid);
+    auto d_tactician = df::historical_figure::find(event->d_tactician_hfid);
+
+    int tactical_outcome = event->a_tactics_roll < event->d_tactics_roll ?
+        (event->a_tactics_roll > event->d_tactics_roll / 2 ? 2 : 3) :
+        (event->a_tactics_roll / 2 < event->d_tactics_roll ? 1 : 0);
+
+    if (a_tactician && d_tactician)
+    {
+        switch (tactical_outcome)
+        {
+        case 0:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " outmatched ";
+            }
+            else
+            {
+                s << " entirely outwitted ";
+            }
+            event_link(s, context, d_tactician);
+            break;
+        case 1:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << "'s tactical planning was superior to ";
+            }
+            else
+            {
+                s << " outmaneuvered ";
+            }
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << "'s";
+            }
+            break;
+        case 2:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << "'s tactical planning was superior to ";
+            }
+            else
+            {
+                s << " outmaneuvered ";
+            }
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << "'s";
+            }
+            break;
+        case 3:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " outmatched ";
+            }
+            else
+            {
+                s << " entirely outwitted ";
+            }
+            event_link(s, context, a_tactician);
+            break;
+        }
+
+        switch (event->situation)
+        {
+        case tactical_situation::attacker_strongly_favored:
+        case tactical_situation::attacker_favored:
+        case tactical_situation::attacker_slightly_favored:
+            s << (tactical_outcome < 2 ? ", and " : ", but ");
+            break;
+        case tactical_situation::defender_strongly_favored:
+        case tactical_situation::defender_favored:
+        case tactical_situation::defender_slightly_favored:
+            s << (tactical_outcome < 2 ? ", but " : ", and ");
+            break;
+        case tactical_situation::neither_favored:
+            s << ", but ";
+            break;
+        }
+    }
+    else if (a_tactician)
+    {
+        switch (tactical_outcome)
+        {
+        case 0:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " unrolled a brilliant tactical plan ";
+            }
+            else
+            {
+                s << " hatched a stunning strategy ";
+            }
+            break;
+        case 1:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " put forth a sound plan ";
+            }
+            else
+            {
+                s << " used good tactics ";
+            }
+            break;
+        case 2:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " made a poor plan ";
+            }
+            else
+            {
+                s << " used poor tactics ";
+            }
+            break;
+        case 3:
+            event_link(s, context, a_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " made an outright foolish plan ";
+            }
+            else
+            {
+                s << " blundered terribly ";
+            }
+            break;
+        }
+    }
+    else if (d_tactician)
+    {
+        switch (tactical_outcome)
+        {
+        case 0:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " made an outright foolish plan ";
+            }
+            else
+            {
+                s << " blundered terribly ";
+            }
+            break;
+        case 1:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " made a poor plan ";
+            }
+            else
+            {
+                s << " used poor tactics ";
+            }
+            break;
+        case 2:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " put forth a sound plan ";
+            }
+            else
+            {
+                s << " used good tactics ";
+            }
+            break;
+        case 3:
+            event_link(s, context, d_tactician);
+            if (event->tactics_flags.bits.start)
+            {
+                s << " unrolled a brilliant tactical plan ";
+            }
+            else
+            {
+                s << " hatched a stunning strategy ";
+            }
+            break;
+        }
+    }
+    else
+    {
+        do_event_missing(s, context, event, __LINE__);
+        return;
+    }
+
+    switch (event->situation)
+    {
+    case tactical_situation::attacker_strongly_favored:
+    case tactical_situation::attacker_favored:
+    case tactical_situation::attacker_slightly_favored:
+        s << (tactical_outcome < 2 ? ", and " : ", but ");
+        break;
+    case tactical_situation::defender_strongly_favored:
+    case tactical_situation::defender_favored:
+    case tactical_situation::defender_slightly_favored:
+        s << (tactical_outcome < 2 ? ", but " : ", and ");
+        break;
+    case tactical_situation::neither_favored:
+        s << ", but ";
+        break;
+    }
+
+    BEFORE_SWITCH(situation, event->situation);
+    switch (situation)
+    {
+    case tactical_situation::attacker_strongly_favored:
+        s << "the attackers had a strong positional advantage";
+        BREAK(situation);
+    case tactical_situation::attacker_favored:
+        s << "the attackers had a position advantage";
+        BREAK(situation);
+    case tactical_situation::attacker_slightly_favored:
+        s << "the attackers had a slight position advantage";
+        BREAK(situation);
+    case tactical_situation::defender_strongly_favored:
+        s << "the defenders had a strong position advantage";
+        BREAK(situation);
+    case tactical_situation::defender_favored:
+        s << "the defenders had a position advantage";
+        BREAK(situation);
+    case tactical_situation::defender_slightly_favored:
+        s << "the defenders had a slight position advantage";
+        BREAK(situation);
+    case tactical_situation::neither_favored:
+        s << "neither side had a position advantage";
+        BREAK(situation);
+    }
+    AFTER_SWITCH(situation, stl_sprintf("event-%d (TACTICAL_SITUATION)", event->id));
+
+    do_location_1_structure(s, context, event);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_squad_vs_squadst *event)
+{
+    if (event->d_leader_hfid != -1 || event->a_hfid.empty() || !event->d_hfid.empty() || event->a_number != 0 || event->d_number == 0 || event->d_squad_id != -1)
+    {
+        // TODO: int32_t a_leader_hfid;
+        // TODO: int32_t a_leadership_roll;
+        // TODO: std::vector<int32_t > a_hfid;
+        // TODO: int32_t a_squad_id;
+        // TODO: int32_t a_race;
+        // TODO: int32_t a_interaction;
+        // TODO: int32_t a_effect;
+        // TODO: int32_t a_number;
+        // TODO: int32_t a_slain;
+        // TODO: int32_t d_leader_hfid;
+        // TODO: int32_t d_leadership_roll;
+        // TODO: std::vector<int32_t > d_hfid;
+        // TODO: int32_t d_squad_id;
+        // TODO: int32_t d_race;
+        // TODO: int32_t d_interaction;
+        // TODO: int32_t d_effect;
+        // TODO: int32_t d_number;
+        // TODO: int32_t d_slain;
+        do_event_missing(s, context, event, __LINE__);
+        return;
+    }
+
+    auto d_race = df::creature_raw::find(event->d_race);
+    auto d_interaction = df::interaction::find(event->d_interaction);
+    auto d_effect = d_interaction ? vector_get(d_interaction->effects, event->d_effect) : nullptr;
+
+    if (auto a_squad = df::squad::find(event->a_squad_id))
+    {
+        name_translated(s, a_squad->name);
+        if (auto a_squad_civ = df::historical_entity::find(a_squad->entity_id))
+        {
+            s << " of ";
+            event_link(s, context, a_squad_civ);
+        }
+        s << ", ";
+    }
+    list_event_link<df::historical_figure>(s, context, event->a_hfid);
+    if (auto a_leader = df::historical_figure::find(event->a_leader_hfid))
+    {
+        s << ", led by ";
+        event_link(s, context, a_leader);
+    }
+    s << " clashed with " << event->d_number;
+    if (d_effect)
+    {
+        auto animate = virtual_cast<df::interaction_effect_animatest>(d_effect);
+        if (animate && animate->syndrome.size() == 1)
+        {
+            auto syn = animate->syndrome.at(0);
+            do_event_missing(s, context, event, __LINE__);
+        }
+        else
+        {
+            do_event_missing(s, context, event, __LINE__);
+        }
+    }
+    s << " " << d_race->name[event->d_number == 1 ? 0 : 1];
+
+    do_location_1_structure(s, context, event);
+
+    if (event->d_slain > 0)
+    {
+        s << ", slaying " << event->d_slain;
+    }
+}
+
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
     if (event->seconds != -1)
@@ -4759,6 +5094,22 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
     case history_event_type::HIST_FIGURE_SIMPLE_ACTION:
         do_event(s, context, virtual_cast<df::history_event_hist_figure_simple_actionst>(event));
         BREAK(type);
+    case history_event_type::ENTITY_RAMPAGED_IN_SITE:
+        do_event(s, context, virtual_cast<df::history_event_entity_rampaged_in_sitest>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_FLED_SITE:
+        do_event(s, context, virtual_cast<df::history_event_entity_fled_sitest>(event));
+        BREAK(type);
+    case history_event_type::TACTICAL_SITUATION:
+        do_event(s, context, virtual_cast<df::history_event_tactical_situationst>(event));
+        BREAK(type);
+    case history_event_type::SQUAD_VS_SQUAD:
+        do_event(s, context, virtual_cast<df::history_event_squad_vs_squadst>(event));
+        BREAK(type);
+    }
+    if (!type_found)
+    {
+        do_event_missing(s, context, event, __LINE__);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d", event->id));
 }
