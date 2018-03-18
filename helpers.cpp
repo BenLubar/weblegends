@@ -962,16 +962,16 @@ bool history(std::ostream & s, const event_context & context, int32_t page, int3
             s << "<p id=\"history-" << year;
             if (year != 0 && it->size() > 20)
             {
-                cur_month = std::max(0, it->at(0)->seconds / 1200 / 28);
-                s << "-" << cur_month;
+                cur_month = it->at(0)->seconds < 0 ? -1 : std::max(0, it->at(0)->seconds / 1200 / 28);
+                s << "-" << (cur_month + 1);
             }
             s << "\">";
             for (auto e : *it)
             {
-                if (cur_month < e->seconds / 1200 / 28)
+                if (e->seconds >= 0 && cur_month < e->seconds / 1200 / 28)
                 {
                     cur_month = e->seconds / 1200 / 28;
-                    s << "</p><p id=\"history-" << year << "-" << cur_month << "\">";
+                    s << "</p><p id=\"history-" << year << "-" << (cur_month + 1) << "\">";
                 }
 
                 event(s, context, e, last_year, last_seconds);
