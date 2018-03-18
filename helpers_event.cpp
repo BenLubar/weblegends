@@ -3938,6 +3938,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " was denied an apprenticeship under ";
         BREAK(type);
     default:
+        do_event_missing(s, context, event, __LINE__);
         break;
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HF_RELATIONSHIP_DENIED)", event->id));
@@ -3965,8 +3966,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case history_event_reason::prefers_working_alone:
         s << " prefers to work alone";
         BREAK(reason);
+    case history_event_reason::jealousy:
+        s << " was jealous";
+        BREAK(reason);
     default:
-        s << enum_item_key(reason);
+        do_event_missing(s, context, event, __LINE__);
         break;
     }
     AFTER_SWITCH(reason, stl_sprintf("event-%d (HF_RELATIONSHIP_DENIED)", event->id));
