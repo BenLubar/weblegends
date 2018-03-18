@@ -420,6 +420,63 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
     return any;
 }
 
+template<typename T>
+static void do_circumstance_reason(std::ostream & s, const event_context & context, T *event)
+{
+    BEFORE_SWITCH(reason, event->reason);
+    switch (reason)
+    {
+    case history_event_reason::none:
+        BREAK(reason);
+    case history_event_reason::glorify_hf:
+        s << " in order to glorify ";
+        event_link(s, context, df::historical_figure::find(event->reason_id));
+        BREAK(reason);
+    case history_event_reason::artifact_is_heirloom_of_family_hfid:
+        s << " of the ";
+        event_link(s, context, df::historical_figure::find(event->reason_id));
+        s << " family";
+        BREAK(reason);
+    case history_event_reason::artifact_is_symbol_of_entity_position:
+        s << " as a symbol of authority witin ";
+        event_link(s, context, df::historical_entity::find(event->reason_id));
+        BREAK(reason);
+    default:
+        do_event_missing(s, context, event, __LINE__);
+        break;
+    }
+    AFTER_SWITCH(reason, stl_sprintf("event-%d (%s)", event->id, enum_item_key_str(event->getType())));
+
+    BEFORE_SWITCH(circumstance, event->circumstance);
+    switch (circumstance)
+    {
+    case unit_thought_type::None:
+        BREAK(circumstance);
+    case unit_thought_type::Death:
+        s << " after the death of ";
+        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        BREAK(circumstance);
+    case unit_thought_type::Prayer:
+        s << " after praying to ";
+        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        BREAK(circumstance);
+    case unit_thought_type::DreamAbout:
+        s << " after dreaming about ";
+        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        BREAK(circumstance);
+    case unit_thought_type::Dream:
+        s << " after a dream";
+        BREAK(circumstance);
+    case unit_thought_type::Nightmare:
+        s << " after a nightmare";
+        BREAK(circumstance);
+    default:
+        do_event_missing(s, context, event, __LINE__);
+        break;
+    }
+    AFTER_SWITCH(circumstance, stl_sprintf("event-%d (%s)", event->id, enum_item_key_str(event->getType())));
+}
+
 static void do_event_missing(std::ostream & s, const event_context &, df::history_event *event, int line)
 {
     std::string df_description;
@@ -3169,10 +3226,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << "[unknown poetic form]";
     }
     do_location_2(s, context, event);
-    // TODO: int32_t circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: int32_t reason;
-    // TODO: int32_t reason_id;
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_musical_form_createdst *event)
@@ -3196,10 +3250,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << "[unknown musical form]";
     }
     do_location_2(s, context, event);
-    // TODO: int32_t circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: int32_t reason;
-    // TODO: int32_t reason_id;
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_dance_form_createdst *event)
@@ -3223,10 +3274,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << "[unknown dance form]";
     }
     do_location_2(s, context, event);
-    // TODO: int32_t circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: int32_t reason;
-    // TODO: int32_t reason_id;
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_written_content_composedst *event)
