@@ -129,6 +129,7 @@
 #include "df/history_event_war_site_taken_overst.h"
 #include "df/history_event_war_site_tribute_forcedst.h"
 #include "df/history_event_written_content_composedst.h"
+#include "df/identity.h"
 #include "df/interaction.h"
 #include "df/interaction_source.h"
 #include "df/item_body_component.h"
@@ -173,32 +174,53 @@ static std::string profession_name(df::historical_figure *hf, df::profession pro
 }
 
 template<typename T>
-static void do_location_1(std::ostream & s, const event_context & context, T *event)
+static void do_location_1(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
 {
     if (auto loc = df::world_site::find(event->site))
     {
         if (loc != context.site)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
     if (auto loc = df::world_region::find(event->subregion))
     {
         if (loc != context.region)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
     if (auto loc = df::world_underground_region::find(event->feature_layer))
     {
         if (loc != context.layer)
         {
-            s << " in ";
+            s << separator;
             link(s, loc);
+            separator = " in ";
         }
     }
+}
+
+template<typename T>
+static void do_location_1_structure(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
+{
+    if (auto site = df::world_site::find(event->site))
+    {
+        if (auto loc = binsearch_in_vector(site->buildings, event->structure))
+        {
+            if (loc != context.structure)
+            {
+                s << separator;
+                link(s, loc);
+                separator = " in ";
+            }
+        }
+    }
+    do_location_1(s, context, event, separator);
 }
 
 template<typename T>
@@ -418,6 +440,66 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
     }
 
     return any;
+}
+
+static void do_identity(std::ostream & s, const event_context & context, df::identity *identity)
+{
+    if (!identity)
+    {
+        s << "[unknown identity]";
+    }
+    else if (auto hf = df::historical_figure::find(identity->histfig_id))
+    {
+        event_link(s, context, hf);
+    }
+    else
+    {
+        name_translated(s, identity->name);
+        auto race = df::creature_raw::find(identity->race);
+        auto caste = race ? vector_get(race->caste, identity->caste) : nullptr;
+        if (caste)
+        {
+            s << ", a ";
+            if (caste->caste_name[0] == race->name[0])
+            {
+                BEFORE_SWITCH(gender, caste->gender);
+                switch (gender)
+                {
+                case -1:
+                    BREAK(gender);
+                case 0:
+                    s << "female ";
+                    BREAK(gender);
+                case 1:
+                    s << "male ";
+                    BREAK(gender);
+                }
+                AFTER_SWITCH(gender, stl_sprintf("identity-%d", identity->id));
+            }
+
+            s << caste->caste_name[0];
+        }
+        else if (race)
+        {
+            s << ", a " << race->name[0];
+        }
+
+        if (identity->profession != profession::NONE)
+        {
+            if (caste && !caste->caste_profession_name.singular[identity->profession].empty())
+            {
+                s << " " << caste->caste_profession_name.singular[identity->profession];
+            }
+            else if (race && !race->profession_name.singular[identity->profession].empty())
+            {
+                s << " " << race->profession_name.singular[identity->profession];
+            }
+            else
+            {
+                s << " " << ENUM_ATTR(profession, caption, identity->profession);
+            }
+        }
+    }
 }
 
 template<typename T>
