@@ -1415,11 +1415,17 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_possessedst *event)
 {
-    // TODO: int32_t artifact;
-    // TODO: int32_t unit;
-    // TODO: int32_t histfig;
-    // TODO: int32_t site;
-    do_event_missing(s, context, event, __LINE__);
+    auto artifact = df::artifact_record::find(event->artifact);
+    auto histfig = df::historical_figure::find(event->histfig);
+    auto site = df::world_site::find(event->site);
+
+    event_link(s, context, histfig);
+    s << " took ";
+    event_link(s, context, artifact);
+    s << " from ";
+    event_link(s, context, site);
+
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_createdst *event)
