@@ -4212,17 +4212,42 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_givenst *event)
 {
-    // TODO: int32_t artifact;
-    // TODO: int32_t giver_hf;
-    // TODO: int32_t giver_entity;
-    // TODO: int32_t receiver_hf;
-    // TODO: int32_t receiver_entity;
-    // TODO: df::unit_thought_type circumstance;
-    // TODO: int32_t circumstance_id;
-    // TODO: df::history_event_reason reason;
-    // TODO: int32_t reason_id;
+    auto artifact = df::artifact_record::find(event->artifact);
+    auto giver_hf = df::historical_figure::find(event->giver_hf);
+    auto giver_entity = df::historical_entity::find(event->giver_entity);
+    auto receiver_hf = df::historical_figure::find(event->receiver_hf);
+    auto receiver_entity = df::historical_entity::find(event->receiver_entity);
 
-    do_event_missing(s, context, event, __LINE__);
+    event_link(s, context, artifact);
+    s << " was offered to ";
+    if (receiver_hf)
+    {
+        event_link(s, context, receiver_hf);
+        if (receiver_entity)
+        {
+            s << " of ";
+            event_link(s, context, receiver_entity);
+        }
+    }
+    else
+    {
+        event_link(s, context, receiver_entity);
+    }
+    s << " by ";
+    if (giver_hf)
+    {
+        event_link(s, context, giver_hf);
+        if (giver_entity)
+        {
+            s << " of ";
+            event_link(s, context, giver_entity);
+        }
+    }
+    else
+    {
+        event_link(s, context, giver_entity);
+    }
+    do_circumstance_reason(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_act_on_artifactst *event)
