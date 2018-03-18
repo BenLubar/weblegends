@@ -1390,11 +1390,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_merchantst *event)
 {
-    // TODO: int32_t source;
-    // TODO: int32_t destination;
-    // TODO: int32_t site;
+    auto source = df::historical_entity::find(event->source);
+    auto destination = df::historical_entity::find(event->destination);
+    auto site = df::world_site::find(event->site);
+
+    s << "Merchants from ";
+    event_link(s, context, source);
+    s << " visited ";
+    event_link(s, context, destination);
+    s << " in ";
+    event_link(s, context, site);
+
     // TODO: BitArray<int> flags2;
-    do_event_missing(s, context, event, __LINE__);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_hiddenst *event)
