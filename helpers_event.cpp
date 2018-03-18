@@ -2493,12 +2493,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_abductedst *event)
 {
-    // TODO: int32_t target;
-    // TODO: int32_t snatcher;
-    // TODO: int32_t site;
-    // TODO: int32_t region;
-    // TODO: int32_t layer;
-    do_event_missing(s, context, event, __LINE__);
+    auto target = df::historical_figure::find(event->target);
+    auto snatcher = df::historical_figure::find(event->snatcher);
+
+    event_link(s, context, target);
+    s << " was abudcted by ";
+    event_link(s, context, snatcher);
+    do_location_2(s, context, event);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_item_stolenst *event)
