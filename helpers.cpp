@@ -12,6 +12,7 @@
 #include "df/caste_raw.h"
 #include "df/creature_interaction_effect_body_transformationst.h"
 #include "df/creature_raw.h"
+#include "df/entity_site_link.h"
 #include "df/general_ref_is_artifactst.h"
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
@@ -621,6 +622,31 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         if (auto race = df::creature_raw::find(ent->race))
         {
             s << " " << race->name[2];
+        }
+    }
+    else
+    {
+        df::entity_site_link *found = nullptr;
+        for (auto link : site->entity_links)
+        {
+            if (link->flags.bits.residence)
+            {
+                if (found)
+                {
+                    // Don't try to handle multiple claims.
+                    found = nullptr;
+                    break;
+                }
+                found = link;
+            }
+        }
+
+        if (auto ent = found ? df::historical_entity::find(found->entity_id) : nullptr)
+        {
+            if (auto race = df::creature_raw::find(ent->race))
+            {
+                s << " " << race->name[2];
+            }
         }
     }
 

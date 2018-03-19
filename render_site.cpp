@@ -1,6 +1,8 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "df/entity_site_link.h"
+#include "df/historical_entity.h"
 #include "df/world.h"
 #include "df/world_data.h"
 #include "df/world_site.h"
@@ -33,14 +35,30 @@ bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
     categorize(s, site);
     s << "</p>";
 
+    if (!site->entity_links.empty())
+    {
+        s << "<h2 id=\"related-entities\">Related Entities</h2><ul>";
+        for (auto l : site->entity_links)
+        {
+            auto entity = df::historical_entity::find(l->entity_id);
+            s << "<li>";
+            link(s, entity);
+            s << ",";
+            categorize(s, entity);
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
+
     if (!site->buildings.empty())
     {
         s << "<h2 id=\"structures\">Structures</h2><ul>";
-        for (auto it = site->buildings.begin(); it != site->buildings.end(); it++)
+        for (auto b : site->buildings)
         {
             s << "<li>";
-            link(s, *it);
-            categorize(s, *it);
+            link(s, b);
+            s << ",";
+            categorize(s, b);
             s << "</li>";
         }
         s << "</ul>";
