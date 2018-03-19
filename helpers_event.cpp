@@ -164,24 +164,29 @@ REQUIRE_GLOBAL(gamemode);
 REQUIRE_GLOBAL(ui);
 REQUIRE_GLOBAL(world);
 
-static std::string profession_name(df::historical_figure *hf, df::profession prof, bool plural = false)
+static std::string profession_name(int32_t race, int16_t caste, df::profession prof, bool plural = false)
 {
     std::string str;
     if (*gamemode == df::game_mode::ADVENTURE)
     {
         int32_t old_race_id = world->units.active[0]->race;
-        world->units.active[0]->race = hf->race;
-        str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
+        world->units.active[0]->race = race;
+        str = Units::getCasteProfessionName(race, caste, prof, plural);
         world->units.active[0]->race = old_race_id;
     }
     else
     {
         int16_t old_race_id = ui->race_id;
-        ui->race_id = hf->race;
-        str = Units::getCasteProfessionName(hf->race, hf->caste, prof, plural);
+        ui->race_id = race;
+        str = Units::getCasteProfessionName(race, caste, prof, plural);
         ui->race_id = old_race_id;
     }
     return toLower(str);
+}
+
+static std::string profession_name(df::historical_figure *hf, df::profession prof, bool plural = false)
+{
+    return profession_name(hf->race, hf->caste, prof, plural);
 }
 
 template<typename T>
@@ -453,7 +458,7 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
     return any;
 }
 
-static void do_identity(std::ostream & s, const event_context & context, df::identity *identity)
+static void do_identity(std::ostream & s, const event_context & context, df::historical_figure *histfig, df::identity *identity)
 {
     if (!identity)
     {
@@ -461,7 +466,249 @@ static void do_identity(std::ostream & s, const event_context & context, df::ide
     }
     else if (auto hf = df::historical_figure::find(identity->histfig_id))
     {
-        event_link(s, context, hf);
+        bool fake_name = identity->name.has_name ?
+            identity->name.first_name != hf->name.first_name ||
+            identity->name.nickname != hf->name.nickname ||
+            identity->name.words != hf->name.words ||
+            identity->name.parts_of_speech != hf->name.parts_of_speech ||
+            identity->name.language != hf->name.language :
+            hf->name.has_name;
+        bool fake_birthdate = identity->birth_year != hf->born_year || identity->birth_second != hf->born_seconds;
+        bool fake_race_caste = identity->race != hf->race || identity->caste != hf->caste;
+        bool fake_civ = identity->civ != hf->civ_id;
+        bool fake_profession = identity->profession != hf->profession;
+
+        if (hf == histfig)
+        {
+            if (!fake_name || fake_birthdate || fake_race_caste)
+            {
+                BEFORE_SWITCH(sex, histfig->sex);
+                switch (sex)
+                {
+                case -1:
+                    s << "itself";
+                    BREAK(sex);
+                case 0:
+                    s << "herself";
+                    BREAK(sex);
+                case 1:
+                    s << "himself";
+                    BREAK(sex);
+                }
+                AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, histfig->id));
+            }
+        }
+        else
+        {
+            event_link(s, context, hf);
+        }
+
+
+        if (hf == histfig && fake_name && !fake_birthdate && !fake_race_caste)
+        {
+            name_translated(s, identity->name);
+            s << ", a " << profession_name(hf, identity->profession) << " from ";
+            event_link(s, context, df::historical_entity::find(identity->civ));
+
+            if (fake_civ || fake_profession)
+            {
+                s << ", even though ";
+                BEFORE_SWITCH(sex, hf->sex);
+                switch (sex)
+                {
+                case -1:
+                    s << "it";
+                    BREAK(sex);
+                case 0:
+                    s << "she";
+                    BREAK(sex);
+                case 1:
+                    s << "he";
+                    BREAK(sex);
+                }
+                AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, histfig->id));
+                s << " was";
+                if (fake_profession)
+                {
+                    s << " a " << profession_name(hf, hf->profession);
+                }
+                if (fake_civ)
+                {
+                    s << " from ";
+                    event_link(s, context, df::historical_entity::find(hf->civ_id));
+                }
+            }
+        }
+        else if (fake_name || fake_birthdate || fake_race_caste || fake_civ || fake_profession)
+        {
+            std::vector<std::function<void(std::ostream &)>> lies;
+            if (fake_name)
+            {
+                lies.push_back([hf, identity](std::ostream & out)
+                {
+                    BEFORE_SWITCH(sex, hf->sex);
+                    switch (sex)
+                    {
+                    case -1:
+                        out << "its";
+                        BREAK(sex);
+                    case 0:
+                        out << "her";
+                        BREAK(sex);
+                    case 1:
+                        out << "his";
+                        BREAK(sex);
+                    }
+                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+                    out << " name was ";
+                    name_translated(out, identity->name);
+                });
+            }
+
+            if (fake_birthdate)
+            {
+                lies.push_back([hf, identity](std::ostream & out)
+                {
+                    BEFORE_SWITCH(sex, hf->sex);
+                    switch (sex)
+                    {
+                    case -1:
+                        out << "it";
+                        BREAK(sex);
+                    case 0:
+                        out << "she";
+                        BREAK(sex);
+                    case 1:
+                        out << "he";
+                        BREAK(sex);
+                    }
+                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+                    out << " was born on " << dayth(identity->birth_second) << " " << month(identity->birth_second) << " " << identity->birth_year;
+                });
+            }
+
+            if (fake_civ)
+            {
+                lies.push_back([hf, identity, context](std::ostream & out)
+                {
+                    BEFORE_SWITCH(sex, hf->sex);
+                    switch (sex)
+                    {
+                    case -1:
+                        out << "it";
+                        BREAK(sex);
+                    case 0:
+                        out << "she";
+                        BREAK(sex);
+                    case 1:
+                        out << "he";
+                        BREAK(sex);
+                    }
+                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+                    out << " was from ";
+                    event_link(out, context, df::historical_entity::find(identity->civ));
+                });
+            }
+
+            if (fake_race_caste)
+            {
+                lies.push_back([hf, identity](std::ostream & out)
+                {
+                    BEFORE_SWITCH(sex, hf->sex);
+                    switch (sex)
+                    {
+                    case -1:
+                        out << "it";
+                        BREAK(sex);
+                    case 0:
+                        out << "she";
+                        BREAK(sex);
+                    case 1:
+                        out << "he";
+                        BREAK(sex);
+                    }
+                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+
+                    auto real_race = df::creature_raw::find(hf->race);
+                    auto fake_race = df::creature_raw::find(identity->race);
+                    auto real_caste = real_race ? vector_get(real_race->caste, hf->caste) : nullptr;
+                    auto fake_caste = fake_race ? vector_get(fake_race->caste, identity->caste) : nullptr;
+
+                    out << " was a ";
+                    if (fake_race->name[0] == fake_caste->caste_name[0])
+                    {
+                        BEFORE_SWITCH(gender, fake_caste->gender);
+                        switch (gender)
+                        {
+                        case -1:
+                            BREAK(gender);
+                        case 0:
+                            out << "female ";
+                            BREAK(gender);
+                        case 1:
+                            out << "male ";
+                            BREAK(gender);
+                        }
+                        AFTER_SWITCH(gender, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+                    }
+                    out << fake_caste->caste_name[0];
+                    if (identity->profession != hf->profession)
+                    {
+                        out << " " << profession_name(hf, identity->profession);
+                    }
+                    out << " rather than a ";
+                    if (real_race->name[0] == real_caste->caste_name[0])
+                    {
+                        BEFORE_SWITCH(gender, real_caste->gender);
+                        switch (gender)
+                        {
+                        case -1:
+                            BREAK(gender);
+                        case 0:
+                            out << "female ";
+                            BREAK(gender);
+                        case 1:
+                            out << "male ";
+                            BREAK(gender);
+                        }
+                        AFTER_SWITCH(gender, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+                    }
+                    out << real_caste->caste_name[0];
+                    if (identity->profession != hf->profession)
+                    {
+                        out << " " << profession_name(hf, hf->profession);
+                    }
+                });
+            }
+            else if (fake_profession)
+            {
+                lies.push_back([hf, identity](std::ostream & out)
+                {
+                    BEFORE_SWITCH(sex, hf->sex);
+                    switch (sex)
+                    {
+                    case -1:
+                        out << "it";
+                        BREAK(sex);
+                    case 0:
+                        out << "she";
+                        BREAK(sex);
+                    case 1:
+                        out << "he";
+                        BREAK(sex);
+                    }
+                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
+
+                    out << " was a " << profession_name(hf, identity->profession) << " rather than a " << profession_name(hf, hf->profession);
+                });
+            }
+
+            s << " but pretending ";
+            list<std::function<void(std::ostream &)>>(s, lies, [](std::ostream & out, std::function<void(std::ostream &)> fn)
+            {
+                fn(out);
+            });
+        }
     }
     else
     {
@@ -497,18 +744,13 @@ static void do_identity(std::ostream & s, const event_context & context, df::ide
 
         if (identity->profession != profession::NONE)
         {
-            if (caste && !caste->caste_profession_name.singular[identity->profession].empty())
-            {
-                s << " " << caste->caste_profession_name.singular[identity->profession];
-            }
-            else if (race && !race->profession_name.singular[identity->profession].empty())
-            {
-                s << " " << race->profession_name.singular[identity->profession];
-            }
-            else
-            {
-                s << " " << ENUM_ATTR(profession, caption, identity->profession);
-            }
+            s << " " << profession_name(identity->race, identity->caste, identity->profession);
+        }
+
+        if (auto civ = df::historical_entity::find(identity->civ))
+        {
+            s << " from ";
+            event_link(s, context, civ);
         }
     }
 }
@@ -2905,7 +3147,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     AFTER_SWITCH(sex, stl_sprintf("event-%d (ASSUME_IDENTITY)", event->id));
 
     s << " was ";
-    do_identity(s, context, identity);
+    do_identity(s, context, trickster, identity);
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_create_entity_positionst *event)
@@ -4296,7 +4538,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     if (identity1)
     {
         s << ", as ";
-        do_identity(s, context, identity1);
+        do_identity(s, context, histfig1, identity1);
         s << ",";
     }
 
@@ -4335,8 +4577,8 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     event_link(s, context, histfig2);
     if (identity2)
     {
-        s << ", disguised as ";
-        do_identity(s, context, identity2);
+        s << ", as ";
+        do_identity(s, context, histfig2, identity2);
         if (!after.empty())
         {
             s << ",";
