@@ -475,7 +475,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
         }
         std::string name(caste->caste_name[0]);
         std::string suffix;
-        if (caste->misc.baby_age < caste->misc.child_age && age_years < caste->misc.baby_age)
+        if (caste->flags.is_set(caste_raw_flags::BABY) && age_years < caste->misc.baby_age)
         {
             if (caste->baby_name[0].empty())
             {
@@ -486,7 +486,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
                 name = caste->baby_name[0];
             }
         }
-        else if (age_years < caste->misc.child_age)
+        else if (caste->flags.is_set(caste_raw_flags::CHILD) && age_years < caste->misc.child_age)
         {
             if (caste->child_name[0].empty())
             {
