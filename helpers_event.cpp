@@ -142,6 +142,7 @@
 #include "df/interaction_source.h"
 #include "df/item_body_component.h"
 #include "df/item_constructed.h"
+#include "df/item_drinkst.h"
 #include "df/item_fishst.h"
 #include "df/item_fish_rawst.h"
 #include "df/item_meatst.h"
@@ -2782,6 +2783,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     else if (event->item_type == item_type::MEAT)
     {
         do_item_description<df::item_meatst>(s, context, event->item_subtype, event->mattype, event->matindex);
+    }
+    else if (event->item_type == item_type::DRINK)
+    {
+        do_item_description<df::item_drinkst>(s, context, event->item_subtype, event->mattype, event->matindex);
     }
     else
     {
