@@ -260,6 +260,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         else if (check_id(s, url, "/layer-", render_layer)) {}
         else if (check_page(s, url, "/eras-", render_era_list)) {}
         else if (check_id(s, url, "/era-", render_era)) {}
+        else if (url == "/style.css") {}
         else
         {
             size_t pos = url.find('/', 1);
@@ -331,7 +332,18 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         throw;
     }
 
+    std::string type = "text/html";
     std::string body = DF2UTF(s.str());
+
+    if (url == "/style.css")
+    {
+        type = "text/css";
+        body = ".map {\n"
+            "    max-width: 500px;\n"
+            "    border: 1px solid;\n"
+            "    float: right;\n"
+            "}\n";
+    }
 
     if (body.empty())
     {
@@ -339,7 +351,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         return;
     }
 
-    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: text/html; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, body.length(), keepAlive ? "keep-alive" : "close");
+    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: %s; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, type.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
     std::string transport = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)transport.c_str(), transport.length()) != int32_t(transport.length()))
     {

@@ -19,9 +19,15 @@ bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
 
     simple_header(s, site);
 
-    s << "<svg width=\"100%\" style=\"max-width:500px;border:1px solid;float:right\" viewBox=\"0 0 " << (world->world_data->world_width * 16) << " " << (world->world_data->world_height * 16) << "\">";
-    s << "<rect width=\"" << (site->global_max_x - site->global_min_x + 1) << "\" height=\"" << (site->global_max_y - site->global_min_y + 1) << "\" x=\"" << site->global_min_x << "\" y=\"" << site->global_min_y << "\"></rect>";
-    s << "</svg>";
+    df::coord2d_path coords;
+    for (int32_t x = site->global_min_x; x <= site->global_max_x; x++)
+    {
+        for (int32_t y = site->global_min_y; y <= site->global_max_y; y++)
+        {
+            coords.push_back(df::coord2d(uint16_t(x), uint16_t(y)));
+        }
+    }
+    render_map_coords(s, coords);
 
     s << "<p>";
     categorize(s, site);

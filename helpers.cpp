@@ -756,7 +756,7 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
         s << "unnamed";
         categorize(s, subject, true, true);
     }
-    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "</head><body><h1>";
+    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "<link rel=\"stylesheet\" href=\"style.css\"></head><body><h1>";
     if (name.has_name)
     {
         std::string native = Translation::TranslateName(&name, false, false);
@@ -1205,7 +1205,7 @@ void born_died(std::ostream & s, df::historical_figure *hf)
 
 void render_map_coords(std::ostream &s, const df::coord2d_path &coords)
 {
-    s << "<svg width=\"100%\" style=\"max-width:500px;border:1px solid;float:right\" viewBox=\"0 0 " << world->world_data->world_width << " " << world->world_data->world_height << "\">";
+    s << "<svg width=\"100%\" class=\"map\" viewBox=\"0 0 " << world->world_data->world_width << " " << world->world_data->world_height << "\">";
     for (size_t i = 0; i < coords.size(); i++)
     {
         int height = 1;
