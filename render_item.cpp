@@ -6,11 +6,13 @@
 
 #include "df/artifact_record.h"
 #include "df/creature_raw.h"
+#include "df/descriptor_shape.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
 #include "df/item_constructed.h"
 #include "df/item_slabst.h"
 #include "df/itemimprovement.h"
+#include "df/itemimprovement_bandsst.h"
 #include "df/itemimprovement_itemspecificst.h"
 #include "df/itemimprovement_pagesst.h"
 #include "df/itemimprovement_writingst.h"
@@ -81,13 +83,24 @@ bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
                 s << "COVERED"; // TODO
                 BREAK(type);
             case improvement_type::RINGS_HANGING:
-                s << "RINGS_HANGING"; // TODO
+                s << "Adorned with hanging rings of ";
+                material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::BANDS:
-                s << "BANDS"; // TODO
+                s << "Encircled with";
+                if (auto imp = virtual_cast<df::itemimprovement_bandsst>(*it))
+                {
+                    if (auto shape = df::descriptor_shape::find(imp->shape))
+                    {
+                        s << " " << shape->name;
+                    }
+                }
+                s << " bands of ";
+                material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::SPIKES:
-                s << "SPIKES"; // TODO
+                s << "Studded with ";
+                material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::ITEMSPECIFIC:
                 if (auto imp = virtual_cast<df::itemimprovement_itemspecificst>(*it))
