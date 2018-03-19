@@ -4771,23 +4771,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, a_tactician);
             break;
         }
-
-        switch (event->situation)
-        {
-        case tactical_situation::attacker_strongly_favored:
-        case tactical_situation::attacker_favored:
-        case tactical_situation::attacker_slightly_favored:
-            s << (tactical_outcome < 2 ? ", and " : ", but ");
-            break;
-        case tactical_situation::defender_strongly_favored:
-        case tactical_situation::defender_favored:
-        case tactical_situation::defender_slightly_favored:
-            s << (tactical_outcome < 2 ? ", but " : ", and ");
-            break;
-        case tactical_situation::neither_favored:
-            s << ", but ";
-            break;
-        }
     }
     else if (a_tactician)
     {
@@ -4797,44 +4780,44 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, a_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " unrolled a brilliant tactical plan ";
+                s << " unrolled a brilliant tactical plan";
             }
             else
             {
-                s << " hatched a stunning strategy ";
+                s << " hatched a stunning strategy";
             }
             break;
         case 1:
             event_link(s, context, a_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " put forth a sound plan ";
+                s << " put forth a sound plan";
             }
             else
             {
-                s << " used good tactics ";
+                s << " used good tactics";
             }
             break;
         case 2:
             event_link(s, context, a_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " made a poor plan ";
+                s << " made a poor plan";
             }
             else
             {
-                s << " used poor tactics ";
+                s << " used poor tactics";
             }
             break;
         case 3:
             event_link(s, context, a_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " made an outright foolish plan ";
+                s << " made an outright foolish plan";
             }
             else
             {
-                s << " blundered terribly ";
+                s << " blundered terribly";
             }
             break;
         }
@@ -4847,44 +4830,44 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             event_link(s, context, d_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " made an outright foolish plan ";
+                s << " made an outright foolish plan";
             }
             else
             {
-                s << " blundered terribly ";
+                s << " blundered terribly";
             }
             break;
         case 1:
             event_link(s, context, d_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " made a poor plan ";
+                s << " made a poor plan";
             }
             else
             {
-                s << " used poor tactics ";
+                s << " used poor tactics";
             }
             break;
         case 2:
             event_link(s, context, d_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " put forth a sound plan ";
+                s << " put forth a sound plan";
             }
             else
             {
-                s << " used good tactics ";
+                s << " used good tactics";
             }
             break;
         case 3:
             event_link(s, context, d_tactician);
             if (event->tactics_flags.bits.start)
             {
-                s << " unrolled a brilliant tactical plan ";
+                s << " unrolled a brilliant tactical plan";
             }
             else
             {
-                s << " hatched a stunning strategy ";
+                s << " hatched a stunning strategy";
             }
             break;
         }
