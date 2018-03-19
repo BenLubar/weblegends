@@ -291,8 +291,17 @@ static void do_location_2_structure(std::ostream & s, const event_context & cont
     do_location_2(s, context, event, separator);
 }
 
-static void do_item_description(std::ostream & s, df::item *item)
+static void do_item_description(std::ostream & s, const event_context & context, df::item *item)
 {
+    if (auto is_artifact = Items::getGeneralRef(item, general_ref_type::IS_ARTIFACT))
+    {
+        if (auto artifact = is_artifact->getArtifact())
+        {
+            event_link(s, context, artifact);
+            return;
+        }
+    }
+
     std::string str;
     item->getItemDescriptionPrefix(&str, 0);
     s << str;
@@ -335,7 +344,7 @@ static typename void_t<decltype(T::caste)>::type do_item_description(std::ostrea
                 std::string name = caste->caste_name[0];
                 caste->caste_name[0] = creature.str();
 
-                do_item_description(s, item);
+                do_item_description(s, context, item);
 
                 caste->caste_name[0] = name;
 
@@ -346,7 +355,7 @@ static typename void_t<decltype(T::caste)>::type do_item_description(std::ostrea
         }
     }
 
-    do_item_description(s, item);
+    do_item_description(s, context, item);
 
     delete item;
 }
@@ -367,7 +376,7 @@ static void do_item_description(std::ostream & s, const event_context & context,
             std::string name = race->name[0];
             race->name[0] = creature.str();
 
-            do_item_description(s, item);
+            do_item_description(s, context, item);
 
             race->name[0] = name;
 
@@ -377,7 +386,7 @@ static void do_item_description(std::ostream & s, const event_context & context,
         }
     }
 
-    do_item_description(s, item);
+    do_item_description(s, context, item);
 
     delete item;
 }
@@ -397,7 +406,7 @@ static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value,
             std::string name = race->name[0];
             race->name[0] = creature.str();
 
-            do_item_description(s, item);
+            do_item_description(s, context, item);
 
             race->name[0] = name;
 
@@ -407,7 +416,7 @@ static typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value,
         }
     }
 
-    do_item_description(s, item);
+    do_item_description(s, context, item);
 
     delete item;
 }
@@ -419,7 +428,7 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
     if (auto item = df::item::find(weapon.item))
     {
         s << prefix;
-        do_item_description(s, item);
+        do_item_description(s, context, item);
         any = true;
     }
     else if (weapon.item_type != item_type::NONE)
@@ -440,7 +449,7 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
             any = true;
         }
         s << " fired from ";
-        do_item_description(s, item);
+        do_item_description(s, context, item);
     }
     else if (weapon.shooter_item_type != item_type::NONE)
     {
@@ -2770,7 +2779,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     s << " stole ";
     if (auto item = df::item::find(event->item))
     {
-        do_item_description(s, item);
+        do_item_description(s, context, item);
     }
     else if (event->item_type == item_type::FISH)
     {
