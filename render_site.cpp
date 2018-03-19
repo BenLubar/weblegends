@@ -29,7 +29,7 @@ bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
             coords.push_back(df::coord2d(uint16_t(x), uint16_t(y)));
         }
     }
-    render_map_coords(s, coords);
+    render_map_coords(s, coords, 16);
 
     s << "<p>";
     categorize(s, site);

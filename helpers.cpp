@@ -1229,18 +1229,24 @@ void born_died(std::ostream & s, df::historical_figure *hf)
     s << ")";
 }
 
-void render_map_coords(std::ostream &s, const df::coord2d_path &coords)
+void render_map_coords(std::ostream &s, const df::coord2d_path &coords, int32_t mul)
 {
-    s << "<svg width=\"100%\" class=\"map\" viewBox=\"0 0 " << world->world_data->world_width << " " << world->world_data->world_height << "\">";
+    s << "<svg width=\"100%\" class=\"map\" viewBox=\"0 0 " << (world->world_data->world_width * mul) << " " << (world->world_data->world_height * mul) << "\">";
     for (size_t i = 0; i < coords.size(); i++)
     {
+        int width = 1;
         int height = 1;
         while (i + 1 < coords.size() && coords.x.at(i) == coords.x.at(i + 1) && coords.y.at(i) + 1 == coords.y.at(i + 1))
         {
             height++;
             i++;
         }
-        s << "<rect width=\"1\" height=\"" << height << "\" x=\"" << coords.x.at(i) << "\" y=\"" << (coords.y.at(i) - height + 1) << "\"></rect>";
+        while (i + height < coords.size() && coords.x.at(i) + 1 == coords.x.at(i + height) && coords.y.at(i) == coords.y.at(i + height))
+        {
+            width++;
+            i += height;
+        }
+        s << "<rect width=\"" << width << "\" height=\"" << height << "\" x=\"" << (coords.x.at(i) - width + 1) << "\" y=\"" << (coords.y.at(i) - height + 1) << "\"></rect>";
     }
     s << "</svg>";
 }
