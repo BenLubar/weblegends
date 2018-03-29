@@ -5021,7 +5021,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         auto animate = virtual_cast<df::interaction_effect_animatest>(d_effect);
         if (animate && animate->syndrome.size() == 1)
         {
-            auto syn = animate->syndrome.at(0);
+            //auto syn = animate->syndrome.at(0);
             do_event_missing(s, context, event, __LINE__);
         }
         else
