@@ -106,7 +106,7 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
 
 static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body, char http1Point, bool keepAlive)
 {
-    std::string header = stl_sprintf("HTTP/1.%c %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, status_code, status_phrase.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
+    std::string header = stl_sprintf("HTTP/1.%c %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %zu\r\nConnection: %s\r\n\r\n", http1Point, status_code, status_phrase.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
     std::string payload = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)payload.c_str(), payload.length()) != int32_t(payload.length()))
     {
@@ -351,7 +351,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         return;
     }
 
-    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: %s; charset=utf-8\r\nContent-Length: %d\r\nConnection: %s\r\n\r\n", http1Point, type.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
+    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: %s; charset=utf-8\r\nContent-Length: %zu\r\nConnection: %s\r\n\r\n", http1Point, type.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
     std::string transport = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)transport.c_str(), transport.length()) != int32_t(transport.length()))
     {

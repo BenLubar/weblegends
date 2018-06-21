@@ -833,7 +833,7 @@ static void do_event_missing(std::ostream & s, const event_context &, df::histor
     event->getSentence(&df_description, &df_context, 1, 0);
     s << "<abbr title=\"" << html_escape(df_description) << "\">" << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id << "</abbr>";
 #ifdef WEBLEGENDS_DEBUG
-    weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << std::endl;
+    weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << ": " << df_description << std::endl;
 #endif
 }
 
@@ -2593,7 +2593,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             s << "Winter";
             BREAK(season);
         }
-        AFTER_SWITCH(season, stl_sprintf("event-%d (WAR_SITE_TRIBUTE_FORCED)"));
+        AFTER_SWITCH(season, stl_sprintf("event-%d (WAR_SITE_TRIBUTE_FORCED)", event->id));
     }
 }
 
@@ -2881,7 +2881,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             suffix = " to a pulp";
             BREAK(part_lost);
         }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash"));
+        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash", event->id));
         BREAK(type);
     case df::history_event_hist_figure_woundedst::T_injury_type::Slash:
         BEFORE_SWITCH(part_lost, event->part_lost);
@@ -2895,7 +2895,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             suffix = " off";
             BREAK(part_lost);
         }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash"));
+        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash", event->id));
         BREAK(type);
     case df::history_event_hist_figure_woundedst::T_injury_type::Stab:
         BEFORE_SWITCH(part_lost, event->part_lost);
@@ -2909,7 +2909,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             suffix = " into an indistinguishable mess";
             BREAK(part_lost);
         }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab"));
+        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab", event->id));
         BREAK(type);
     case df::history_event_hist_figure_woundedst::T_injury_type::Rip:
         BEFORE_SWITCH(part_lost, event->part_lost);
@@ -2923,7 +2923,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             suffix = " off";
             BREAK(part_lost);
         }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip"));
+        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip", event->id));
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));

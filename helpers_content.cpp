@@ -980,7 +980,7 @@ void knowledge(std::ostream & s, df::knowledge_scholar_category_flag knowledge)
         s << "engineering_machine_trip_hammer"; // TODO
         BREAK(know);
     }
-    AFTER_SWITCH(know, stl_sprintf("category-%d/flag-%032b", knowledge.category, knowledge.flags));
+    AFTER_SWITCH(know, stl_sprintf("category-%u/flag-%08x", knowledge.category, knowledge.flags.whole));
 }
 
 void value_level(std::ostream & s, df::value_type type, int32_t level)
