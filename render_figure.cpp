@@ -390,6 +390,9 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     case occupation_type::SCRIBE:
                         s << "scribe";
                         BREAK(occ);
+                    case occupation_type::MESSENGER:
+                        s << "messenger";
+                        BREAK(occ);
                     }
                     AFTER_SWITCH(occ, stl_sprintf("fig-%d (current) occ=%d loc=site-%d/bld-%d", id, l->occupation_id, occupation->site_id, occupation->location_id));
                     s << " at ";
@@ -424,6 +427,9 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                         BREAK(occ);
                     case occupation_type::SCRIBE:
                         s << "scribe";
+                        BREAK(occ);
+                    case occupation_type::MESSENGER:
+                        s << "messenger";
                         BREAK(occ);
                     }
                     AFTER_SWITCH(occ, stl_sprintf("fig-%d (former) occ=%d loc=site-%d/bld-%d", id, l->occupation_id, occupation->site_id, occupation->location_id));
