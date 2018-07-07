@@ -60,6 +60,7 @@
 #include "df/history_event_diplomat_lostst.h"
 #include "df/history_event_entity_actionst.h"
 #include "df/history_event_entity_createdst.h"
+#include "df/history_event_entity_expels_hfst.h"
 #include "df/history_event_entity_fled_sitest.h"
 #include "df/history_event_entity_incorporatedst.h"
 #include "df/history_event_entity_lawst.h"
@@ -117,6 +118,7 @@
 #include "df/history_event_site_diedst.h"
 #include "df/history_event_site_disputest.h"
 #include "df/history_event_site_retiredst.h"
+#include "df/history_event_site_surrenderedst.h"
 #include "df/history_event_sneak_into_sitest.h"
 #include "df/history_event_spotted_leaving_sitest.h"
 #include "df/history_event_squad_vs_squadst.h"
@@ -146,6 +148,7 @@
 #include "df/item_fishst.h"
 #include "df/item_fish_rawst.h"
 #include "df/item_meatst.h"
+#include "df/itemdef_foodst.h"
 #include "df/itemdef_weaponst.h"
 #include "df/musical_form.h"
 #include "df/plant_raw.h"
@@ -781,6 +784,9 @@ static void do_circumstance_reason(std::ostream & s, const event_context & conte
         s << " of the ";
         event_link(s, context, df::historical_figure::find(event->reason_id));
         s << " family";
+        BREAK(reason);
+    case history_event_reason::as_a_symbol_of_everlasting_peace:
+        s << " as a symbol of everlasting peace";
         BREAK(reason);
     case history_event_reason::artifact_is_symbol_of_entity_position:
         s << " as a symbol of authority witin ";
@@ -2328,13 +2334,34 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_foodst *event)
 {
-    // TODO: int32_t maker;
-    // TODO: int32_t maker_entity;
-    // TODO: int32_t site;
-    // TODO: int32_t unk1;
-    // TODO: int16_t item_subtype;
-    // TODO: int32_t item_id;
-    do_event_missing(s, context, event, __LINE__);
+    auto maker = df::historical_figure::find(event->maker);
+    auto maker_entity = df::historical_entity::find(event->maker_entity);
+    auto site = df::world_site::find(event->site);
+    auto subtype = df::itemdef_foodst::find(event->item_subtype);
+    auto item = df::item::find(event->item_id);
+
+    event_link(s, context, maker);
+    s << " cooked a masterful ";
+    if (item)
+    {
+        do_item_description(s, context, item);
+    }
+    else
+    {
+        s << subtype->name;
+    }
+
+    if (maker_entity)
+    {
+        s << " for ";
+        event_link(s, context, maker_entity);
+    }
+
+    if (site)
+    {
+        s << " in ";
+        event_link(s, context, site);
+    }
 }
 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_masterpiece_created_engravingst *event)
@@ -5039,6 +5066,23 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     }
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_site_surrenderedst *event)
+{
+    // TODO: int32_t attacker_civ;
+    // TODO: int32_t defender_civ;
+    // TODO: int32_t site_civ;
+    // TODO: int32_t site;
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_expels_hfst *event)
+{
+    // TODO: int32_t civ;
+    // TODO: int32_t expelled;
+    // TODO: int32_t site;
+    do_event_missing(s, context, event, __LINE__);
+}
+
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
     if (event->seconds != -1)
@@ -5388,6 +5432,12 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
         BREAK(type);
     case history_event_type::SQUAD_VS_SQUAD:
         do_event(s, context, virtual_cast<df::history_event_squad_vs_squadst>(event));
+        BREAK(type);
+    case history_event_type::SITE_SURRENDERED:
+        do_event(s, context, virtual_cast<df::history_event_site_surrenderedst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_EXPELS_HF:
+        do_event(s, context, virtual_cast<df::history_event_entity_expels_hfst>(event));
         BREAK(type);
     }
     if (!type_found)
