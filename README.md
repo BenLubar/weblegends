@@ -1,5 +1,5 @@
 ### What is weblegends?
-weblegends is a web server DFHack plugin that allows you to see your fort's current state and world history, over the internet (or locally).
+weblegends is a DFHack plugin that runs a web server, inside Dwarf Fortress, that allows you to view your entire world's history, artifacts, settlments, heros, and so much more... over the internet or just locally.
 
 ### Installation & Setup
 1. Download & Install the latest [Dwarf Fortress](http://www.bay12games.com/dwarves/older_versions.html).
@@ -12,4 +12,4 @@ weblegends is a web server DFHack plugin that allows you to see your fort's curr
 1. Using your web browser, visit the page listed in the DFHack console. (Example: `http://localhost:5080/`)
 
 ### [DF-AI](https://github.com/BenLubar/df-ai) Support
-weblegends also has support for [df-ai](https://github.com/BenLubar/df-ai), allowing you to monitor the current state of the AI & its blueprints.
+weblegends also has support for [df-ai](https://github.com/BenLubar/df-ai), allowing you to monitor the current state of the AI, the current needs and demands of the fortress, drill down into the individual lives of each of your inhabitants, see health reports, committed  crimes, jobs, and so much more...
