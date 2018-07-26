@@ -344,7 +344,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
             "    float: right;\n"
             "}\n"
             "body {\n"
-            "    font-family: Verdana, Verdana, Geneva, sans-serif;\n"
+            "    font-family: Verdana, Geneva, sans-serif;\n"
             "}\n"
             "a {\n"
             "    text-decoration: none;\n"
@@ -352,7 +352,6 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
             "a:hover {\n"
             "    text-decoration: underline;\n"
             "}\n";
-
     }
 
     if (body.empty())
