@@ -342,7 +342,17 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
             "    max-width: 500px;\n"
             "    border: 1px solid;\n"
             "    float: right;\n"
+            "}\n"
+            "body {\n"
+            "    font-family: Verdana, Verdana, Geneva, sans-serif;\n"
+            "}\n"
+            "a {\n"
+            "    text-decoration: none;\n"
+            "}\n"
+            "a:hover {\n"
+            "    text-decoration: underline;\n"
             "}\n";
+
     }
 
     if (body.empty())
