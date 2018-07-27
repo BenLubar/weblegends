@@ -65,7 +65,7 @@ static bool render_list(std::ostream & s, int32_t page, const std::string & pref
         return false;
     }
 
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << title << ", page " << page << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"></head><body><h1>" << title << "</h1><ul>";
+    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << title << ", page " << page << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"style.css\"></head><body><h1>" << title << "</h1><ul>";
     for (auto it = begin + (page * items_per_page); it != get_vector<T>().end() && it != begin + ((page + 1) * items_per_page); it++)
     {
         s << "<li>";
