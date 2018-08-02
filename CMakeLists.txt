@@ -29,6 +29,9 @@ endif()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${git_describe_tmp_h} ${git_describe_h})
 
+include_directories(thirdparty/embed-resource)
+add_subdirectory(thirdparty/embed-resource EXCLUDE_FROM_ALL)
+
 SET(PROJECT_SRCS
     weblegends.cpp
     server.cpp
@@ -60,6 +63,16 @@ SET(PROJECT_HDRS
 SET_SOURCE_FILES_PROPERTIES( ${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 LIST(APPEND PROJECT_SRCS ${PROJECT_HDRS})
+
+SET(PROJECT_EMBEDDED
+    style.css
+)
+
+EMBED_RESOURCES(PROJECT_EMBEDDED_SRCS ${PROJECT_EMBEDDED})
+
+SET_SOURCE_FILES_PROPERTIES( ${PROJECT_EMBEDDED_SRCS} PROPERTIES GENERATED TRUE)
+
+LIST(APPEND PROJECT_SRCS ${PROJECT_EMBEDDED_SRCS})
 
 LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread)
 

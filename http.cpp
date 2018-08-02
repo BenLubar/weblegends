@@ -1,4 +1,5 @@
 #include "weblegends.h" 
+#include "Resource.h"
 
 #include <functional>
 #include <iostream>
@@ -337,24 +338,9 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
 
     if (url == "/style.css")
     {
-        // Use Google Font if internet available, otherwise fall back to OS supplied font
-        // Varela Round Google Font: https://fonts.google.com/specimen/Varela+Round
         type = "text/css";
-        body = "@import url('https://fonts.googleapis.com/css?family=Varela+Round');\n"
-            ".map {\n"
-            "    max-width: 500px;\n"
-            "    border: 1px solid;\n"
-            "    float: right;\n"
-            "}\n"
-            "body {\n"
-            "    font-family: 'Varela Round', Verdana, Geneva, sans-serif;\n"
-            "}\n"
-            "a {\n"
-            "    text-decoration: none;\n"
-            "}\n"
-            "a:hover {\n"
-            "    text-decoration: underline;\n"
-            "}\n";
+        static Resource stylesheet = LOAD_RESOURCE(style_css);
+        body = stylesheet.toString();
     }
 
     if (body.empty())

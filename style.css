@@ -1,0 +1,18 @@
+/* Use Google Font if internet available, otherwise fall back to OS supplied font
+ * Varela Round Google Font: https://fonts.google.com/specimen/Varela+Round */
+
+@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+.map {
+    max-width: 500px;
+    border: 1px solid;
+    float: right;
+}
+body {
+    font-family: 'Varela Round', Verdana, Geneva, sans-serif;
+}
+a {
+    text-decoration: none;
+}
+a:hover {
+    text-decoration: underline;
+}

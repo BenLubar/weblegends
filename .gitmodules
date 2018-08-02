@@ -1,0 +1,4 @@
+[submodule "thirdparty/embed-resource"]
+	path = thirdparty/embed-resource
+	url = ../../CogentEmbedded/embed-resource.git
+	branch = cpp_11_compatibility
