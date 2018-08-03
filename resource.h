@@ -22,6 +22,6 @@ private:
 };
 
 #define DECLARE_RESOURCE(name) \
-    extern "C" extern const char _resource_##name[]; \
-    extern "C" extern const size_t _resource_##name##_len; \
+    extern "C" const char _resource_##name[]; \
+    extern "C" const size_t _resource_##name##_len; \
     const static Resource name(_resource_##name, _resource_##name##_len)
