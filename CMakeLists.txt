@@ -29,7 +29,6 @@ endif()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${git_describe_tmp_h} ${git_describe_h})
 
-include_directories(thirdparty/embed-resource)
 add_subdirectory(thirdparty/embed-resource EXCLUDE_FROM_ALL)
 
 SET(PROJECT_SRCS
@@ -56,6 +55,7 @@ SET(PROJECT_HDRS
     weblegends.h
     helpers.h
     debug.h
+    resource.h
     weblegends-plugin.h
     weblegends-git-describe.h
 )

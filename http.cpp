@@ -1,5 +1,5 @@
 #include "weblegends.h" 
-#include "Resource.h"
+#include "resource.h"
 
 #include <functional>
 #include <iostream>
@@ -339,7 +339,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
     if (url == "/style.css")
     {
         type = "text/css";
-        static Resource stylesheet = LOAD_RESOURCE(style_css);
+        const static auto stylesheet = LOAD_RESOURCE(style_css);
         body = stylesheet.toString();
     }
 
