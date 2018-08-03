@@ -21,8 +21,7 @@ private:
     const size_t data_len;
 };
 
-#define LOAD_RESOURCE(RESOURCE) ([]() -> Resource && { \
-    extern "C" const char _resource_##RESOURCE[]; \
-    extern "C" const size_t _resource_##RESOURCE##_len; \
-    return Resource(_resource_##RESOURCE, _resource_##RESOURCE##_len); \
-})()
+#define DECLARE_RESOURCE(name) \
+    extern "C" extern const char _resource_##name[]; \
+    extern "C" extern const size_t _resource_##name##_len; \
+    const static Resource name(_resource_##name, _resource_##name##_len)

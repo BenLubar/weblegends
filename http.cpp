@@ -230,6 +230,8 @@ static bool is_world_loaded()
     return true;
 }
 
+DECLARE_RESOURCE(style_css);
+
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
     if (!is_world_loaded())
@@ -339,8 +341,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
     if (url == "/style.css")
     {
         type = "text/css";
-        const static auto stylesheet = LOAD_RESOURCE(style_css);
-        body = stylesheet.toString();
+        body = style_css.toString();
     }
 
     if (body.empty())
