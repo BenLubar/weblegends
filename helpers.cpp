@@ -768,6 +768,13 @@ void categorize(std::ostream & s, df::world_data *, bool, bool)
     s << " world";
 }
 
+void add_styles_and_scripts(std::ostream & s)
+{
+    s << "<link rel=\"stylesheet\" href=\"style.css\">";
+    s << "<script type=\"text/javascript\" src=\"jquery.js\"></script>";
+    return;
+}
+
 template<typename T>
 void simple_header_impl(std::ostream & s, T subject, bool sub = false)
 {
@@ -782,7 +789,11 @@ void simple_header_impl(std::ostream & s, T subject, bool sub = false)
         s << "unnamed";
         categorize(s, subject, true, true);
     }
-    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "<link rel=\"stylesheet\" href=\"style.css\"></head><body><h1>";
+    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "");
+    
+    add_styles_and_scripts(s);
+    
+    s << "</head><body><h1>";
     if (name.has_name)
     {
         std::string native = Translation::TranslateName(&name, false, false);

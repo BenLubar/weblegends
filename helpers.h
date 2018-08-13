@@ -74,6 +74,7 @@ const df::language_name & get_name(df::type *name); \
 void link(std::ostream & s, df::type *name); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
 void categorize(std::ostream & s, df::type *name, bool in_link = false, bool in_attr = false); \
+void add_styles_and_scripts(std::ostream & s); \
 void simple_header(std::ostream & s, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE

@@ -231,6 +231,7 @@ static bool is_world_loaded()
 }
 
 DECLARE_RESOURCE(style_css);
+DECLARE_RESOURCE(jquery_js);
 
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
@@ -264,6 +265,7 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         else if (check_page(s, url, "/eras-", render_era_list)) {}
         else if (check_id(s, url, "/era-", render_era)) {}
         else if (url == "/style.css") {}
+        else if (url == "/jquery.js") {}
         else
         {
             size_t pos = url.find('/', 1);
@@ -343,7 +345,13 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         type = "text/css";
         body = style_css.toString();
     }
-
+    
+    if (url == "/jquery.js") 
+    {
+        type = "text/javascript";
+        body = jquery_js.toString();
+    }
+    
     if (body.empty())
     {
         not_found(sock, method, url, http1Point, keepAlive);
