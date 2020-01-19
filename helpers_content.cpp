@@ -988,6 +988,9 @@ void value_level(std::ostream & s, df::value_type type, int32_t level)
     BEFORE_SWITCH(value, type);
     switch (value)
     {
+    case value_type::NONE:
+        s << "(no value)";
+        BREAK(value);
     case value_type::LAW:
         if (level > 40)
         {
