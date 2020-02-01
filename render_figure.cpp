@@ -494,6 +494,16 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                 link(s, site);
                 s << ", home";
                 BREAK(link_type);
+            case histfig_site_link_type::PRISON_ABSTRACT_BUILDING:
+                // TODO: int32_t sub_id;
+                link(s, site);
+                s << ", prison";
+                BREAK(link_type);
+            case histfig_site_link_type::PRISON_SITE_BUILDING_PROFILE:
+                // TODO: int32_t sub_id;
+                link(s, site);
+                s << ", prison";
+                BREAK(link_type);
             }
             AFTER_SWITCH(link_type, stl_sprintf("fig-%d target=site-%d", id, (*it)->site));
             s << "</li>";

@@ -2036,6 +2036,12 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
         do_event_missing(s, context, event, __LINE__);
         BREAK(type);
+    case histfig_site_link_type::PRISON_ABSTRACT_BUILDING:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::PRISON_SITE_BUILDING_PROFILE:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_SITE_LINK)", event->id));
     event_link(s, context, structure);
@@ -2084,6 +2090,12 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         do_event_missing(s, context, event, __LINE__);
         BREAK(type);
     case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::PRISON_ABSTRACT_BUILDING:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
+    case histfig_site_link_type::PRISON_SITE_BUILDING_PROFILE:
         do_event_missing(s, context, event, __LINE__);
         BREAK(type);
     }
