@@ -35,6 +35,7 @@ SET(PROJECT_SRCS
     weblegends.cpp
     server.cpp
     http.cpp
+    export.cpp
     helpers.cpp
     helpers_content.cpp
     helpers_event.cpp

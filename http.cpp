@@ -209,7 +209,7 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
     });
 }
 
-static bool is_world_loaded()
+bool WebLegends::is_world_loaded()
 {
     if (!Core::getInstance().isWorldLoaded())
     {
@@ -232,6 +232,90 @@ static bool is_world_loaded()
 
 DECLARE_RESOURCE(style_css);
 
+bool WebLegends::request(weblegends_handler_v1 & response, const std::string & url)
+{
+    std::ostringstream s;
+    bool legacy = true;
+    if (url == "/") { render_home(s); }
+    else if (check_page(s, url, "/ents-", render_entity_list)) {}
+    else if (check_id(s, url, "/ent-", render_entity)) {}
+    else if (check_page(s, url, "/figs-", render_figure_list)) {}
+    else if (check_id(s, url, "/fig-", render_figure)) {}
+    else if (check_page(s, url, "/items-", render_item_list)) {}
+    else if (check_id(s, url, "/item-", render_item)) {}
+    else if (check_page(s, url, "/regions-", render_region_list)) {}
+    else if (check_id(s, url, "/region-", render_region)) {}
+    else if (check_page(s, url, "/sites-", render_site_list)) {}
+    else if (check_id(s, url, "/site-", render_site)) {}
+    else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
+    else if (check_page(s, url, "/layers-", render_layer_list)) {}
+    else if (check_id(s, url, "/layer-", render_layer)) {}
+    else if (check_page(s, url, "/eras-", render_era_list)) {}
+    else if (check_id(s, url, "/era-", render_era)) {}
+    else { legacy = false; }
+
+    if (legacy)
+    {
+        auto str = s.str();
+        if (str.empty())
+            return false;
+
+        response.cp437_out() << str;
+        return true;
+    }
+
+    if (url == "/style.css")
+    {
+        response.headers()["Content-Type"] = "text/css; charset=utf-8";
+        response.raw_out().write(style_css.data(), style_css.size());
+        return true;
+    }
+
+    size_t pos = url.find_first_of("/?", 1);
+
+    std::string prefix, rest;
+    if (pos == std::string::npos)
+    {
+        prefix = url.substr(1);
+        rest = "";
+    }
+    else
+    {
+        prefix = url.substr(1, pos - 1);
+        rest = url.substr(pos);
+    }
+
+    CoreSuspender suspend;
+    auto handlers_1 = get_handlers_v1();
+    if (handlers_1 != nullptr)
+    {
+        auto handler = handlers_1->find(prefix);
+        if (handler != handlers_1->end())
+        {
+            return handler->second.second(response, rest);
+        }
+    }
+
+    auto handlers_0 = get_handlers_v0();
+    if (handlers_0 != nullptr)
+    {
+        auto handler = handlers_0->find(prefix);
+        if (handler != handlers_0->end())
+        {
+            handler->second.second(s, rest);
+
+            auto str = s.str();
+            if (str.empty())
+                return false;
+
+            response.cp437_out() << str;
+            return true;
+        }
+    }
+
+    return false;
+}
+
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
     if (!is_world_loaded())
@@ -240,92 +324,14 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         return;
     }
 
-    std::ostringstream s;
+    weblegends_handler_v1_impl response;
 
     try
     {
-        if (url == "/")
+        if (!request(response, url))
         {
-            render_home(s);
-        }
-        else if (check_page(s, url, "/ents-", render_entity_list)) {}
-        else if (check_id(s, url, "/ent-", render_entity)) {}
-        else if (check_page(s, url, "/figs-", render_figure_list)) {}
-        else if (check_id(s, url, "/fig-", render_figure)) {}
-        else if (check_page(s, url, "/items-", render_item_list)) {}
-        else if (check_id(s, url, "/item-", render_item)) {}
-        else if (check_page(s, url, "/regions-", render_region_list)) {}
-        else if (check_id(s, url, "/region-", render_region)) {}
-        else if (check_page(s, url, "/sites-", render_site_list)) {}
-        else if (check_id(s, url, "/site-", render_site)) {}
-        else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
-        else if (check_page(s, url, "/layers-", render_layer_list)) {}
-        else if (check_id(s, url, "/layer-", render_layer)) {}
-        else if (check_page(s, url, "/eras-", render_era_list)) {}
-        else if (check_id(s, url, "/era-", render_era)) {}
-        else if (url == "/style.css") {}
-        else
-        {
-            size_t pos = url.find_first_of("/?", 1);
-
-            std::string prefix, rest;
-            if (pos == std::string::npos)
-            {
-                prefix = url.substr(1);
-                rest = "";
-            }
-            else
-            {
-                prefix = url.substr(1, pos - 1);
-                rest = url.substr(pos);
-            }
-
-            CoreSuspender suspend;
-            auto handlers_1 = get_handlers_v1();
-            if (handlers_1 != nullptr)
-            {
-                auto handler = handlers_1->find(prefix);
-                if (handler != handlers_1->end())
-                {
-                    weblegends_handler_v1_impl impl;
-                    if (handler->second.second(impl, rest))
-                    {
-                        std::string body = impl.body_raw.str();
-                        if (!body.empty())
-                        {
-                            std::ostringstream header;
-                            header << "HTTP/1." << http1Point << " " << impl.current_status_code << " " << impl.current_status_description << "\r\n";
-                            impl.current_headers.erase("Content-Length");
-                            impl.current_headers.erase("Connection");
-                            for (auto h : impl.current_headers)
-                            {
-                                header << h.first << ": " << h.second << "\r\n";
-                            }
-                            header << "Content-Length: " << body.length() << "\r\n";
-                            header << "Connection: " << (keepAlive ? "keep-alive" : "close") << "\r\n";
-                            header << "\r\n";
-
-                            std::string transport = method == "HEAD" ? header.str() : header.str() + body;
-                            if (size_t(sock->Send((const uint8_t *)transport.c_str(), transport.length())) != transport.length())
-                            {
-                                std::cerr << "weblegends send 200 " << url << ": " << sock->GetSocketError() << std::endl;
-                                std::cerr << sock->DescribeError() << std::endl;
-                            }
-                            return;
-                        }
-                    }
-                }
-            }
-
-            auto handlers_0 = get_handlers_v0();
-            if (handlers_0 != nullptr)
-            {
-                auto handler = handlers_0->find(prefix);
-                if (handler != handlers_0->end())
-                {
-                    handler->second.second(s, rest);
-                }
-            }
+            not_found(sock, method, url, http1Point, keepAlive);
+            return;
         }
     }
     catch (...)
@@ -334,26 +340,27 @@ void WebLegends::handle(CActiveSocket *sock, const std::string & method, const s
         throw;
     }
 
-    std::string type = "text/html";
-    std::string body = DF2UTF(s.str());
-
-    if (url == "/style.css")
+    std::ostringstream transport;
+    transport << "HTTP/1." << http1Point << " " << response.current_status_code << " " << response.current_status_description << "\r\n";
+    response.current_headers.erase("Content-Length");
+    response.current_headers.erase("Connection");
+    for (auto h : response.current_headers)
     {
-        type = "text/css";
-        body = style_css.toString();
+        transport << h.first << ": " << h.second << "\r\n";
+    }
+    auto body = response.body_raw.str();
+    transport << "Content-Length: " << body.length() << "\r\n";
+    transport << "Connection: " << (keepAlive ? "keep-alive" : "close") << "\r\n";
+    transport << "\r\n";
+    if (method != "HEAD")
+    {
+        transport << body;
     }
 
-    if (body.empty())
+    std::string transport_str = transport.str();
+    if (size_t(sock->Send((const uint8_t *)transport_str.c_str(), transport_str.length())) != transport_str.length())
     {
-        not_found(sock, method, url, http1Point, keepAlive);
-        return;
-    }
-
-    std::string header = stl_sprintf("HTTP/1.%c 200 OK\r\nContent-Type: %s; charset=utf-8\r\nContent-Length: %zu\r\nConnection: %s\r\n\r\n", http1Point, type.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
-    std::string transport = method == "HEAD" ? header : (header + body);
-    if (sock->Send((const uint8_t *)transport.c_str(), transport.length()) != int32_t(transport.length()))
-    {
-        std::cerr << "weblegends send 200 " << url << ": " << sock->GetSocketError() << std::endl;
+        std::cerr << "weblegends send " << response.current_status_code << " " << url << ": " << sock->GetSocketError() << std::endl;
         std::cerr << sock->DescribeError() << std::endl;
     }
 }

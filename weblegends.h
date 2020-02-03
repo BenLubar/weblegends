@@ -48,6 +48,9 @@ public:
 
     command_result init(color_ostream & out);
     command_result shutdown(color_ostream & out);
+    command_result export_all(color_ostream & out, const std::string & folder);
+    command_result export_recursive(color_ostream & out, std::set<std::string> & exported, const std::string & folder, const std::string & url);
+    command_result export_linked_pages(color_ostream & out, std::set<std::string> & exported, const std::string & folder, const std::string & url, std::string & body);
 
 protected:
     void mark(Client *c);
@@ -70,7 +73,9 @@ private:
     }
 
     void handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive);
+    bool request(weblegends_handler_v1 & response, const std::string & url);
 
+    static bool is_world_loaded();
     static void render_home(std::ostream & s);
     static bool render_entity(std::ostream & s, int32_t id, int32_t page);
     static bool render_era(std::ostream & s, int32_t id, int32_t page);

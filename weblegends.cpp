@@ -4,8 +4,27 @@ DFHACK_PLUGIN("weblegends");
 
 static WebLegends *weblegends = nullptr;
 
-DFhackCExport command_result plugin_init(color_ostream & out, std::vector<PluginCommand> &)
+static command_result export_command(color_ostream & out, std::vector<std::string> & args)
 {
+    if (args.size() != 1)
+    {
+        return CR_WRONG_USAGE;
+    }
+
+    return weblegends->export_all(out, args.at(0));
+}
+
+DFhackCExport command_result plugin_init(color_ostream & out, std::vector<PluginCommand> & commands)
+{
+    commands.push_back(PluginCommand(
+        "weblegends-export",
+        "exports a full weblegends site to a folder",
+        export_command,
+        false,
+        "weblegends-export [folder-name]\n"
+        "  exports a full weblegends site to a folder"
+    ));
+
     weblegends = new WebLegends();
     return weblegends->init(out);
 }
