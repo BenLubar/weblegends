@@ -13,6 +13,15 @@ print('Running tests')
 
 print('Running file: main')
 local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
+
+local warnings = io.open('weblegends_debug.log', 'r')
+if warnings ~= nil then
+    for line in warnings:lines() do
+        print('warning: ' .. line)
+    end
+    warnings:close()
+end
+
 if status == CR_OK then
     print('test passed: weblegends-export')
 else
