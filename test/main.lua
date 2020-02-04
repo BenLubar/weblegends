@@ -18,7 +18,7 @@ while dfhack.gui.getCurFocus() == 'movieplayer' do
 end
 
 local found = false
-local title_screen = dfhack.getCurViewscreen()
+local title_screen = dfhack.gui.getCurViewscreen()
 for idx, item in ipairs(title_screen.menu_line_id) do
     if item == df.viewscreen_titlest.T_menu_line_id.Start then
         found = true
@@ -35,7 +35,7 @@ if not found then
             gui.simulateInput(title_screen, 'SELECT')
             script.sleep(1, 'frames')
 
-            local new_region = dfhack.getCurViewscreen()
+            local new_region = dfhack.gui.getCurViewscreen()
             while new_region.load_world_params do
                 script.sleep(1, 'frames')
             end
@@ -60,7 +60,7 @@ if not found then
         end
     end
 
-    title_screen = dfhack.getCurViewscreen()
+    title_screen = dfhack.gui.getCurViewscreen()
     for idx, item in ipairs(title_screen.menu_line_id) do
         if item == df.viewscreen_titlest.T_menu_line_id.Start then
             title_screen.sel_menu_line = idx
