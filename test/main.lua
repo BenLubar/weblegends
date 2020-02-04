@@ -85,12 +85,13 @@ end
 local legends = dfhack.gui.getCurViewscreen()
 -- FIXME: this condition is wrong and assumes uninitialized memory is nonzero
 while legends.cur_page ~= 0 or legends.main_cursor ~= 0 do
-    printall(legends)
     script.sleep(1, 'frames')
 end
 print('test passed: open-world')
 
 print('Running file: main')
+-- don't re-run this test
+set_test_stage('done')
 local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
 
 local warnings = io.open('weblegends_debug.log', 'r')
@@ -107,7 +108,6 @@ else
     dfhack.printerr('test errored: weblegends-export: status=' .. tostring(status))
 end
 
-set_test_stage('done')
 dfhack.run_command('die')
 
 end)
