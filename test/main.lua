@@ -45,7 +45,7 @@ if not found then
                 script.sleep(1, 'frames')
             end
 
-            new_region.world_size = 2
+            new_region.world_size = 0
             gui.simulateInput(new_region, 'MENU_CONFIRM')
             while #df.global.world.entities.all == 0 and new_region.simple_mode == 0 and df.global.world.worldgen_status.state ~= 10 do
                 script.sleep(1, 'frames')
