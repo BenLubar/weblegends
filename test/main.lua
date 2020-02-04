@@ -47,7 +47,7 @@ if not found then
 
             new_region.world_size = 0
             gui.simulateInput(new_region, 'MENU_CONFIRM')
-            while #df.global.world.entities.all == 0 and new_region.simple_mode == 0 and df.global.world.worldgen_status.state ~= 10 do
+            while #df.global.world.entities.all == 0 or new_region.simple_mode == 0 or df.global.world.worldgen_status.state ~= 10 do
                 script.sleep(1, 'frames')
             end
             gui.simulateInput(new_region, 'SELECT')
@@ -59,6 +59,7 @@ if not found then
             break
         end
     end
+    script.sleep(100, 'frames')
 
     title_screen = dfhack.gui.getCurViewscreen()
     for idx, item in ipairs(title_screen.menu_line_id) do
@@ -74,10 +75,17 @@ gui.simulateInput(title_screen, 'SELECT')
 script.sleep(1, 'frames')
 
 -- try to start in legends mode
-title_screen.sel_menu_line = 2
+gui.simulateInput(title_screen, 'STANDARDSCROLL_UP')
+script.sleep(1, 'frames')
 gui.simulateInput(title_screen, 'SELECT')
 
-while dfhack.gui.getCurFocus() == 'adopt_region' do
+while dfhack.gui.getCurFocus() ~= 'legends' do
+    script.sleep(1, 'frames')
+end
+local legends = dfhack.gui.getCurViewscreen()
+-- FIXME: this condition is wrong and assumes uninitialized memory is nonzero
+while legends.cur_page ~= 0 or legends.main_cursor ~= 0 do
+    printall(legends)
     script.sleep(1, 'frames')
 end
 print('test passed: open-world')
