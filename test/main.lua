@@ -26,8 +26,6 @@ if status == CR_OK then
     print('test passed: weblegends-export')
 else
     dfhack.printerr('test errored: weblegends-export: status=' .. tostring(status))
-    set_test_stage('fail')
-    dfhack.run_command('die')
 end
 
 set_test_stage('done')
