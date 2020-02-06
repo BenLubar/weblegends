@@ -2206,6 +2206,16 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " was adopted as the pet of ";
         event_link(s, context, hf_target);
         BREAK(type);
+    case histfig_hf_link_type::FORMER_SPOUSE:
+        event_link(s, context, hf);
+        s << " was no longer the spouse of ";
+        event_link(s, context, hf_target);
+        BREAK(type);
+    case histfig_hf_link_type::DECEASED_SPOUSE:
+        event_link(s, context, hf);
+        s << " became the deceased spouse of ";
+        event_link(s, context, hf_target);
+        BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_HF_LINK)", event->id));
 }

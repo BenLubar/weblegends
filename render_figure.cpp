@@ -194,6 +194,12 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     }
                     s << ", owner";
                     BREAK(link_type);
+                case histfig_hf_link_type::FORMER_SPOUSE:
+                    s << ", former spouse";
+                    BREAK(link_type);
+                case histfig_hf_link_type::DECEASED_SPOUSE:
+                    s << ", deceased spouse";
+                    BREAK(link_type);
                 }
                 AFTER_SWITCH(link_type, stl_sprintf("fig-%d target=fig-%d", id, (*it)->target_hf));
                 born_died(s, target);
