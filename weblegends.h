@@ -1,5 +1,6 @@
 #pragma once
 
+#include <queue>
 #include <typeinfo>
 
 #include "Core.h"
@@ -49,8 +50,8 @@ public:
     command_result init(color_ostream & out);
     command_result shutdown(color_ostream & out);
     command_result export_all(color_ostream & out, const std::string & folder);
-    command_result export_recursive(color_ostream & out, std::set<std::string> & exported, const std::string & folder, const std::string & url);
-    command_result export_linked_pages(color_ostream & out, std::set<std::string> & exported, const std::string & folder, const std::string & url, std::string & body);
+    command_result export_recursive(color_ostream & out, std::set<std::string> & exported, std::queue<std::string> & queue, const std::string & folder);
+    void queue_linked_pages(std::queue<std::string> & queue, const std::string & url, std::string & body);
 
 protected:
     void mark(Client *c);
