@@ -487,7 +487,7 @@ static void do_identity(std::ostream & s, const event_context & context, df::his
             identity->name.language != hf->name.language :
             hf->name.has_name;
         bool fake_birthdate = identity->birth_year != hf->born_year || identity->birth_second != hf->born_seconds;
-        bool fake_race_caste = identity->race != hf->race || identity->caste != hf->caste;
+        bool fake_race_caste = (identity->race != hf->race && identity->race != -1) || (identity->caste != hf->caste && identity->caste != -1);
         bool fake_civ = identity->civ != hf->civ_id;
         bool fake_profession = identity->profession != hf->profession;
 
