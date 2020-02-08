@@ -440,6 +440,12 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
     case historical_entity_type::PerformanceTroupe:
         s << " performance troupe";
         BREAK(type);
+    case historical_entity_type::MerchantCompany:
+        s << " merchant company";
+        BREAK(type);
+    case historical_entity_type::Guild:
+        s << " guild";
+        BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("ent-%d", ent->id));
 }
@@ -680,19 +686,22 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
             BEFORE_SWITCH(subtype, site->subtype_info->lair_type);
             switch (subtype)
             {
-            case 0:
+            case lair_type::NONE:
+                s << " lair";
+                break;
+            case lair_type::SIMPLE_MOUND:
                 s << " lair"; // night creatures
                 BREAK(subtype);
-            case 1:
+            case lair_type::SIMPLE_BURROW:
                 s << " lair";
                 BREAK(subtype);
-            case 2:
+            case lair_type::LABYRINTH:
                 s << " monument";
                 BREAK(subtype);
-            case 3:
+            case lair_type::SHRINE:
                 s << " shrine";
                 BREAK(subtype);
-            case 4:
+            case lair_type::WILDERNESS_LOCATION:
                 s << " nest";
                 BREAK(subtype);
             }
@@ -704,9 +713,27 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         }
         BREAK(type);
     case world_site_type::Fortress:
-        if (site->subtype_info != nullptr && site->subtype_info->is_tower == 1)
+        if (site->subtype_info)
         {
-            s << " tower";
+            BEFORE_SWITCH(subtype, site->subtype_info->fortress_type);
+            switch (subtype)
+            {
+            case fortress_type::NONE:
+                break;
+            case fortress_type::CASTLE:
+                s << " castle";
+                BREAK(subtype);
+            case fortress_type::TOWER:
+                s << " tower";
+                BREAK(subtype);
+            case fortress_type::MONASTERY:
+                s << " monastery";
+                BREAK(subtype);
+            case fortress_type::FORT:
+                s << " fort";
+                BREAK(subtype);
+            }
+            AFTER_SWITCH(subtype, stl_sprintf("site-%d (fortress)", site->id));
         }
         else
         {
@@ -719,13 +746,16 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
     case world_site_type::Monument:
         if (site->subtype_info)
         {
-            BEFORE_SWITCH(subtype, site->subtype_info->is_monument);
+            BEFORE_SWITCH(subtype, site->subtype_info->monument_type);
             switch (subtype)
             {
-            case 0:
+            case monument_type::NONE:
+                s << "monument";
+                break;
+            case monument_type::TOMB:
                 s << " tomb";
                 BREAK(subtype);
-            case 1:
+            case monument_type::VAULT:
                 s << " vault";
                 BREAK(subtype);
             }
