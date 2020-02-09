@@ -3600,12 +3600,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case goal_type::MAKE_A_GREAT_DISCOVERY:
         s << " began dreaming of making a great discovery";
         BREAK(goal);
-    case goal_type::ATTAINING_RANK_IN_SOCIETY:
-        do_event_missing(s, context, event, __LINE__);
-        BREAK(goal);
-    case goal_type::BATHING_THE_WORLD_IN_CHAOS:
-        do_event_missing(s, context, event, __LINE__);
-        BREAK(goal);
     }
     AFTER_SWITCH(goal, stl_sprintf("event-%d (HF_GAINS_SECRET_GOAL)", event->id));
 }
