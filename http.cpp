@@ -105,9 +105,9 @@ bool WebLegends::http(CActiveSocket *sock, std::string & request)
     return true;
 }
 
-static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body, char http1Point, bool keepAlive)
+static void http_error(CActiveSocket *sock, const std::string & method, const std::string & url, int status_code, const std::string & status_phrase, const std::string & body, char http1Point, bool keepAlive, const std::string & extra_headers = std::string())
 {
-    std::string header = stl_sprintf("HTTP/1.%c %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %zu\r\nConnection: %s\r\n\r\n", http1Point, status_code, status_phrase.c_str(), body.length(), keepAlive ? "keep-alive" : "close");
+    std::string header = stl_sprintf("HTTP/1.%c %d %s\r\nContent-Type: text/plain; charset=utf-8\r\nContent-Length: %zu\r\nConnection: %s\r\n%s\r\n", http1Point, status_code, status_phrase.c_str(), body.length(), keepAlive ? "keep-alive" : "close", extra_headers.c_str());
     std::string payload = method == "HEAD" ? header : (header + body);
     if (sock->Send((const uint8_t *)payload.c_str(), payload.length()) != int32_t(payload.length()))
     {
@@ -318,9 +318,15 @@ bool WebLegends::request(weblegends_handler_v1 & response, const std::string & u
 
 void WebLegends::handle(CActiveSocket *sock, const std::string & method, const std::string & url, char http1Point, bool keepAlive)
 {
+    if (method != "GET" && method != "HEAD")
+    {
+        http_error(sock, method, url, 405, "Method Not Allowed", "Method \"" + method + "\" not allowed.", http1Point, keepAlive, "Allow: GET, HEAD\r\n");
+        return;
+    }
+
     if (!is_world_loaded())
     {
-        http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.", http1Point, keepAlive);
+        http_error(sock, method, url, 503, "Service Unavailable", "No world loaded.", http1Point, keepAlive, "Retry-After: 5\r\nRefresh: 5\r\n");
         return;
     }
 
