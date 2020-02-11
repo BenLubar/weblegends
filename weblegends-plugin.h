@@ -128,13 +128,8 @@ static inline void weblegends_describe_event(std::ostream & out, df::history_eve
         }
 
         static df::history_event_context context;
-        context.anon_1 = 0;
-        context.anon_2 = 0;
-        context.histfig_id_talker = -1;
-        context.histfig_id_listener = -1;
-
         std::string str;
-        event->getSentence(&str, &context, 1, 0);
+        event->getSentence(&str, &context);
         out << str;
         return;
     }

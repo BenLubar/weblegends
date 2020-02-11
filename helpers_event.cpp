@@ -22,6 +22,8 @@
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_event.h"
+#include "df/history_event_add_entity_site_profile_flagst.h"
+#include "df/history_event_add_hf_entity_honorst.h"
 #include "df/history_event_add_hf_entity_linkst.h"
 #include "df/history_event_add_hf_hf_linkst.h"
 #include "df/history_event_add_hf_site_linkst.h"
@@ -43,6 +45,7 @@
 #include "df/history_event_artifact_transformedst.h"
 #include "df/history_event_assume_identityst.h"
 #include "df/history_event_body_abusedst.h"
+#include "df/history_event_building_profile_acquiredst.h"
 #include "df/history_event_ceremonyst.h"
 #include "df/history_event_change_creature_typest.h"
 #include "df/history_event_change_hf_body_statest.h"
@@ -59,28 +62,43 @@
 #include "df/history_event_dance_form_createdst.h"
 #include "df/history_event_diplomat_lostst.h"
 #include "df/history_event_entity_actionst.h"
+#include "df/history_event_entity_alliance_formedst.h"
+#include "df/history_event_entity_breach_feature_layerst.h"
 #include "df/history_event_entity_createdst.h"
+#include "df/history_event_entity_dissolvedst.h"
+#include "df/history_event_entity_equipment_purchasest.h"
 #include "df/history_event_entity_expels_hfst.h"
 #include "df/history_event_entity_fled_sitest.h"
 #include "df/history_event_entity_incorporatedst.h"
 #include "df/history_event_entity_lawst.h"
+#include "df/history_event_entity_overthrownst.h"
+#include "df/history_event_entity_persecutedst.h"
 #include "df/history_event_entity_rampaged_in_sitest.h"
 #include "df/history_event_entity_razed_buildingst.h"
 #include "df/history_event_entity_searched_sitest.h"
+#include "df/history_event_failed_frame_attemptst.h"
+#include "df/history_event_failed_intrigue_corruptionst.h"
 #include "df/history_event_first_contact_failedst.h"
 #include "df/history_event_first_contactst.h"
+#include "df/history_event_gamblest.h"
 #include "df/history_event_hf_act_on_artifactst.h"
 #include "df/history_event_hf_act_on_buildingst.h"
 #include "df/history_event_hf_attacked_sitest.h"
 #include "df/history_event_hf_confrontedst.h"
+#include "df/history_event_hf_convictedst.h"
 #include "df/history_event_hf_destroyed_sitest.h"
 #include "df/history_event_hf_does_interactionst.h"
+#include "df/history_event_hf_enslavedst.h"
 #include "df/history_event_hf_freedst.h"
 #include "df/history_event_hf_gains_secret_goalst.h"
+#include "df/history_event_hf_interrogatedst.h"
 #include "df/history_event_hf_learns_secretst.h"
+#include "df/history_event_hf_preachst.h"
+#include "df/history_event_hf_ransomedst.h"
 #include "df/history_event_hf_razed_buildingst.h"
 #include "df/history_event_hf_recruited_unit_type_for_entityst.h"
 #include "df/history_event_hf_relationship_deniedst.h"
+#include "df/history_event_hfs_formed_intrigue_relationshipst.h"
 #include "df/history_event_hfs_formed_reputation_relationshipst.h"
 #include "df/history_event_hist_figure_abductedst.h"
 #include "df/history_event_hist_figure_diedst.h"
@@ -105,6 +123,7 @@
 #include "df/history_event_masterpiece_created_itemst.h"
 #include "df/history_event_masterpiece_lostst.h"
 #include "df/history_event_merchantst.h"
+#include "df/history_event_modified_buildingst.h"
 #include "df/history_event_musical_form_createdst.h"
 #include "df/history_event_performancest.h"
 #include "df/history_event_poetic_form_createdst.h"
@@ -115,6 +134,7 @@
 #include "df/history_event_remove_hf_hf_linkst.h"
 #include "df/history_event_remove_hf_site_linkst.h"
 #include "df/history_event_replaced_buildingst.h"
+#include "df/history_event_sabotagest.h"
 #include "df/history_event_site_diedst.h"
 #include "df/history_event_site_disputest.h"
 #include "df/history_event_site_retiredst.h"
@@ -126,6 +146,7 @@
 #include "df/history_event_topicagreement_concludedst.h"
 #include "df/history_event_topicagreement_madest.h"
 #include "df/history_event_topicagreement_rejectedst.h"
+#include "df/history_event_tradest.h"
 #include "df/history_event_type.h"
 #include "df/history_event_war_attacked_sitest.h"
 #include "df/history_event_war_destroyed_sitest.h"
@@ -145,8 +166,8 @@
 #include "df/item_body_component.h"
 #include "df/item_constructed.h"
 #include "df/item_drinkst.h"
-#include "df/item_fishst.h"
 #include "df/item_fish_rawst.h"
+#include "df/item_fishst.h"
 #include "df/item_meatst.h"
 #include "df/itemdef_foodst.h"
 #include "df/itemdef_weaponst.h"
@@ -832,11 +853,7 @@ static void do_event_missing(std::ostream & s, const event_context &, df::histor
 {
     std::string df_description;
     df::history_event_context df_context;
-    df_context.anon_1 = -1;
-    df_context.anon_2 = -1;
-    df_context.histfig_id_talker = -1;
-    df_context.histfig_id_listener = -1;
-    event->getSentence(&df_description, &df_context, 1, 0);
+    event->getSentence(&df_description, &df_context);
     s << "<abbr title=\"" << html_escape(df_description) << "\">" << ENUM_KEY_STR(history_event_type, event->getType()) << ":" << event->id << "</abbr>";
 #ifdef WEBLEGENDS_DEBUG
     weblegends_debug_log() << "[weblegends] [helpers_event.cpp:" << line << "] missing event type handler for " << ENUM_KEY_STR(history_event_type, event->getType()) << ": event-" << event->id << ": " << df_description << std::endl;
@@ -3600,6 +3617,12 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case goal_type::MAKE_A_GREAT_DISCOVERY:
         s << " began dreaming of making a great discovery";
         BREAK(goal);
+    case goal_type::ATTAINING_RANK_IN_SOCIETY:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(goal);
+    case goal_type::BATHING_THE_WORLD_IN_CHAOS:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(goal);
     }
     AFTER_SWITCH(goal, stl_sprintf("event-%d (HF_GAINS_SECRET_GOAL)", event->id));
 }
@@ -5105,6 +5128,133 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     do_event_missing(s, context, event, __LINE__);
 }
 
+static void do_event(std::ostream & s, const event_context & context, df::history_event_tradest *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_add_entity_site_profile_flagst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_gamblest *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_add_hf_entity_honorst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_dissolvedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_equipment_purchasest *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_modified_buildingst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_building_profile_acquiredst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_preachst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_persecutedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_breach_feature_layerst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_alliance_formedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_ransomedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_enslavedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_sabotagest *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_entity_overthrownst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hfs_formed_intrigue_relationshipst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_failed_intrigue_corruptionst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_convictedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_failed_frame_attemptst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+static void do_event(std::ostream & s, const event_context & context, df::history_event_hf_interrogatedst *event)
+{
+    // TODO: fields
+    do_event_missing(s, context, event, __LINE__);
+}
+
+
 static void event_dispatch(std::ostream & s, const event_context & context, df::history_event *event)
 {
     if (event->seconds != -1)
@@ -5460,6 +5610,69 @@ static void event_dispatch(std::ostream & s, const event_context & context, df::
         BREAK(type);
     case history_event_type::ENTITY_EXPELS_HF:
         do_event(s, context, virtual_cast<df::history_event_entity_expels_hfst>(event));
+        BREAK(type);
+    case history_event_type::TRADE:
+        do_event(s, context, virtual_cast<df::history_event_tradest>(event));
+        BREAK(type);
+    case history_event_type::ADD_ENTITY_SITE_PROFILE_FLAG:
+        do_event(s, context, virtual_cast<df::history_event_add_entity_site_profile_flagst>(event));
+        BREAK(type);
+    case history_event_type::GAMBLE:
+        do_event(s, context, virtual_cast<df::history_event_gamblest>(event));
+        BREAK(type);
+    case history_event_type::ADD_HF_ENTITY_HONOR:
+        do_event(s, context, virtual_cast<df::history_event_add_hf_entity_honorst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_DISSOLVED:
+        do_event(s, context, virtual_cast<df::history_event_entity_dissolvedst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_EQUIPMENT_PURCHASE:
+        do_event(s, context, virtual_cast<df::history_event_entity_equipment_purchasest>(event));
+        BREAK(type);
+    case history_event_type::MODIFIED_BUILDING:
+        do_event(s, context, virtual_cast<df::history_event_modified_buildingst>(event));
+        BREAK(type);
+    case history_event_type::BUILDING_PROFILE_ACQUIRED:
+        do_event(s, context, virtual_cast<df::history_event_building_profile_acquiredst>(event));
+        BREAK(type);
+    case history_event_type::HF_PREACH:
+        do_event(s, context, virtual_cast<df::history_event_hf_preachst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_PERSECUTED:
+        do_event(s, context, virtual_cast<df::history_event_entity_persecutedst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_BREACH_FEATURE_LAYER:
+        do_event(s, context, virtual_cast<df::history_event_entity_breach_feature_layerst>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_ALLIANCE_FORMED:
+        do_event(s, context, virtual_cast<df::history_event_entity_alliance_formedst>(event));
+        BREAK(type);
+    case history_event_type::HF_RANSOMED:
+        do_event(s, context, virtual_cast<df::history_event_hf_ransomedst>(event));
+        BREAK(type);
+    case history_event_type::HF_ENSLAVED:
+        do_event(s, context, virtual_cast<df::history_event_hf_enslavedst>(event));
+        BREAK(type);
+    case history_event_type::SABOTAGE:
+        do_event(s, context, virtual_cast<df::history_event_sabotagest>(event));
+        BREAK(type);
+    case history_event_type::ENTITY_OVERTHROWN:
+        do_event(s, context, virtual_cast<df::history_event_entity_overthrownst>(event));
+        BREAK(type);
+    case history_event_type::HFS_FORMED_INTRIGUE_RELATIONSHIP:
+        do_event(s, context, virtual_cast<df::history_event_hfs_formed_intrigue_relationshipst>(event));
+        BREAK(type);
+    case history_event_type::FAILED_INTRIGUE_CORRUPTION:
+        do_event(s, context, virtual_cast<df::history_event_failed_intrigue_corruptionst>(event));
+        BREAK(type);
+    case history_event_type::HF_CONVICTED:
+        do_event(s, context, virtual_cast<df::history_event_hf_convictedst>(event));
+        BREAK(type);
+    case history_event_type::FAILED_FRAME_ATTEMPT:
+        do_event(s, context, virtual_cast<df::history_event_failed_frame_attemptst>(event));
+        BREAK(type);
+    case history_event_type::HF_INTERROGATED:
+        do_event(s, context, virtual_cast<df::history_event_hf_interrogatedst>(event));
         BREAK(type);
     }
     if (!type_found)
