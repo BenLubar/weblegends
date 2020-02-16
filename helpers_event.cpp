@@ -492,301 +492,10 @@ static bool do_weapon(std::ostream & s, const event_context & context, const df:
     return any;
 }
 
-static void do_identity(std::ostream & s, const event_context & context, df::historical_figure *histfig, df::identity *identity)
+static void do_identity(std::ostream & s, const event_context &, df::historical_figure *, df::identity *)
 {
-    if (!identity)
-    {
-        s << "[unknown identity]";
-    }
-    else if (auto hf = df::historical_figure::find(identity->histfig_id))
-    {
-        bool fake_name = identity->name.has_name ?
-            identity->name.first_name != hf->name.first_name ||
-            identity->name.nickname != hf->name.nickname ||
-            identity->name.words != hf->name.words ||
-            identity->name.parts_of_speech != hf->name.parts_of_speech ||
-            identity->name.language != hf->name.language :
-            hf->name.has_name;
-        bool fake_birthdate = identity->birth_year != hf->born_year || identity->birth_second != hf->born_seconds;
-        bool fake_race_caste = (identity->race != hf->race && identity->race != -1) || (identity->caste != hf->caste && identity->caste != -1);
-        bool fake_civ = identity->civ != hf->civ_id;
-        bool fake_profession = identity->profession != hf->profession;
-
-        if (hf == histfig)
-        {
-            if (!fake_name || fake_birthdate || fake_race_caste)
-            {
-                BEFORE_SWITCH(sex, histfig->sex);
-                switch (sex)
-                {
-                case -1:
-                    s << "itself";
-                    BREAK(sex);
-                case 0:
-                    s << "herself";
-                    BREAK(sex);
-                case 1:
-                    s << "himself";
-                    BREAK(sex);
-                }
-                AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, histfig->id));
-            }
-        }
-        else
-        {
-            event_link(s, context, hf);
-        }
-
-
-        if (hf == histfig && fake_name && !fake_birthdate && !fake_race_caste)
-        {
-            name_translated(s, identity->name);
-            s << ", a " << profession_name(hf, identity->profession) << " from ";
-            event_link(s, context, df::historical_entity::find(identity->civ));
-
-            if (fake_civ || fake_profession)
-            {
-                s << ", even though ";
-                BEFORE_SWITCH(sex, hf->sex);
-                switch (sex)
-                {
-                case -1:
-                    s << "it";
-                    BREAK(sex);
-                case 0:
-                    s << "she";
-                    BREAK(sex);
-                case 1:
-                    s << "he";
-                    BREAK(sex);
-                }
-                AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, histfig->id));
-                s << " was";
-                if (fake_profession)
-                {
-                    s << " a " << profession_name(hf, hf->profession);
-                }
-                if (fake_civ)
-                {
-                    s << " from ";
-                    event_link(s, context, df::historical_entity::find(hf->civ_id));
-                }
-            }
-        }
-        else if (fake_name || fake_birthdate || fake_race_caste || fake_civ || fake_profession)
-        {
-            std::vector<std::function<void(std::ostream &)>> lies;
-            if (fake_name)
-            {
-                lies.push_back([hf, identity](std::ostream & out)
-                {
-                    BEFORE_SWITCH(sex, hf->sex);
-                    switch (sex)
-                    {
-                    case -1:
-                        out << "its";
-                        BREAK(sex);
-                    case 0:
-                        out << "her";
-                        BREAK(sex);
-                    case 1:
-                        out << "his";
-                        BREAK(sex);
-                    }
-                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-                    out << " name was ";
-                    name_translated(out, identity->name);
-                });
-            }
-
-            if (fake_birthdate)
-            {
-                lies.push_back([hf, identity](std::ostream & out)
-                {
-                    BEFORE_SWITCH(sex, hf->sex);
-                    switch (sex)
-                    {
-                    case -1:
-                        out << "it";
-                        BREAK(sex);
-                    case 0:
-                        out << "she";
-                        BREAK(sex);
-                    case 1:
-                        out << "he";
-                        BREAK(sex);
-                    }
-                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-                    out << " was born on " << dayth(identity->birth_second) << " " << month(identity->birth_second) << " " << identity->birth_year;
-                });
-            }
-
-            if (fake_civ)
-            {
-                lies.push_back([hf, identity, context](std::ostream & out)
-                {
-                    BEFORE_SWITCH(sex, hf->sex);
-                    switch (sex)
-                    {
-                    case -1:
-                        out << "it";
-                        BREAK(sex);
-                    case 0:
-                        out << "she";
-                        BREAK(sex);
-                    case 1:
-                        out << "he";
-                        BREAK(sex);
-                    }
-                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-                    out << " was from ";
-                    event_link(out, context, df::historical_entity::find(identity->civ));
-                });
-            }
-
-            if (fake_race_caste)
-            {
-                lies.push_back([hf, identity](std::ostream & out)
-                {
-                    BEFORE_SWITCH(sex, hf->sex);
-                    switch (sex)
-                    {
-                    case -1:
-                        out << "it";
-                        BREAK(sex);
-                    case 0:
-                        out << "she";
-                        BREAK(sex);
-                    case 1:
-                        out << "he";
-                        BREAK(sex);
-                    }
-                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-
-                    auto real_race = df::creature_raw::find(hf->race);
-                    auto fake_race = df::creature_raw::find(identity->race);
-                    auto real_caste = real_race ? vector_get(real_race->caste, hf->caste) : nullptr;
-                    auto fake_caste = fake_race ? vector_get(fake_race->caste, identity->caste) : nullptr;
-
-                    out << " was a ";
-                    if (fake_race->name[0] == fake_caste->caste_name[0])
-                    {
-                        BEFORE_SWITCH(gender, fake_caste->gender);
-                        switch (gender)
-                        {
-                        case -1:
-                            BREAK(gender);
-                        case 0:
-                            out << "female ";
-                            BREAK(gender);
-                        case 1:
-                            out << "male ";
-                            BREAK(gender);
-                        }
-                        AFTER_SWITCH(gender, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-                    }
-                    out << fake_caste->caste_name[0];
-                    if (identity->profession != hf->profession)
-                    {
-                        out << " " << profession_name(hf, identity->profession);
-                    }
-                    out << " rather than a ";
-                    if (real_race->name[0] == real_caste->caste_name[0])
-                    {
-                        BEFORE_SWITCH(gender, real_caste->gender);
-                        switch (gender)
-                        {
-                        case -1:
-                            BREAK(gender);
-                        case 0:
-                            out << "female ";
-                            BREAK(gender);
-                        case 1:
-                            out << "male ";
-                            BREAK(gender);
-                        }
-                        AFTER_SWITCH(gender, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-                    }
-                    out << real_caste->caste_name[0];
-                    if (identity->profession != hf->profession)
-                    {
-                        out << " " << profession_name(hf, hf->profession);
-                    }
-                });
-            }
-            else if (fake_profession)
-            {
-                lies.push_back([hf, identity](std::ostream & out)
-                {
-                    BEFORE_SWITCH(sex, hf->sex);
-                    switch (sex)
-                    {
-                    case -1:
-                        out << "it";
-                        BREAK(sex);
-                    case 0:
-                        out << "she";
-                        BREAK(sex);
-                    case 1:
-                        out << "he";
-                        BREAK(sex);
-                    }
-                    AFTER_SWITCH(sex, stl_sprintf("identity-%d histfig-%d", identity->id, hf->id));
-
-                    out << " was a " << profession_name(hf, identity->profession) << " rather than a " << profession_name(hf, hf->profession);
-                });
-            }
-
-            s << " but pretending ";
-            list<std::function<void(std::ostream &)>>(s, lies, [](std::ostream & out, std::function<void(std::ostream &)> fn)
-            {
-                fn(out);
-            });
-        }
-    }
-    else
-    {
-        name_translated(s, identity->name);
-        auto race = df::creature_raw::find(identity->race);
-        auto caste = race ? vector_get(race->caste, identity->caste) : nullptr;
-        if (caste)
-        {
-            s << ", a ";
-            if (caste->caste_name[0] == race->name[0])
-            {
-                BEFORE_SWITCH(gender, caste->gender);
-                switch (gender)
-                {
-                case -1:
-                    BREAK(gender);
-                case 0:
-                    s << "female ";
-                    BREAK(gender);
-                case 1:
-                    s << "male ";
-                    BREAK(gender);
-                }
-                AFTER_SWITCH(gender, stl_sprintf("identity-%d", identity->id));
-            }
-
-            s << caste->caste_name[0];
-        }
-        else if (race)
-        {
-            s << ", a " << race->name[0];
-        }
-
-        if (identity->profession != profession::NONE)
-        {
-            s << " " << profession_name(identity->race, identity->caste, identity->profession);
-        }
-
-        if (auto civ = df::historical_entity::find(identity->civ))
-        {
-            s << " from ";
-            event_link(s, context, civ);
-        }
-    }
+    // TODO: reimplement this; too much has changed for converting the previous implementation to be worth it
+    s << "[TODO: identity]";
 }
 
 template<typename T>
@@ -1201,6 +910,9 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case death_type::DROWN_ALT2:
         s << " drowned";
         prefix = ", killed";
+        BREAK(cause);
+    case death_type::anon_1:
+        do_event_missing(s, context, event, __LINE__);
         BREAK(cause);
     }
     AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
@@ -3061,6 +2773,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
         s << " attacked ";
         BREAK(type);
+    case history_event_simple_battle_subtype::anon_1:
+    case history_event_simple_battle_subtype::anon_2:
+        do_event_missing(s, context, event, __LINE__);
+        BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
     list_event_link<df::historical_figure>(s, context, event->group2);
@@ -3324,54 +3040,55 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 static void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_revivedst *event)
 {
     event_link(s, context, df::historical_figure::find(event->histfig));
-    s << " came back to life ";
+    s << " came back to life";
     BEFORE_SWITCH(flags, event->flags2);
     switch (flags)
     {
         case 0:
             BREAK(flags);
         case 1:
-            s << "again ";
+            s << " again";
             BREAK(flags);
     }
     AFTER_SWITCH(flags, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
 
-    s << "as ";
     BEFORE_SWITCH(type, event->ghost_type);
     switch (type)
     {
+    case ghost_type::None:
+        BREAK(type);
     case ghost_type::MurderousGhost:
-        s << "a murderous ghost";
+        s << " as a murderous ghost";
         BREAK(type);
     case ghost_type::SadisticGhost:
-        s << "a sadistic ghost";
+        s << " as a sadistic ghost";
         BREAK(type);
     case ghost_type::SecretivePoltergeist:
-        s << "a secretive poltergeist";
+        s << " as a secretive poltergeist";
         BREAK(type);
     case ghost_type::EnergeticPoltergeist:
-        s << "an energetic poltergeist";
+        s << " as an energetic poltergeist";
         BREAK(type);
     case ghost_type::AngryGhost:
-        s << "an angry ghost";
+        s << " as an angry ghost";
         BREAK(type);
     case ghost_type::ViolentGhost:
-        s << "a violent ghost";
+        s << " as a violent ghost";
         BREAK(type);
     case ghost_type::MoaningSpirit:
-        s << "a moaning spirit";
+        s << " as a moaning spirit";
         BREAK(type);
     case ghost_type::HowlingSpirit:
-        s << "a howling spirit";
+        s << " as a howling spirit";
         BREAK(type);
     case ghost_type::TroublesomePoltergeist:
-        s << "a troublesome poltergeist";
+        s << " as a troublesome poltergeist";
         BREAK(type);
     case ghost_type::RestlessHaunt:
-        s << "a restless haunt";
+        s << " as a restless haunt";
         BREAK(type);
     case ghost_type::ForlornHaunt:
-        s << "a forlorn haunt";
+        s << " as a forlorn haunt";
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
