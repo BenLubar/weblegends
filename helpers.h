@@ -25,6 +25,7 @@ namespace df
     struct type;
     WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
+    struct caste_raw;
     struct coord2d_path;
     struct creature_raw;
     struct entity_occasion_schedule_feature;
@@ -135,6 +136,8 @@ void year(std::ostream & s, int32_t year, int32_t tick);
 void born_died(std::ostream & s, df::historical_figure *hf);
 
 void render_map_coords(std::ostream &s, const df::coord2d_path &coords, int32_t mul = 1);
+
+std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::string & creature_id, const std::string & caste_id = std::string());
 
 // https://stackoverflow.com/a/24315631/2664560
 static inline void replace_all(std::string & str, const std::string & from, const std::string & to)

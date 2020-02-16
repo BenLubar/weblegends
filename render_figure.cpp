@@ -75,11 +75,10 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                 {
                     if (auto transformation = virtual_cast<df::creature_interaction_effect_body_transformationst>(*it3))
                     {
-                        auto t_race = df::creature_raw::find(transformation->race);
-                        auto t_caste = (t_race && transformation->caste != -1) ? t_race->caste.at(transformation->caste) : nullptr;
-                        if (t_caste != nullptr)
+                        auto race_caste = find_creature_raws(transformation->race_str, transformation->caste_str);
+                        if (race_caste.second != nullptr)
                         {
-                            s << "<br>" << t_caste->description;
+                            s << "<br>" << race_caste.second->description;
                         }
                     }
                 }

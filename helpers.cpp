@@ -564,11 +564,10 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
                 {
                     if (auto transformation = virtual_cast<df::creature_interaction_effect_body_transformationst>(*it3))
                     {
-                        auto t_race = df::creature_raw::find(transformation->race);
-                        auto t_caste = (t_race && transformation->caste != -1) ? t_race->caste.at(transformation->caste) : nullptr;
-                        if (t_caste != nullptr)
+                        auto race_caste = find_creature_raws(transformation->race_str, transformation->caste_str);
+                        if (race_caste.second)
                         {
-                            s << " " << t_caste->caste_name[0];
+                            s << " " << race_caste.second->caste_name[0];
                         }
                     }
                 }
@@ -1289,4 +1288,13 @@ void render_map_coords(std::ostream &s, const df::coord2d_path &coords, int32_t 
         s << "<rect width=\"" << width << "\" height=\"" << height << "\" x=\"" << (coords.x.at(i) - width + 1) << "\" y=\"" << (coords.y.at(i) - height + 1) << "\"></rect>";
     }
     s << "</svg>";
+}
+
+std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::string & creature_id, const std::string & caste_id)
+{
+    auto race = binsearch_in_vector(world->raws.creatures.alphabetic, &df::creature_raw::creature_id, creature_id);
+    int caste_idx = race ? linear_index(race->caste, &df::caste_raw::caste_id, caste_id) : -1;
+    auto caste = race ? vector_get(race->caste, caste_idx) : nullptr;
+
+    return std::make_pair(race, caste);
 }
