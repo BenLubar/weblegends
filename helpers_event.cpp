@@ -8,6 +8,12 @@
 
 #include "df/abstract_building.h"
 #include "df/agreement.h"
+#include "df/agreement_details.h"
+#include "df/agreement_details_data_citizenship.h"
+#include "df/agreement_details_data_demonic_binding.h"
+#include "df/agreement_details_data_join_party.h"
+#include "df/agreement_details_data_residency.h"
+#include "df/agreement_party.h"
 #include "df/art_image.h"
 #include "df/art_image_chunk.h"
 #include "df/artifact_record.h"
@@ -3365,7 +3371,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     }
 }
 
-static void do_agreement_party(std::ostream & s, const event_context & context, df::history_event *event, df::agreement *agreement, df::agreement::T_parties *party)
+static void do_agreement_party(std::ostream & s, const event_context & context, df::history_event *event, df::agreement *agreement, df::agreement_party *party)
 {
     if (!party)
     {
@@ -3401,38 +3407,38 @@ static void do_agreement_party(std::ostream & s, const event_context & context, 
 static void do_event(std::ostream & s, const event_context & context, df::history_event_agreement_formedst *event)
 {
     auto agreement = df::agreement::find(event->agreement_id);
-    list<df::agreement::T_details *>(s, agreement->details, [context, event, agreement](std::ostream & out, df::agreement::T_details *details)
+    list<df::agreement_details *>(s, agreement->details, [context, event, agreement](std::ostream & out, df::agreement_details *details)
     {
         BEFORE_SWITCH(type, details->type);
         switch (type)
         {
-        case 0:
+        case df::agreement_details::JoinParty:
         {
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_2));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.JoinParty->member));
             out << " joined with ";
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_3));
-            BEFORE_SWITCH(reason, static_cast<df::history_event_reason>(details->data.data0->anon_1));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.JoinParty->party));
+            BEFORE_SWITCH(reason, details->data.JoinParty->reason);
             switch (reason)
             {
             case history_event_reason::insurrection:
                 out << " to oust ";
-                event_link(out, context, df::historical_entity::find(details->data.data0->anon_5));
+                event_link(out, context, df::historical_entity::find(details->data.JoinParty->entity));
                 out << " from ";
-                event_link(out, context, df::world_site::find(details->data.data0->anon_4));
+                event_link(out, context, df::world_site::find(details->data.JoinParty->site));
                 BREAK(reason);
             case history_event_reason::adventure:
                 out << " to live a life of adventure";
                 BREAK(reason);
             case history_event_reason::guide:
                 out << " as a guide to ";
-                event_link(out, context, df::world_site::find(details->data.data0->anon_4));
+                event_link(out, context, df::world_site::find(details->data.JoinParty->site));
                 BREAK(reason);
             case history_event_reason::be_brought_to_safety:
                 out << " in order to be brought to safety";
                 BREAK(reason);
             case history_event_reason::help_with_rescue:
                 out << " to help rescue ";
-                event_link(out, context, df::historical_figure::find(details->data.data0->anon_6));
+                event_link(out, context, df::historical_figure::find(details->data.JoinParty->figure));
                 BREAK(reason);
             case history_event_reason::true_name_invocation: // TODO: ???
                 out << " after being compelled to serve";
@@ -3447,18 +3453,18 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party)", event->id, agreement->id, details->id));
             BREAK(type);
         }
-        case 1:
+        case df::agreement_details::DemonicBinding:
         {
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_2));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.DemonicBinding->summoner));
             out << " aided ";
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_1));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.DemonicBinding->demon));
             out << " in becoming a permanent part of the living world";
-            BEFORE_SWITCH(reason, details->data.data1->reason);
+            BEFORE_SWITCH(reason, details->data.DemonicBinding->reason);
             switch (reason)
             {
             case history_event_reason::sphere_alignment:
                 out << " after pondering the ineffable subtleties of ";
-                out << toLower(enum_item_key(static_cast<df::sphere_type>(details->data.data1->anon_3)));
+                out << toLower(enum_item_key(details->data.DemonicBinding->sphere));
                 BREAK(reason);
             case history_event_reason::maintain_balance_in_universe:
                 out << " in order to maintain balance in the universe";
@@ -3514,26 +3520,26 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
             AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (demonic binding)", event->id, agreement->id, details->id));
 
-            if (auto artifact = df::artifact_record::find(details->data.data1->artifact))
+            if (auto artifact = df::artifact_record::find(details->data.DemonicBinding->artifact))
             {
                 out << " using ";
                 event_link(out, context, artifact);
             }
-            if (auto site = df::world_site::find(details->data.data1->site))
+            if (auto site = df::world_site::find(details->data.DemonicBinding->site))
             {
                 out << " in ";
                 event_link(out, context, site);
             }
             BREAK(type);
         }
-        case 2:
+        case df::agreement_details::Residency:
         {
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_1));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Residency->applicant));
             out << " made an agreement with ";
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data1->anon_2));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Residency->government));
             out << ", becoming a resident of ";
-            event_link(out, context, df::world_site::find(details->data.data1->site));
-            BEFORE_SWITCH(reason, details->data.data1->reason);
+            event_link(out, context, df::world_site::find(details->data.Residency->site));
+            BEFORE_SWITCH(reason, details->data.Residency->reason);
             switch (reason)
             {
             case history_event_reason::eradicate_beasts:
@@ -3552,13 +3558,13 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (become resident)", event->id, agreement->id, details->id));
             BREAK(type);
         }
-        case 3:
+        case df::agreement_details::Citizenship:
         {
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_1));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Citizenship->government));
             out << " made an agreement with ";
-            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, &df::agreement::T_parties::id, details->data.data0->anon_2));
+            do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Citizenship->government));
             out << ", becoming a citizen of ";
-            event_link(out, context, df::world_site::find(details->data.data0->anon_3));
+            event_link(out, context, df::world_site::find(details->data.Citizenship->site));
             BREAK(type);
         }
         default:
