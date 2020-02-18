@@ -3412,7 +3412,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         BEFORE_SWITCH(type, details->type);
         switch (type)
         {
-        case df::agreement_details::JoinParty:
+        case agreement_details_type::JoinParty:
         {
             do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.JoinParty->member));
             out << " joined with ";
@@ -3453,7 +3453,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (joined party)", event->id, agreement->id, details->id));
             BREAK(type);
         }
-        case df::agreement_details::DemonicBinding:
+        case agreement_details_type::DemonicBinding:
         {
             do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.DemonicBinding->summoner));
             out << " aided ";
@@ -3532,7 +3532,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             }
             BREAK(type);
         }
-        case df::agreement_details::Residency:
+        case agreement_details_type::Residency:
         {
             do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Residency->applicant));
             out << " made an agreement with ";
@@ -3558,7 +3558,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
             AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) agreement-%d details-%d (become resident)", event->id, agreement->id, details->id));
             BREAK(type);
         }
-        case df::agreement_details::Citizenship:
+        case agreement_details_type::Citizenship:
         {
             do_agreement_party(out, context, event, agreement, binsearch_in_vector(agreement->parties, details->data.Citizenship->government));
             out << " made an agreement with ";
