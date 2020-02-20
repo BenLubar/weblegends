@@ -917,9 +917,12 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         s << " drowned";
         prefix = ", killed";
         BREAK(cause);
+    case death_type::EXECUTION_GENERIC:
+        s << " was executed";
+        BREAK(cause);
     case death_type::anon_1:
         do_event_missing(s, context, event, __LINE__);
-        BREAK(cause);
+        break;
     }
     AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
     if (!do_weapon(s, context, event->weapon, weapon_prefix))
@@ -2008,10 +2011,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         event_link(s, context, maker);
     }
-    else if (event->skill_used != job_skill::NONE)
-    {
-        s << "a " << toLower(ENUM_ATTR(job_skill, caption_noun, event->skill_used));
-    }
     else
     {
         s << "an unknown person";
@@ -2709,6 +2708,20 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         }
         AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip", event->id));
         BREAK(type);
+    case df::history_event_hist_figure_woundedst::T_injury_type::Burn:
+        BEFORE_SWITCH(part_lost, event->part_lost);
+        switch (part_lost)
+        {
+        case 0:
+            s << " burned";
+            BREAK(part_lost);
+        case 1:
+            s << " burned";
+            suffix = " beyond recognition";
+            BREAK(part_lost);
+        }
+        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Burn", event->id));
+        BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
 
@@ -2779,9 +2792,11 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case history_event_simple_battle_subtype::LOSE_AFTER_EXCHANGE_WOUND:
         s << " attacked ";
         BREAK(type);
-    case history_event_simple_battle_subtype::anon_1:
-    case history_event_simple_battle_subtype::anon_2:
-        do_event_missing(s, context, event, __LINE__);
+    case history_event_simple_battle_subtype::SUBDUED:
+        s << " subdued ";
+        BREAK(type);
+    case history_event_simple_battle_subtype::GOT_INTO_A_BRAWL:
+        s << " got into a brawl with ";
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_SIMPLE_BATTLE_EVENT)", event->id));
