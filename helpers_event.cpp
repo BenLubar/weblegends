@@ -920,9 +920,6 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     case death_type::EXECUTION_GENERIC:
         s << " was executed";
         BREAK(cause);
-    case death_type::anon_1:
-        do_event_missing(s, context, event, __LINE__);
-        break;
     }
     AFTER_SWITCH(cause, stl_sprintf("event-%d (HIST_FIGURE_DIED)", event->id));
     if (!do_weapon(s, context, event->weapon, weapon_prefix))
