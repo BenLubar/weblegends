@@ -4248,20 +4248,19 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     std::string after;
 
     BEFORE_SWITCH(type, event->claim_type);
-    using claim_type = df::history_event_artifact_claim_formedst::T_claim_type;
     switch (type)
     {
-    case claim_type::Symbol:
+    case artifact_claim_type::Symbol:
         before = " was made a symbol of ";
         BREAK(type);
-    case claim_type::Heirloom:
+    case artifact_claim_type::Heirloom:
         before = " was claimed by ";
         after = " as a family heirloom";
         BREAK(type);
-    case claim_type::Treasure:
+    case artifact_claim_type::Treasure:
         before = " was claimed by ";
         BREAK(type);
-    case claim_type::HolyRelic:
+    case artifact_claim_type::HolyRelic:
         before = " was sanctified by ";
         BREAK(type);
     }
