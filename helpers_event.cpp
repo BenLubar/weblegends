@@ -2451,39 +2451,42 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
     case df::history_event_body_abusedst::T_abuse_type::Impaled:
     {
-        ASSUME_EQUAL(event->props.item.item_type, item_type::WEAPON, stl_sprintf("event-%d (BODY_ABUSED) impaled", event->id));
-        auto idef = df::itemdef_weaponst::find(event->props.item.item_subtype);
+        ASSUME_EQUAL(event->abuse_data.Impaled.item_type, item_type::WEAPON, stl_sprintf("event-%d (BODY_ABUSED) impaled", event->id));
+        auto idef = df::itemdef_weaponst::find(event->abuse_data.Impaled.item_subtype);
         s << " on ";
         if (event->bodies.size() == 1)
         {
             s << "a ";
-            material(s, context, &event->props.item);
+            material(s, context, &event->abuse_data.Impaled);
             s << " " << idef->name;
         }
         else
         {
-            material(s, context, &event->props.item);
+            material(s, context, &event->abuse_data.Impaled);
             s << " " << idef->name_plural;
         }
         BREAK(type);
     }
     case df::history_event_body_abusedst::T_abuse_type::Piled:
+    {
+        using pile_type = df::history_event_body_abusedst::T_abuse_data::T_Piled::T_pile_type;
         s << " to a ";
-        BEFORE_SWITCH(pile_type, event->props.pile_type);
+        BEFORE_SWITCH(pile_type, event->abuse_data.Piled.pile_type);
         switch (pile_type)
         {
-        case df::history_event_body_abusedst::T_props::T_pile_type::GrislyMound:
+        case pile_type::GrislyMound:
             s << "grisly mound";
             BREAK(pile_type);
-        case df::history_event_body_abusedst::T_props::T_pile_type::GrotesquePillar:
+        case pile_type::GrotesquePillar:
             s << "grotesque pillar";
             BREAK(pile_type);
-        case df::history_event_body_abusedst::T_props::T_pile_type::GruesomeSculpture:
+        case pile_type::GruesomeSculpture:
             s << "gruesome sculpture";
             BREAK(pile_type);
         }
         AFTER_SWITCH(pile_type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
         BREAK(type);
+    }
     case df::history_event_body_abusedst::T_abuse_type::Flayed:
     {
         s << " and stretched ";
@@ -2509,25 +2512,25 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
         }
         s << " over ";
         auto site = df::world_site::find(event->site);
-        auto structure = binsearch_in_vector(site->buildings, event->props.structure);
+        auto structure = binsearch_in_vector(site->buildings, event->abuse_data.Flayed.structure);
         event_link(s, context, structure);
         BREAK(type);
     }
     case df::history_event_body_abusedst::T_abuse_type::Hung:
         s << " from ";
-        if (auto tree = df::plant_raw::find(event->props.hung.tree))
+        if (auto tree = df::plant_raw::find(event->abuse_data.Hung.tree))
         {
             s << "a " << tree->name << " tree with ";
         }
         if (event->bodies.size() == 1)
         {
             s << "a ";
-            material(s, context, &event->props.hung);
+            material(s, context, &event->abuse_data.Hung);
             s << " rope";
         }
         else
         {
-            material(s, context, &event->props.hung);
+            material(s, context, &event->abuse_data.Hung);
             s << " ropes";
         }
         BREAK(type);
