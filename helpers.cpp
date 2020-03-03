@@ -491,7 +491,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
         }
         std::string name(caste->caste_name[0]);
         std::string suffix;
-        if (caste->flags.is_set(caste_raw_flags::BABY) && age_years < caste->misc.baby_age)
+        if (caste->flags.is_set(caste_raw_flags::HAS_BABYSTATE) && age_years < caste->misc.baby_age)
         {
             if (caste->baby_name[0].empty())
             {
@@ -502,7 +502,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
                 name = caste->baby_name[0];
             }
         }
-        else if (caste->flags.is_set(caste_raw_flags::CHILD) && age_years < caste->misc.child_age)
+        else if (caste->flags.is_set(caste_raw_flags::HAS_CHILDSTATE) && age_years < caste->misc.child_age)
         {
             if (caste->child_name[0].empty())
             {
@@ -1134,7 +1134,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 
 bool unique_creature_name(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link, bool in_attr)
 {
-    if (creature->flags.is_set(creature_raw_flags::CASTE_FEATURE_BEAST) || creature->flags.is_set(creature_raw_flags::CASTE_TITAN) || creature->flags.is_set(creature_raw_flags::CASTE_UNIQUE_DEMON))
+    if (creature->flags.is_set(creature_raw_flags::HAS_ANY_FEATURE_BEAST) || creature->flags.is_set(creature_raw_flags::HAS_ANY_TITAN) || creature->flags.is_set(creature_raw_flags::HAS_ANY_UNIQUE_DEMON))
     {
         for (auto it = world->history.figures.begin(); it != world->history.figures.end(); it++)
         {
