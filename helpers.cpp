@@ -315,30 +315,65 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
         s << " temple";
         if (auto temple = virtual_cast<df::abstract_building_templest>(structure))
         {
-            if (auto deity = df::historical_figure::find(temple->deity))
+            BEFORE_SWITCH(deity_type, temple->deity_type);
+            switch (deity_type)
             {
-                if (in_link)
+            case temple_deity_type::None:
+                BREAK(deity_type);
+            case temple_deity_type::Deity:
+                if (auto deity = df::historical_figure::find(temple->deity_data.Deity))
                 {
-                    const df::language_name & name = get_name(deity);
-                    if (name.has_name)
+                    if (in_link)
                     {
-                        s << " of ";
-                        if (in_attr)
+                        const df::language_name & name = get_name(deity);
+                        if (name.has_name)
                         {
-                            s << Translation::TranslateName(&name, false);
-                        }
-                        else
-                        {
-                            name_translated(s, name);
+                            s << " of ";
+                            if (in_attr)
+                            {
+                                s << Translation::TranslateName(&name, false);
+                            }
+                            else
+                            {
+                                name_translated(s, name);
+                            }
                         }
                     }
+                    else
+                    {
+                        s << " of ";
+                        link(s, deity);
+                    }
                 }
-                else
+                BREAK(deity_type);
+            case temple_deity_type::Religion:
+                if (auto religion = df::historical_entity::find(temple->deity_data.Religion))
                 {
-                    s << " of ";
-                    link(s, deity);
+                    if (in_link)
+                    {
+                        const df::language_name & name = get_name(religion);
+                        if (name.has_name)
+                        {
+                            s << " of ";
+                            if (in_attr)
+                            {
+                                s << Translation::TranslateName(&name, false);
+                            }
+                            else
+                            {
+                                name_translated(s, name);
+                            }
+                        }
+                    }
+                    else
+                    {
+                        s << " of ";
+                        link(s, religion);
+                    }
                 }
+                BREAK(deity_type);
             }
+            AFTER_SWITCH(deity_type, stl_sprintf("site-%d/bld-%d (temple)", structure->site_id, structure->id));
         }
         BREAK(type);
     case abstract_building_type::DARK_TOWER:
