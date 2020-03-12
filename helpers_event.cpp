@@ -507,18 +507,18 @@ static void do_identity(std::ostream & s, const event_context &, df::historical_
 template<typename T>
 static void do_circumstance_reason(std::ostream & s, const event_context & context, T *event)
 {
-    BEFORE_SWITCH(reason, event->reason);
+    BEFORE_SWITCH(reason, event->reason.type);
     switch (reason)
     {
     case history_event_reason::none:
         BREAK(reason);
     case history_event_reason::glorify_hf:
         s << " in order to glorify ";
-        event_link(s, context, df::historical_figure::find(event->reason_id));
+        event_link(s, context, df::historical_figure::find(event->reason.data.glorify_hf));
         BREAK(reason);
     case history_event_reason::artifact_is_heirloom_of_family_hfid:
         s << " of the ";
-        event_link(s, context, df::historical_figure::find(event->reason_id));
+        event_link(s, context, df::historical_figure::find(event->reason.data.artifact_is_heirloom_of_family_hfid));
         s << " family";
         BREAK(reason);
     case history_event_reason::as_a_symbol_of_everlasting_peace:
@@ -526,7 +526,7 @@ static void do_circumstance_reason(std::ostream & s, const event_context & conte
         BREAK(reason);
     case history_event_reason::artifact_is_symbol_of_entity_position:
         s << " as a symbol of authority witin ";
-        event_link(s, context, df::historical_entity::find(event->reason_id));
+        event_link(s, context, df::historical_entity::find(event->reason.data.artifact_is_symbol_of_entity_position));
         BREAK(reason);
     default:
         do_event_missing(s, context, event, __LINE__);
@@ -534,22 +534,22 @@ static void do_circumstance_reason(std::ostream & s, const event_context & conte
     }
     AFTER_SWITCH(reason, stl_sprintf("event-%d (%s)", event->id, enum_item_key_str(event->getType())));
 
-    BEFORE_SWITCH(circumstance, event->circumstance);
+    BEFORE_SWITCH(circumstance, event->circumstance.type);
     switch (circumstance)
     {
     case unit_thought_type::None:
         BREAK(circumstance);
     case unit_thought_type::Death:
         s << " after the death of ";
-        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        event_link(s, context, df::historical_figure::find(event->circumstance.data.Death));
         BREAK(circumstance);
     case unit_thought_type::Prayer:
         s << " after praying to ";
-        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        event_link(s, context, df::historical_figure::find(event->circumstance.data.Prayer));
         BREAK(circumstance);
     case unit_thought_type::DreamAbout:
         s << " after dreaming about ";
-        event_link(s, context, df::historical_figure::find(event->circumstance_id));
+        event_link(s, context, df::historical_figure::find(event->circumstance.data.DreamAbout));
         BREAK(circumstance);
     case unit_thought_type::Dream:
         s << " after a dream";
