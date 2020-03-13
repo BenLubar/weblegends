@@ -2471,20 +2471,20 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     {
         using pile_type = df::history_event_body_abusedst::T_abuse_data::T_Piled::T_pile_type;
         s << " to a ";
-        BEFORE_SWITCH(pile_type, event->abuse_data.Piled.pile_type);
-        switch (pile_type)
+        BEFORE_SWITCH(pile, event->abuse_data.Piled.pile_type);
+        switch (pile)
         {
         case pile_type::GrislyMound:
             s << "grisly mound";
-            BREAK(pile_type);
+            BREAK(pile);
         case pile_type::GrotesquePillar:
             s << "grotesque pillar";
-            BREAK(pile_type);
+            BREAK(pile);
         case pile_type::GruesomeSculpture:
             s << "gruesome sculpture";
-            BREAK(pile_type);
+            BREAK(pile);
         }
-        AFTER_SWITCH(pile_type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
+        AFTER_SWITCH(pile, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
         BREAK(type);
     }
     case df::history_event_body_abusedst::T_abuse_type::Flayed:
