@@ -1444,10 +1444,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 static void do_event(std::ostream & s, const event_context & context, df::history_event_artifact_createdst *event)
 {
     auto item = df::artifact_record::find(event->artifact_id);
-    if (auto hf = df::historical_figure::find(event->hfid))
+    if (auto hf = df::historical_figure::find(event->creator_hfid))
     {
         event_link(s, context, hf);
-        if ((event->flags2 & 1) == 1)
+        if (event->flags2.bits.name_only)
         {
             s << " bestowed a name upon ";
         }
@@ -1460,7 +1460,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     else
     {
         event_link(s, context, item);
-        if ((event->flags2 & 1) == 1)
+        if (event->flags2.bits.name_only)
         {
             s << " was given a name";
         }
@@ -1540,7 +1540,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     event_link(s, context, site_civ);
     s << " of ";
     event_link(s, context, civ);
-    if ((event->flags2 & 1) == 1)
+    if (event->flags2.bits.unretire)
     {
         s << " were taken by a mood to act against their better judgment at ";
     }
@@ -1574,14 +1574,14 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     auto site_civ = df::historical_entity::find(event->site_civ);
     auto site = df::world_site::find(event->site);
 
-    if ((event->flags2 & 1) == 0)
+    if (event->flags2.bits.abandoned)
     {
         s << "The ";
     }
 
     event_link(s, context, site_civ);
 
-    if ((event->flags2 & 1) == 1)
+    if (event->flags2.bits.abandoned)
     {
         s << " abandoned the";
     }
@@ -1594,7 +1594,7 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
     s << " settlement of ";
     event_link(s, context, site);
 
-    if ((event->flags2 & 1) == 0)
+    if (!event->flags2.bits.abandoned)
     {
         s << " withered";
     }
@@ -3062,16 +3062,10 @@ static void do_event(std::ostream & s, const event_context & context, df::histor
 {
     event_link(s, context, df::historical_figure::find(event->histfig));
     s << " came back to life";
-    BEFORE_SWITCH(flags, event->flags2);
-    switch (flags)
+    if (event->flags2.bits.again)
     {
-        case 0:
-            BREAK(flags);
-        case 1:
-            s << " again";
-            BREAK(flags);
+        s << " again";
     }
-    AFTER_SWITCH(flags, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
 
     BEFORE_SWITCH(type, event->ghost_type);
     switch (type)
