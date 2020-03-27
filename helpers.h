@@ -2,6 +2,7 @@
 
 #include <functional>
 
+#include "df/profession.h"
 #include "df/value_type.h"
 
 namespace DFHack
@@ -17,7 +18,8 @@ namespace DFHack
     WEBLEGENDS_TYPE(world_region, region) \
     WEBLEGENDS_TYPE(world_site, site) \
     WEBLEGENDS_TYPE(world_underground_region, layer) \
-    WEBLEGENDS_TYPE(history_era, era)
+    WEBLEGENDS_TYPE(history_era, era) \
+    WEBLEGENDS_TYPE(history_event_collection, col)
 
 namespace df
 {
