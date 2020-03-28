@@ -32,7 +32,7 @@ execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
 file(READ ../../library/xml/df.history.xml EVENT_TYPES)
 string(REGEX MATCH "<enum-type type-name='history_event_type'(<[^/]|[^<])*</enum-type>" EVENT_TYPES "${EVENT_TYPES}")
 string(REGEX MATCHALL "<enum-item[^>]* name='[^']*" EVENT_TYPES "${EVENT_TYPES}")
-list(TRANSFORM EVENT_TYPES REPLACE ".*'" "")
+string(REGEX REPLACE "[^;']*'" "" EVENT_TYPES "${EVENT_TYPES}")
 
 set(EVENT_HEADER_1 "#pragma once\n\n")
 set(EVENT_HEADER_2 "\n#define EVENT_TYPES")
