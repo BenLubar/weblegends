@@ -1,7 +1,7 @@
 /* Use Google Font if internet available, otherwise fall back to OS supplied font
  * Varela Round Google Font: https://fonts.google.com/specimen/Varela+Round */
 
-@import url('https://fonts.googleapis.com/css?family=Varela+Round');
+@import url('https://fonts.googleapis.com/css2?family=Varela+Round&display=swap');
 .map {
     max-width: 500px;
     border: 1px solid;

@@ -252,6 +252,8 @@ bool WebLegends::request(weblegends_handler_v1 & response, const std::string & u
     else if (check_id(s, url, "/layer-", render_layer)) {}
     else if (check_page(s, url, "/eras-", render_era_list)) {}
     else if (check_id(s, url, "/era-", render_era)) {}
+    else if (check_page(s, url, "/eventcols-", render_eventcol_list)) {}
+    else if (check_id(s, url, "/eventcol-", render_eventcol)) {}
     else { legacy = false; }
 
     if (legacy)

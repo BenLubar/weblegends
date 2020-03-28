@@ -80,6 +80,7 @@ private:
     static void render_home(std::ostream & s);
     static bool render_entity(std::ostream & s, int32_t id, int32_t page);
     static bool render_era(std::ostream & s, int32_t id, int32_t page);
+    static bool render_eventcol(std::ostream & s, int32_t id, int32_t page);
     static bool render_figure(std::ostream & s, int32_t id, int32_t page);
     static bool render_item(std::ostream & s, int32_t id, int32_t page);
     static bool render_region(std::ostream & s, int32_t id, int32_t page);
@@ -88,6 +89,7 @@ private:
     static bool render_layer(std::ostream & s, int32_t id, int32_t page);
     static bool render_entity_list(std::ostream & s, int32_t page);
     static bool render_era_list(std::ostream & s, int32_t page);
+    static bool render_eventcol_list(std::ostream & s, int32_t page);
     static bool render_figure_list(std::ostream & s, int32_t page);
     static bool render_item_list(std::ostream & s, int32_t page);
     static bool render_region_list(std::ostream & s, int32_t page);

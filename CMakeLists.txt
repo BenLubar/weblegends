@@ -62,6 +62,7 @@ SET(PROJECT_SRCS
     render_home.cpp
     render_entity.cpp
     render_era.cpp
+    render_eventcol.cpp
     render_figure.cpp
     render_item.cpp
     render_region.cpp

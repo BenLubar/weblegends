@@ -5,6 +5,7 @@
 #include "df/historical_entity.h"
 #include "df/historical_figure.h"
 #include "df/history_era.h"
+#include "df/history_event_collection.h"
 #include "df/world.h"
 #include "df/world_region.h"
 #include "df/world_site.h"
@@ -87,6 +88,10 @@ bool WebLegends::render_entity_list(std::ostream & s, int32_t page)
 bool WebLegends::render_era_list(std::ostream & s, int32_t page)
 {
     return render_list<df::history_era>(s, page, "eras-", "History Eras");
+}
+bool WebLegends::render_eventcol_list(std::ostream & s, int32_t page)
+{
+    return render_list<df::history_event_collection>(s, page, "eventcols-", "History Event Collections");
 }
 bool WebLegends::render_figure_list(std::ostream & s, int32_t page)
 {

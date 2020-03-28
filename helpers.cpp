@@ -19,6 +19,7 @@
 #include "df/historical_figure_info.h"
 #include "df/history_era.h"
 #include "df/history_event.h"
+#include "df/history_event_collection.h"
 #include "df/interaction_effect_add_syndromest.h"
 #include "df/interaction_effect_animatest.h"
 #include "df/item.h"
@@ -68,6 +69,10 @@ int32_t get_id(df::history_era *era)
 {
     return era ? std::find(world->history.eras.begin(), world->history.eras.end(), era) - world->history.eras.begin() : -1;
 }
+int32_t get_id(df::history_event_collection *eventcol)
+{
+    return eventcol ? eventcol->id : -1;
+}
 
 static const df::language_name & get_no_name()
 {
@@ -108,6 +113,23 @@ const df::language_name & get_name(df::history_era *era)
 {
     static df::language_name name;
     name.first_name = era ? era->title.name : "";
+    name.has_name = !name.first_name.empty();
+    name.nickname = "";
+    name.words[0] = -1;
+    name.words[1] = -1;
+    name.words[2] = -1;
+    name.words[3] = -1;
+    name.words[4] = -1;
+    name.words[5] = -1;
+    name.words[6] = -1;
+    return name;
+}
+const df::language_name & get_name(df::history_event_collection *eventcol)
+{
+    static df::language_name name;
+    name.first_name = "";
+    if (eventcol)
+        eventcol->getName(&name.first_name);
     name.has_name = !name.first_name.empty();
     name.nickname = "";
     name.words[0] = -1;
@@ -167,6 +189,10 @@ void link(std::ostream & s, df::historical_entity *ent)
 void link(std::ostream & s, df::history_era *era)
 {
     link_name(s, "era-", era);
+}
+void link(std::ostream & s, df::history_event_collection *eventcol)
+{
+    link_name(s, "eventcol-", eventcol);
 }
 void link(std::ostream & s, df::historical_figure *hf)
 {
@@ -613,6 +639,14 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
 void categorize(std::ostream & s, df::history_era *, bool, bool)
 {
     s << " era";
+    // TODO
+}
+void categorize(std::ostream & s, df::history_event_collection *eventcol, bool, bool)
+{
+    if (eventcol)
+        s << " " << toLower(enum_item_key_str(eventcol->getType()));
+    s << " event collection";
+    // TODO
 }
 void categorize(std::ostream & s, df::world_region *region, bool, bool)
 {
@@ -906,6 +940,10 @@ void simple_header(std::ostream & s, df::world_underground_region *layer)
 void simple_header(std::ostream & s, df::history_era *era)
 {
     simple_header_impl(s, era);
+}
+void simple_header(std::ostream & s, df::history_event_collection *eventcol)
+{
+    simple_header_impl(s, eventcol);
 }
 // for render_home
 void simple_header(std::ostream & s, df::world_data *world_data)

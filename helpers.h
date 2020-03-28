@@ -19,7 +19,7 @@ namespace DFHack
     WEBLEGENDS_TYPE(world_site, site) \
     WEBLEGENDS_TYPE(world_underground_region, layer) \
     WEBLEGENDS_TYPE(history_era, era) \
-    WEBLEGENDS_TYPE(history_event_collection, col)
+    WEBLEGENDS_TYPE(history_event_collection, eventcol)
 
 namespace df
 {

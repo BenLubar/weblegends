@@ -19,6 +19,7 @@ void WebLegends::render_home(std::ostream & s)
     simple_header(s, world->world_data);
     s << "<table>";
     s << "<tr><th><a href=\"eras-0\">Eras</a></th><td>" << world->history.eras.size() << "</td></tr>";
+    s << "<tr><th><a href=\"eventcols-0\">Event Collections</a></th><td>" << world->history.event_collections.all.size() << "</td></tr>";
     s << "<tr><th><a href=\"figs-0\">Historical Figures</a></th><td>" << world->history.figures.size() << "</td></tr>";
     s << "<tr><th><a href=\"sites-0\">Sites</a></th><td>" << world->world_data->sites.size() << "</td></tr>";
     s << "<tr><th><a href=\"items-0\">Artifacts</a></th><td>" << world->artifacts.all.size() << "</td></tr>";
