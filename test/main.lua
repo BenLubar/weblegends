@@ -10,7 +10,6 @@ end
 script.start(function()
 print('Running tests')
 
-print('Running file: setup')
 -- dismiss intro movie
 while dfhack.gui.getCurFocus() == 'movieplayer' do
     gui.simulateInput(dfhack.gui.getCurViewscreen(), 'LEAVESCREEN')
@@ -69,7 +68,7 @@ if not found then
         end
     end
 end
-print('test passed: generate-world')
+print('test passed: setup:generate-world')
 
 gui.simulateInput(title_screen, 'SELECT')
 script.sleep(1, 'frames')
@@ -87,9 +86,8 @@ local legends = dfhack.gui.getCurViewscreen()
 while legends.cur_page ~= 0 or legends.main_cursor ~= 0 do
     script.sleep(1, 'frames')
 end
-print('test passed: open-world')
+print('test passed: setup:open-world')
 
-print('Running file: main')
 -- don't re-run this test
 set_test_stage('done')
 local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
@@ -103,9 +101,9 @@ if warnings ~= nil then
 end
 
 if status == CR_OK then
-    print('test passed: weblegends-export')
+    print('test passed: weblegends:export')
 else
-    dfhack.printerr('test errored: weblegends-export: status=' .. tostring(status))
+    dfhack.printerr('test errored: weblegends:export: status=' .. tostring(status))
 end
 
 dfhack.run_command('die')
