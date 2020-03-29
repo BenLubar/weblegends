@@ -63,9 +63,9 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         }
         BREAK(type);
     default:
-        s << ENUM_KEY_STR(history_event_type, event->getType());
+        s << enum_item_key_str(event->getType());
         s << ":";
-        s << ENUM_KEY_STR(occasion_schedule_type, schedule->type);
+        s << enum_item_key_str(schedule->type);
         s << ":";
         s << schedule->reference;
         s << ":";

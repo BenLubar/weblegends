@@ -1296,7 +1296,7 @@ void spheres(std::ostream & s, df::historical_figure *hf)
         s << " associated with ";
         list<df::sphere_type>(s, *hf->info->spheres, [](std::ostream & out, df::sphere_type t)
         {
-            out << toLower(ENUM_KEY_STR(sphere_type, t));
+            out << toLower(enum_item_key_str(t));
         });
     }
 }

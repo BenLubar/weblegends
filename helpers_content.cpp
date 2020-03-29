@@ -2464,7 +2464,7 @@ void schedule_feature(std::ostream & s, const event_context & context, df::entit
         ASSUME_EQUAL(feature->reference, -1, stl_sprintf("feature: the sacrifice of items (event-%d)", event->id));
         BREAK(feat);
     default:
-        s << ENUM_KEY_STR(occasion_schedule_feature, feat);
+        s << enum_item_key_str(feat);
         s << ":";
         s << feature->reference;
         break;
