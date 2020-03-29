@@ -1,6 +1,9 @@
 local gui = require('gui')
 local script = require('gui.script')
 
+local args = {...}
+local done_command = args[1]
+
 function set_test_stage(stage)
     local f = io.open('test_stage.txt', 'w')
     f:write(stage)
@@ -95,7 +98,7 @@ local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
 local warnings = io.open('weblegends_debug.log', 'r')
 if warnings ~= nil then
     for line in warnings:lines() do
-        print('warning: ' .. line)
+        print('WARN: ' .. dfhack.df2console(line))
     end
     warnings:close()
 end
@@ -106,6 +109,8 @@ else
     dfhack.printerr('test errored: weblegends:export: status=' .. tostring(status))
 end
 
-dfhack.run_command('die')
+if done_command then
+    dfhack.run_command(done_command)
+end
 
 end)
