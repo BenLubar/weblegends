@@ -4,12 +4,6 @@ local script = require('gui.script')
 local args = {...}
 local done_command = args[1]
 
-function set_test_stage(stage)
-    local f = io.open('test_stage.txt', 'w')
-    f:write(stage)
-    f:close()
-end
-
 script.start(function()
 print('Running tests')
 
@@ -91,8 +85,9 @@ while legends.cur_page ~= 0 or legends.main_cursor ~= 0 do
 end
 print('test passed: setup:open-world')
 
--- don't re-run this test
-set_test_stage('done')
+local f = io.open('test_status.json', 'w')
+f:write('{"weblegends":"passed"}')
+f:close()
 local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
 
 local warnings = io.open('weblegends_debug.log', 'r')
