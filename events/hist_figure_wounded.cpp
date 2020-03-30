@@ -5,116 +5,80 @@
 void do_event(std::ostream & s, const event_context & context, df::history_event_hist_figure_woundedst *event)
 {
     auto wounder = df::historical_figure::find(event->wounder);
-    event_link(s, context, wounder);
-
-    std::string suffix;
-    BEFORE_SWITCH(type, event->injury_type);
-    switch (type)
-    {
-    case df::history_event_hist_figure_woundedst::T_injury_type::Smash:
-        BEFORE_SWITCH(part_lost, event->part_lost);
-        switch (part_lost)
-        {
-        case 0:
-            s << " smashed";
-            BREAK(part_lost);
-        case 1:
-            s << "crushed";
-            suffix = " to a pulp";
-            BREAK(part_lost);
-        }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Smash", event->id));
-        BREAK(type);
-    case df::history_event_hist_figure_woundedst::T_injury_type::Slash:
-        BEFORE_SWITCH(part_lost, event->part_lost);
-        switch (part_lost)
-        {
-        case 0:
-            s << " cut";
-            BREAK(part_lost);
-        case 1:
-            s << " cut";
-            suffix = " off";
-            BREAK(part_lost);
-        }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Slash", event->id));
-        BREAK(type);
-    case df::history_event_hist_figure_woundedst::T_injury_type::Stab:
-        BEFORE_SWITCH(part_lost, event->part_lost);
-        switch (part_lost)
-        {
-        case 0:
-            s << " stabbed";
-            BREAK(part_lost);
-        case 1:
-            s << " punctured";
-            suffix = " into an indistinguishable mess";
-            BREAK(part_lost);
-        }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Stab", event->id));
-        BREAK(type);
-    case df::history_event_hist_figure_woundedst::T_injury_type::Rip:
-        BEFORE_SWITCH(part_lost, event->part_lost);
-        switch (part_lost)
-        {
-        case 0:
-            s << " ripped";
-            BREAK(part_lost);
-        case 1:
-            s << " tore";
-            suffix = " off";
-            BREAK(part_lost);
-        }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Rip", event->id));
-        BREAK(type);
-    case df::history_event_hist_figure_woundedst::T_injury_type::Burn:
-        BEFORE_SWITCH(part_lost, event->part_lost);
-        switch (part_lost)
-        {
-        case 0:
-            s << " burned";
-            BREAK(part_lost);
-        case 1:
-            s << " burned";
-            suffix = " beyond recognition";
-            BREAK(part_lost);
-        }
-        AFTER_SWITCH(part_lost, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED) Burn", event->id));
-        BREAK(type);
-    }
-    AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
+    auto woundee = df::historical_figure::find(event->woundee);
 
     df::creature_raw *race = df::creature_raw::find(event->woundee_race);
-    df::caste_raw *caste = race ? race->caste.at(event->woundee_caste) : nullptr;
+    df::caste_raw *caste = race ? vector_get(race->caste, event->woundee_caste) : nullptr;
+    df::body_part_raw *bp = caste ? vector_get(caste->body_info.body_parts, event->body_part) : nullptr;
+    bool embedded = bp && bp->flags.is_set(body_part_raw_flags::EMBEDDED);
 
-    auto woundee = df::historical_figure::find(event->woundee);
-    if (woundee)
-    {
-        s << " ";
-        event_link(s, context, woundee);
-        s << "&rsquo;s ";
-    }
-    else
-    {
-        s << " the ";
-    }
-
-    df::body_part_raw *bp = caste ? caste->body_info.body_parts.at(event->body_part) : nullptr;
+    event_link(s, context, woundee);
+    s << "&rsquo;s ";
     if (bp)
     {
-        s << *bp->name_singular.at(0);
+        s << html_escape(*bp->name_singular.at(0));
     }
     else
     {
         s << "[unknown body part]";
     }
+    s << " was ";
 
-    if (woundee == nullptr && caste != nullptr)
+    using injury_type = df::history_event_hist_figure_woundedst::T_injury_type;
+    BEFORE_SWITCH(type, event->injury_type);
+    switch (type)
     {
-        s << " of a " << caste->caste_name[0];
+    case injury_type::Smash:
+        if (!event->part_lost)
+            s << "smashed";
+        else
+            s << "broken away";
+        BREAK(type);
+    case injury_type::Slash:
+        if (!event->part_lost)
+            s << "slashed";
+        else if (embedded)
+            s << "slashed out";
+        else
+            s << "slashed off";
+        BREAK(type);
+    case injury_type::Stab:
+        if (!event->part_lost)
+            s << "stabbed";
+        else if (embedded)
+            s << "stabbed out";
+        else
+            s << "ripped off";
+        BREAK(type);
+    case injury_type::Rip:
+        if (!event->part_lost)
+            s << "ripped";
+        else if (embedded)
+            s << "torn out";
+        else
+            s << "torn off";
+        BREAK(type);
+    case injury_type::Burn:
+        if (!event->part_lost)
+            s << "burned";
+        else if (embedded)
+            s << "burned out";
+        else
+            s << "burned away";
+        BREAK(type);
     }
+    AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_WOUNDED)", event->id));
 
-    s << suffix;
+    if (wounder)
+    {
+        s << " by ";
+        event_link(s, context, wounder);
+
+        if (event->flags2.bits.torture)
+        {
+            s << " as a means of torture";
+        }
+    }
 
     do_location_2(s, context, event);
 }
