@@ -6,7 +6,7 @@
 
 REQUIRE_GLOBAL(world);
 
-bool WebLegends::render_era(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_era(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -16,15 +16,14 @@ bool WebLegends::render_era(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
 
-    simple_header(s, era);
+    simple_header(l, era);
     // TODO
 
     int32_t last_page;
-    if (!history(s, era, page, last_page))
+    if (!history(l.content, era, page, last_page))
     {
         return false;
     }
-    pagination(s, stl_sprintf("era-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
+    pagination(l.content, stl_sprintf("era-%d", id), "", "?page=", page, last_page);
     return true;
 }

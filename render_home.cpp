@@ -6,7 +6,7 @@
 
 REQUIRE_GLOBAL(world);
 
-void WebLegends::render_home(std::ostream & s)
+void WebLegends::render_home(Layout & l)
 {
     CoreSuspender suspend;
 
@@ -15,8 +15,9 @@ void WebLegends::render_home(std::ostream & s)
         return;
     }
 
-    void simple_header(std::ostream &, df::world_data *);
-    simple_header(s, world->world_data);
+    void simple_header(Layout &, df::world_data *);
+    simple_header(l, world->world_data);
+    auto & s = l.content;
     s << "<table>";
     s << "<tr><th><a href=\"eras-0\">Eras</a></th><td>" << world->history.eras.size() << "</td></tr>";
     s << "<tr><th><a href=\"eventcols-0\">Event Collections</a></th><td>" << world->history.event_collections.all.size() << "</td></tr>";
@@ -39,5 +40,5 @@ void WebLegends::render_home(std::ostream & s)
         }
     }
 
-    s << "</table></body></html>";
+    s << "</table>";
 }

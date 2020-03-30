@@ -72,18 +72,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         {
             s << "a ";
         }
-        if (hf->sex == 0 && !pos->name_female[0].empty())
-        {
-            s << pos->name_female[0];
-        }
-        else if (hf->sex == 1 && !pos->name_male[0].empty())
-        {
-            s << pos->name_male[0];
-        }
-        else
-        {
-            s << pos->name[0];
-        }
+        s << sex_name(hf, pos);
         s << " of ";
         event_link(s, context, ent);
         BREAK(type);
@@ -91,18 +80,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         pos = binsearch_in_vector(ent->positions.own, event->position_id);
         event_link(s, context, hf);
         s << " ceased to be a former ";
-        if (hf->sex == 0)
-        {
-            s << pos->name_female[0];
-        }
-        else if (hf->sex == 1)
-        {
-            s << pos->name_male[0];
-        }
-        else
-        {
-            s << pos->name[0];
-        }
+        s << sex_name(hf, pos);
         s << " of ";
         event_link(s, context, ent);
         BREAK(type);
@@ -123,18 +101,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             s << "its";
         }
         s << " claim of the position of ";
-        if (hf->sex == 0)
-        {
-            s << pos->name_female[0];
-        }
-        else if (hf->sex == 1)
-        {
-            s << pos->name_male[0];
-        }
-        else
-        {
-            s << pos->name[0];
-        }
+        s << sex_name(hf, pos);
         s << " of ";
         event_link(s, context, ent);
         BREAK(type);

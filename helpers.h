@@ -77,7 +77,7 @@ const df::language_name & get_name(df::type *name); \
 void link(std::ostream & s, df::type *name); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
 void categorize(std::ostream & s, df::type *name, bool in_link = false, bool in_attr = false); \
-void simple_header(std::ostream & s, df::type *name);
+void simple_header(Layout & l, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 
@@ -161,6 +161,20 @@ static inline std::string html_escape(const std::string & str)
     replace_all(escaped, ">", "&gt;");
     replace_all(escaped, "\n", "<br/>");
     return escaped;
+}
+
+template<typename HF, typename T>
+inline const std::string& sex_name(HF *hf, T *t)
+{
+    if (hf->sex == 0 && !t->name_female[0].empty())
+    {
+        return t->name_female[0];
+    }
+    if (hf->sex == 1 && !t->name_male[0].empty())
+    {
+        return t->name_male[0];
+    }
+    return t->name[0];
 }
 
 #undef WEBLEGENDS_TYPES

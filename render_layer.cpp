@@ -7,7 +7,7 @@
 
 REQUIRE_GLOBAL(world)
 
-bool WebLegends::render_layer(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_layer(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -17,8 +17,9 @@ bool WebLegends::render_layer(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
 
-    simple_header(s, layer);
+    simple_header(l, layer);
 
+    auto & s = l.content;
     render_map_coords(s, layer->region_coords);
 
     s << "<p>";
@@ -31,6 +32,5 @@ bool WebLegends::render_layer(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
     pagination(s, stl_sprintf("layer-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
     return true;
 }

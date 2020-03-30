@@ -877,78 +877,78 @@ void categorize(std::ostream & s, df::world_data *, bool, bool)
 }
 
 template<typename T>
-void simple_header_impl(std::ostream & s, T subject, bool sub = false)
+void simple_header_impl(Layout & l, T subject, bool sub = false)
 {
     const df::language_name & name = get_name(subject);
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>";
+    std::ostringstream title;
     if (name.has_name)
     {
-        s << Translation::TranslateName(&name, false, false);
+        title << DF2UTF(Translation::TranslateName(&name, false, false));
     }
     else
     {
-        s << "unnamed";
-        categorize(s, subject, true, true);
+        title << "unnamed";
+        categorize(title, subject, true, true);
     }
-    s << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << (sub ? "<base href=\"..\">" : "") << "<link rel=\"stylesheet\" href=\"style.css\"></head><body><h1>";
+    l.set_title(title.str());
+    if (sub)
+    {
+        l.set_base_path("..");
+    }
+
     if (name.has_name)
     {
         std::string native = Translation::TranslateName(&name, false, false);
         std::string english = Translation::TranslateName(&name, true, false);
-        s << native;
         if (native != english)
         {
-            s << ", &ldquo;" << english << "&rdquo;";
+            title << ", “" << DF2UTF(english) << "”";
         }
     }
-    else
-    {
-        s << "unnamed";
-        categorize(s, subject, true, false);
-    }
-    s << "</h1>";
+
+    l.add_header_link("", title.str(), true);
 }
 
-void simple_header(std::ostream & s, df::abstract_building *structure)
+void simple_header(Layout & l, df::abstract_building *structure)
 {
-    simple_header_impl(s, structure, true);
+    simple_header_impl(l, structure, true);
 }
-void simple_header(std::ostream & s, df::artifact_record *item)
+void simple_header(Layout & l, df::artifact_record *item)
 {
-    simple_header_impl(s, item);
+    simple_header_impl(l, item);
 }
-void simple_header(std::ostream & s, df::historical_entity *ent)
+void simple_header(Layout & l, df::historical_entity *ent)
 {
-    simple_header_impl(s, ent);
+    simple_header_impl(l, ent);
 }
-void simple_header(std::ostream & s, df::historical_figure *hf)
+void simple_header(Layout & l, df::historical_figure *hf)
 {
-    simple_header_impl(s, hf);
+    simple_header_impl(l, hf);
 }
-void simple_header(std::ostream & s, df::world_region *region)
+void simple_header(Layout & l, df::world_region *region)
 {
-    simple_header_impl(s, region);
+    simple_header_impl(l, region);
 }
-void simple_header(std::ostream & s, df::world_site *site)
+void simple_header(Layout & l, df::world_site *site)
 {
-    simple_header_impl(s, site);
+    simple_header_impl(l, site);
 }
-void simple_header(std::ostream & s, df::world_underground_region *layer)
+void simple_header(Layout & l, df::world_underground_region *layer)
 {
-    simple_header_impl(s, layer);
+    simple_header_impl(l, layer);
 }
-void simple_header(std::ostream & s, df::history_era *era)
+void simple_header(Layout & l, df::history_era *era)
 {
-    simple_header_impl(s, era);
+    simple_header_impl(l, era);
 }
-void simple_header(std::ostream & s, df::history_event_collection *eventcol)
+void simple_header(Layout & l, df::history_event_collection *eventcol)
 {
-    simple_header_impl(s, eventcol);
+    simple_header_impl(l, eventcol);
 }
 // for render_home
-void simple_header(std::ostream & s, df::world_data *world_data)
+void simple_header(Layout & l, df::world_data *world_data)
 {
-    simple_header_impl(s, world_data);
+    simple_header_impl(l, world_data);
 }
 
 df::artifact_record *get_artifact(df::item *i)

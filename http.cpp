@@ -121,7 +121,7 @@ static void not_found(CActiveSocket *sock, const std::string & method, const std
     http_error(sock, method, url, 404, "Not Found", "not found: " + url, http1Point, keepAlive);
 }
 
-static bool check_page(std::ostream & s, const std::string & url, const std::string & prefix, std::function<bool(std::ostream &, int32_t)> handler)
+static bool check_page(Layout & l, const std::string & url, const std::string & prefix, std::function<bool(Layout &, int32_t)> handler)
 {
     if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
     {
@@ -149,10 +149,10 @@ static bool check_page(std::ostream & s, const std::string & url, const std::str
         return false;
     }
 
-    return handler(s, page);
+    return handler(l, page);
 }
 
-static bool check_id(std::ostream & s, const std::string & url, const std::string & prefix, std::function<bool(std::ostream &, int32_t, int32_t)> handler)
+static bool check_id(Layout & l, const std::string & url, const std::string & prefix, std::function<bool(Layout &, int32_t, int32_t)> handler)
 {
     if (url.length() <= prefix.length() || url.substr(0, prefix.length()) != prefix)
     {
@@ -172,20 +172,20 @@ static bool check_id(std::ostream & s, const std::string & url, const std::strin
 
     if (end == url.length() - prefix.length())
     {
-        return handler(s, id, 0);
+        return handler(l, id, 0);
     }
 
-    return check_page(s, url.substr(prefix.length() + end), "?page=", [handler, id](std::ostream & out, int32_t page) -> bool
+    return check_page(l, url.substr(prefix.length() + end), "?page=", [handler, id](Layout & l2, int32_t page) -> bool
     {
         if (page <= 0)
         {
             return false;
         }
-        return handler(out, id, page);
+        return handler(l2, id, page);
     });
 }
 
-static bool check_id_2(std::ostream & s, const std::string & url, const std::string & prefix1, const std::string & prefix2, std::function<bool(std::ostream &, int32_t, int32_t, int32_t)> handler)
+static bool check_id_2(Layout & l, const std::string & url, const std::string & prefix1, const std::string & prefix2, std::function<bool(Layout &, int32_t, int32_t, int32_t)> handler)
 {
     if (url.length() <= prefix1.length() + prefix2.length() || url.substr(0, prefix1.length()) != prefix1)
     {
@@ -203,9 +203,9 @@ static bool check_id_2(std::ostream & s, const std::string & url, const std::str
         return false;
     }
 
-    return check_id(s, url.substr(prefix1.length() + end), prefix2, [handler, id1](std::ostream & out, int32_t id2, int32_t page) -> bool
+    return check_id(l, url.substr(prefix1.length() + end), prefix2, [handler, id1](Layout & l2, int32_t id2, int32_t page) -> bool
     {
-        return handler(out, id1, id2, page);
+        return handler(l2, id1, id2, page);
     });
 }
 
@@ -230,46 +230,53 @@ bool WebLegends::is_world_loaded()
     return true;
 }
 
-DECLARE_RESOURCE(style_css);
+DECLARE_RESOURCE(faux_wikipedia_css);
 
 bool WebLegends::request(weblegends_handler_v1 & response, const std::string & url)
 {
-    std::ostringstream s;
-    bool legacy = true;
-    if (url == "/") { render_home(s); }
-    else if (check_page(s, url, "/ents-", render_entity_list)) {}
-    else if (check_id(s, url, "/ent-", render_entity)) {}
-    else if (check_page(s, url, "/figs-", render_figure_list)) {}
-    else if (check_id(s, url, "/fig-", render_figure)) {}
-    else if (check_page(s, url, "/items-", render_item_list)) {}
-    else if (check_id(s, url, "/item-", render_item)) {}
-    else if (check_page(s, url, "/regions-", render_region_list)) {}
-    else if (check_id(s, url, "/region-", render_region)) {}
-    else if (check_page(s, url, "/sites-", render_site_list)) {}
-    else if (check_id(s, url, "/site-", render_site)) {}
-    else if (check_id_2(s, url, "/site-", "/bld-", render_structure)) {}
-    else if (check_page(s, url, "/layers-", render_layer_list)) {}
-    else if (check_id(s, url, "/layer-", render_layer)) {}
-    else if (check_page(s, url, "/eras-", render_era_list)) {}
-    else if (check_id(s, url, "/era-", render_era)) {}
-    else if (check_page(s, url, "/eventcols-", render_eventcol_list)) {}
-    else if (check_id(s, url, "/eventcol-", render_eventcol)) {}
-    else { legacy = false; }
+    Layout l;
+    bool builtin = true;
+    if (url == "/") { render_home(l); }
+    else if (check_page(l, url, "/ents-", render_entity_list)) {}
+    else if (check_id(l, url, "/ent-", render_entity)) {}
+    else if (check_page(l, url, "/figs-", render_figure_list)) {}
+    else if (check_id(l, url, "/fig-", render_figure)) {}
+    else if (check_page(l, url, "/items-", render_item_list)) {}
+    else if (check_id(l, url, "/item-", render_item)) {}
+    else if (check_page(l, url, "/regions-", render_region_list)) {}
+    else if (check_id(l, url, "/region-", render_region)) {}
+    else if (check_page(l, url, "/sites-", render_site_list)) {}
+    else if (check_id(l, url, "/site-", render_site)) {}
+    else if (check_id_2(l, url, "/site-", "/bld-", render_structure)) {}
+    else if (check_page(l, url, "/layers-", render_layer_list)) {}
+    else if (check_id(l, url, "/layer-", render_layer)) {}
+    else if (check_page(l, url, "/eras-", render_era_list)) {}
+    else if (check_id(l, url, "/era-", render_era)) {}
+    else if (check_page(l, url, "/eventcols-", render_eventcol_list)) {}
+    else if (check_id(l, url, "/eventcol-", render_eventcol)) {}
+    else { builtin = false; }
 
-    if (legacy)
+    if (builtin)
     {
-        auto str = s.str();
-        if (str.empty())
+        if (l.content.str().empty())
             return false;
 
-        response.cp437_out() << str;
+        l.write_to(response);
         return true;
     }
 
     if (url == "/style.css")
     {
+        response.status_code() = 410;
+        response.status_description() = "Gone";
         response.headers()["Content-Type"] = "text/css; charset=utf-8";
-        response.raw_out().write(style_css.data(), style_css.size());
+        return true;
+    }
+
+    if (url == "/faux-wikipedia.css")
+    {
+        response.headers()["Content-Type"] = "text/css; charset=utf-8";
+        response.raw_out().write(faux_wikipedia_css.data(), faux_wikipedia_css.size());
         return true;
     }
 
@@ -304,6 +311,7 @@ bool WebLegends::request(weblegends_handler_v1 & response, const std::string & u
         auto handler = handlers_0->find(prefix);
         if (handler != handlers_0->end())
         {
+            std::ostringstream s;
             handler->second.second(s, rest);
 
             auto str = s.str();

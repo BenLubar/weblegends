@@ -6,7 +6,7 @@
 #include "df/historical_entity.h"
 #include "df/world_site.h"
 
-bool WebLegends::render_entity(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -16,8 +16,9 @@ bool WebLegends::render_entity(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
 
-    simple_header(s, ent);
+    simple_header(l, ent);
 
+    auto & s = l.content;
     s << "<p>";
     categorize(s, ent);
     s << "</p>";
@@ -62,6 +63,5 @@ bool WebLegends::render_entity(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
     pagination(s, stl_sprintf("ent-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
     return true;
 }

@@ -9,7 +9,7 @@
 
 REQUIRE_GLOBAL(world);
 
-bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -19,8 +19,9 @@ bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
 
-    simple_header(s, site);
+    simple_header(l, site);
 
+    auto & s = l.content;
     df::coord2d_path coords;
     for (int32_t x = site->global_min_x; x <= site->global_max_x; x++)
     {
@@ -69,6 +70,5 @@ bool WebLegends::render_site(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
     pagination(s, stl_sprintf("site-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
     return true;
 }

@@ -56,6 +56,7 @@ SET(PROJECT_SRCS
     server.cpp
     http.cpp
     export.cpp
+    layout.cpp
     helpers.cpp
     helpers_content.cpp
     helpers_event.cpp
@@ -85,13 +86,14 @@ SET(PROJECT_HDRS
 
 FILE(GLOB EVENT_SRCS events/*.cpp)
 LIST(APPEND PROJECT_SRCS ${EVENT_SRCS})
+source_group("Source Files\\events" FILES ${EVENT_SRCS})
 
 SET_SOURCE_FILES_PROPERTIES( ${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)
 
 LIST(APPEND PROJECT_SRCS ${PROJECT_HDRS})
 
 SET(PROJECT_EMBEDDED
-    style.css
+    faux-wikipedia.css
 )
 
 EMBED_RESOURCES(PROJECT_EMBEDDED_SRCS ${PROJECT_EMBEDDED})

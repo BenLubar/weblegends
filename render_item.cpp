@@ -37,7 +37,7 @@ static void do_written_content(std::ostream & s, const event_context & context, 
     s << ".";
 }
 
-bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -47,8 +47,9 @@ bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
 
-    simple_header(s, item);
+    simple_header(l, item);
 
+    auto & s = l.content;
     s << "<p>";
     categorize(s, item);
     if (auto crafted = virtual_cast<df::item_crafted>(item->item))
@@ -183,6 +184,5 @@ bool WebLegends::render_item(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
     pagination(s, stl_sprintf("item-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
     return true;
 }

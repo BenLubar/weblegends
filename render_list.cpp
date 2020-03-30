@@ -56,7 +56,7 @@ void do_extra<df::historical_figure>(std::ostream & s, df::historical_figure *ta
 }
 
 template<typename T>
-static bool render_list(std::ostream & s, int32_t page, const std::string & prefix, const std::string & title)
+static bool render_list(Layout & l, int32_t page, const std::string & prefix, const std::string & title)
 {
     auto begin = get_first<T>();
 
@@ -66,7 +66,9 @@ static bool render_list(std::ostream & s, int32_t page, const std::string & pref
         return false;
     }
 
-    s << "<!DOCTYPE html><html><head><meta charset=\"utf-8\"><title>" << title << ", page " << page << "</title><meta name=\"viewport\" content=\"width=device-width, initial-scale=1\"><link rel=\"stylesheet\" href=\"style.css\"></head><body><h1>" << title << "</h1><ul>";
+    l.set_title(stl_sprintf("%s, page %d", title.c_str(), page));
+    l.add_header_link("", title, true);
+    auto & s = l.content;
     for (auto it = begin + (page * items_per_page); it != get_vector<T>().end() && it != begin + ((page + 1) * items_per_page); it++)
     {
         s << "<li>";
@@ -77,39 +79,38 @@ static bool render_list(std::ostream & s, int32_t page, const std::string & pref
     }
     s << "</ul>";
     pagination(s, prefix, "0", "", page, page_count - 1);
-    s << "</body></html>";
     return true;
 }
 
-bool WebLegends::render_entity_list(std::ostream & s, int32_t page)
+bool WebLegends::render_entity_list(Layout & l, int32_t page)
 {
-    return render_list<df::historical_entity>(s, page, "ents-", "Civilizations and other entities");
+    return render_list<df::historical_entity>(l, page, "ents-", "Civilizations and other entities");
 }
-bool WebLegends::render_era_list(std::ostream & s, int32_t page)
+bool WebLegends::render_era_list(Layout & l, int32_t page)
 {
-    return render_list<df::history_era>(s, page, "eras-", "History Eras");
+    return render_list<df::history_era>(l, page, "eras-", "History Eras");
 }
-bool WebLegends::render_eventcol_list(std::ostream & s, int32_t page)
+bool WebLegends::render_eventcol_list(Layout & l, int32_t page)
 {
-    return render_list<df::history_event_collection>(s, page, "eventcols-", "History Event Collections");
+    return render_list<df::history_event_collection>(l, page, "eventcols-", "History Event Collections");
 }
-bool WebLegends::render_figure_list(std::ostream & s, int32_t page)
+bool WebLegends::render_figure_list(Layout & l, int32_t page)
 {
-    return render_list<df::historical_figure>(s, page, "figs-", "Historical Figures");
+    return render_list<df::historical_figure>(l, page, "figs-", "Historical Figures");
 }
-bool WebLegends::render_item_list(std::ostream & s, int32_t page)
+bool WebLegends::render_item_list(Layout & l, int32_t page)
 {
-    return render_list<df::artifact_record>(s, page, "items-", "Artifacts");
+    return render_list<df::artifact_record>(l, page, "items-", "Artifacts");
 }
-bool WebLegends::render_region_list(std::ostream & s, int32_t page)
+bool WebLegends::render_region_list(Layout & l, int32_t page)
 {
-    return render_list<df::world_region>(s, page, "regions-", "Regions");
+    return render_list<df::world_region>(l, page, "regions-", "Regions");
 }
-bool WebLegends::render_site_list(std::ostream & s, int32_t page)
+bool WebLegends::render_site_list(Layout & l, int32_t page)
 {
-    return render_list<df::world_site>(s, page, "sites-", "Sites");
+    return render_list<df::world_site>(l, page, "sites-", "Sites");
 }
-bool WebLegends::render_layer_list(std::ostream & s, int32_t page)
+bool WebLegends::render_layer_list(Layout & l, int32_t page)
 {
-    return render_list<df::world_underground_region>(s, page, "layers-", "Underground Regions");
+    return render_list<df::world_underground_region>(l, page, "layers-", "Underground Regions");
 }

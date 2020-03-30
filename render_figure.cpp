@@ -29,7 +29,7 @@
 #include "df/syndrome.h"
 #include "df/world_site.h"
 
-bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
+bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
 {
     CoreSuspender suspend;
 
@@ -42,8 +42,9 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
     auto race = df::creature_raw::find(hf->race);
     auto caste = (race && hf->caste != -1) ? race->caste.at(hf->caste) : nullptr;
 
-    simple_header(s, hf);
+    simple_header(l, hf);
 
+    auto & s = l.content;
     s << "<p>";
     categorize(s, hf);
     spheres(s, hf);
@@ -255,18 +256,7 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
                     auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                     s << ", ";
-                    if (hf->sex == 0 && !position->name_female[0].empty())
-                    {
-                        s << position->name_female[0];
-                    }
-                    else if (hf->sex == 1 && !position->name_male[0].empty())
-                    {
-                        s << position->name_male[0];
-                    }
-                    else
-                    {
-                        s << position->name[0];
-                    }
+                    s << sex_name(hf, position);
                     if (l->start_year > 0)
                     {
                         s << " (since " << l->start_year << ")";
@@ -279,18 +269,7 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
                     auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                     s << ", ";
-                    if (hf->sex == 0 && !position->name_female[0].empty())
-                    {
-                        s << position->name_female[0];
-                    }
-                    else if (hf->sex == 1 && !position->name_male[0].empty())
-                    {
-                        s << position->name_male[0];
-                    }
-                    else
-                    {
-                        s << position->name[0];
-                    }
+                    s << sex_name(hf, position);
                     if (l->start_year > 0)
                     {
                         s << " (" << l->start_year << "-" << l->end_year << ")";
@@ -307,18 +286,7 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
                     auto assignment = binsearch_in_vector(ent->positions.assignments, l->assignment_id);
                     auto position = binsearch_in_vector(ent->positions.own, assignment->position_id);
                     s << ", ";
-                    if (hf->sex == 0 && !position->name_female[0].empty())
-                    {
-                        s << position->name_female[0];
-                    }
-                    else if (hf->sex == 1 && !position->name_male[0].empty())
-                    {
-                        s << position->name_male[0];
-                    }
-                    else
-                    {
-                        s << position->name[0];
-                    }
+                    s << sex_name(hf, position);
                     if (l->start_year > 0)
                     {
                         s << " (since " << l->start_year << ")";
@@ -521,6 +489,5 @@ bool WebLegends::render_figure(std::ostream & s, int32_t id, int32_t page)
         return false;
     }
     pagination(s, stl_sprintf("fig-%d", id), "", "?page=", page, last_page);
-    s << "</body></html>";
     return true;
 }

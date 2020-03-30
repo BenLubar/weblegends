@@ -94,10 +94,9 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             case job_skill::DODGING:
                 req += "dodging";
                 BREAK(req_skill);
-            }
-            if (!req_skill_found)
-            {
+            default:
                 req += toLower(enum_item_key_str(req_skill));
+                break;
             }
             AFTER_SWITCH(req_skill, stl_sprintf("event-%d (ADD_HF_ENTITY_HONOR) skill", event->id));
 

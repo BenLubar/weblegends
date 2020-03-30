@@ -30,6 +30,7 @@ using namespace df::enums;
 DFhackDataExport extern std::vector<std::string> *plugin_globals;
 
 class Client;
+class Layout;
 
 class WebLegends
 {
@@ -77,24 +78,24 @@ private:
     bool request(weblegends_handler_v1 & response, const std::string & url);
 
     static bool is_world_loaded();
-    static void render_home(std::ostream & s);
-    static bool render_entity(std::ostream & s, int32_t id, int32_t page);
-    static bool render_era(std::ostream & s, int32_t id, int32_t page);
-    static bool render_eventcol(std::ostream & s, int32_t id, int32_t page);
-    static bool render_figure(std::ostream & s, int32_t id, int32_t page);
-    static bool render_item(std::ostream & s, int32_t id, int32_t page);
-    static bool render_region(std::ostream & s, int32_t id, int32_t page);
-    static bool render_site(std::ostream & s, int32_t id, int32_t page);
-    static bool render_structure(std::ostream & s, int32_t site_id, int32_t id, int32_t page);
-    static bool render_layer(std::ostream & s, int32_t id, int32_t page);
-    static bool render_entity_list(std::ostream & s, int32_t page);
-    static bool render_era_list(std::ostream & s, int32_t page);
-    static bool render_eventcol_list(std::ostream & s, int32_t page);
-    static bool render_figure_list(std::ostream & s, int32_t page);
-    static bool render_item_list(std::ostream & s, int32_t page);
-    static bool render_region_list(std::ostream & s, int32_t page);
-    static bool render_site_list(std::ostream & s, int32_t page);
-    static bool render_layer_list(std::ostream & s, int32_t page);
+    static void render_home(Layout & l);
+    static bool render_entity(Layout & l, int32_t id, int32_t page);
+    static bool render_era(Layout & l, int32_t id, int32_t page);
+    static bool render_eventcol(Layout & l, int32_t id, int32_t page);
+    static bool render_figure(Layout & l, int32_t id, int32_t page);
+    static bool render_item(Layout & l, int32_t id, int32_t page);
+    static bool render_region(Layout & l, int32_t id, int32_t page);
+    static bool render_site(Layout & l, int32_t id, int32_t page);
+    static bool render_structure(Layout & l, int32_t site_id, int32_t id, int32_t page);
+    static bool render_layer(Layout & l, int32_t id, int32_t page);
+    static bool render_entity_list(Layout & l, int32_t page);
+    static bool render_era_list(Layout & l, int32_t page);
+    static bool render_eventcol_list(Layout & l, int32_t page);
+    static bool render_figure_list(Layout & l, int32_t page);
+    static bool render_item_list(Layout & l, int32_t page);
+    static bool render_region_list(Layout & l, int32_t page);
+    static bool render_site_list(Layout & l, int32_t page);
+    static bool render_layer_list(Layout & l, int32_t page);
 };
 
 class weblegends_handler_v1_impl : public weblegends_handler_v1
@@ -164,4 +165,23 @@ protected:
     void kill();
     void join();
     friend class WebLegends;
+};
+
+class Layout
+{
+public:
+    std::ostringstream head_content;
+    std::ostringstream header_nav;
+    std::ostringstream sidebar_nav;
+    std::ostringstream content;
+
+    bool in_sidebar_section{};
+
+    void set_title(const std::string & title);
+    void set_base_path(const std::string & url);
+    void add_header_link(const std::string & url, const std::string & label, bool current = false);
+    void add_sidebar_section(const std::string & title);
+    void add_sidebar_link(const std::string & url, const std::string & label);
+
+    void write_to(weblegends_handler_v1 & handler) const;
 };
