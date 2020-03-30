@@ -112,7 +112,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         }
         else
         {
-            requirements.push_back(stl_sprintf("participating in %s battles", honor->required_battles));
+            requirements.push_back(stl_sprintf("participating in %d battles", honor->required_battles));
         }
     }
 
