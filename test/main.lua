@@ -93,7 +93,7 @@ local status = dfhack.run_command('weblegends-export', 'weblegends-tmp')
 local warnings = io.open('weblegends_debug.log', 'r')
 if warnings ~= nil then
     for line in warnings:lines() do
-        print('WARN: ' .. dfhack.df2console(line))
+        print('WARN: ' .. line)
     end
     warnings:close()
 end

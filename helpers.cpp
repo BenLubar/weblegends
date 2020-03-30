@@ -1175,6 +1175,8 @@ bool event_context::related(df::history_event *event) const
         if (!next_era || event->year < next_era->year)
             return true;
     }
+    if (eventcol && vector_contains(eventcol->events, event->id))
+        return true;
     return false;
 }
 
