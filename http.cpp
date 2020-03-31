@@ -235,7 +235,9 @@ DECLARE_RESOURCE(faux_wikipedia_css);
 bool WebLegends::request(weblegends_handler_v1 & response, const std::string & url)
 {
     Layout l;
+
     bool builtin = true;
+    render_sidebar(l);
     if (url == "/") { render_home(l); }
     else if (check_page(l, url, "/ents-", render_entity_list)) {}
     else if (check_id(l, url, "/ent-", render_entity)) {}

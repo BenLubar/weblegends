@@ -13,7 +13,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     bool embedded = bp && bp->flags.is_set(body_part_raw_flags::EMBEDDED);
 
     event_link(s, context, woundee);
-    s << "&rsquo;s ";
+    s << RSQUO "s ";
     if (bp)
     {
         s << html_escape(*bp->name_singular.at(0));

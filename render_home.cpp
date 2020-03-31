@@ -35,10 +35,42 @@ void WebLegends::render_home(Layout & l)
         {
             if (!h.second.first.empty())
             {
-                s << "<tr><th colspan=\"2\"><a href=\"" << h.first << "\">" << h.second.first << "</a></th></tr>";
+                s << "<tr><th><a href=\"" << html_escape(h.first) << "\">" << html_escape(h.second.first) << "</a></th><td></td></tr>";
             }
         }
     }
 
     s << "</table>";
+}
+
+void WebLegends::render_sidebar(Layout & l)
+{
+    CoreSuspender suspend;
+
+    if (!world->world_data)
+    {
+        return;
+    }
+
+    l.add_sidebar_link("eras-0", "Eras");
+    l.add_sidebar_link("eventcols-0", "Event Collections");
+    l.add_sidebar_link("figs-0", "Historical Figures");
+    l.add_sidebar_link("sites-0", "Sites");
+    l.add_sidebar_link("items-0", "Artifacts");
+    l.add_sidebar_link("regions-0", "Regions");
+    l.add_sidebar_link("layers-0", "Underground Regions");
+    l.add_sidebar_link("ents-0", "Civilizations");
+
+    auto handlers = get_handlers_v0();
+    if (handlers != nullptr)
+    {
+        l.add_sidebar_section("Plugins");
+        for (auto & h : *handlers)
+        {
+            if (!h.second.first.empty())
+            {
+                l.add_sidebar_link(h.first, h.second.first);
+            }
+        }
+    }
 }

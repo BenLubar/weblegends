@@ -155,9 +155,9 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
 
     if (name.has_name)
     {
-        s << "<a href=\"" << prefix << id << "\" title=\"" << Translation::TranslateName(&name, true, false) << ",";
+        s << "<a href=\"" << prefix << id << "\" title=\"" << html_escape(DF2UTF(Translation::TranslateName(&name, true, false))) << ",";
         categorize(s, target, true, true);
-        s << "\">" << Translation::TranslateName(&name, false, false) << "</a>";
+        s << "\">" << html_escape(DF2UTF(Translation::TranslateName(&name, false, false))) << "</a>";
     }
     else if (id == -1)
     {
@@ -213,8 +213,8 @@ void link(std::ostream & s, df::world_underground_region *layer)
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last)
 {
-    std::string native = Translation::TranslateName(&name, false, only_last);
-    std::string english = Translation::TranslateName(&name, true, only_last);
+    std::string native = html_escape(DF2UTF(Translation::TranslateName(&name, false, only_last)));
+    std::string english = html_escape(DF2UTF(Translation::TranslateName(&name, true, only_last)));
     if (native != english)
     {
         s << "<abbr title=\"" << english << "\">" << native << "</abbr>";
@@ -239,7 +239,7 @@ static void event_link_name(std::ostream & s, T *reference, T *actual)
         }
         else if (!name.first_name.empty())
         {
-            s << Translation::capitalize(name.first_name);
+            s << DF2UTF(Translation::capitalize(name.first_name));
         }
         else
         {
@@ -357,7 +357,7 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                             s << " of ";
                             if (in_attr)
                             {
-                                s << Translation::TranslateName(&name, false);
+                                s << html_escape(DF2UTF(Translation::TranslateName(&name, false)));
                             }
                             else
                             {
@@ -383,7 +383,7 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                             s << " of ";
                             if (in_attr)
                             {
-                                s << Translation::TranslateName(&name, false);
+                                s << html_escape(DF2UTF(Translation::TranslateName(&name, false)));
                             }
                             else
                             {
@@ -465,7 +465,7 @@ void categorize(std::ostream & s, df::artifact_record *item, bool in_link, bool 
 
     s << " ";
     material(s, event_context(), item->item, in_link, in_attr);
-    s << " " << ItemTypeInfo(item->item).toString();
+    s << " " << html_escape(DF2UTF(ItemTypeInfo(item->item).toString()));
 }
 void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
 {
@@ -477,7 +477,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
 
     if (auto race = df::creature_raw::find(ent->race))
     {
-        s << " " << race->name[2];
+        s << " " << html_escape(DF2UTF(race->name[2]));
     }
 
     BEFORE_SWITCH(type, ent->type);
@@ -586,7 +586,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
                 s << " male";
             }
         }
-        s << " " << name << suffix;
+        s << " " << html_escape(DF2UTF(name)) << suffix;
 
         if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
         {
@@ -602,7 +602,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
     {
         if (!hf->info->curse->name.empty())
         {
-            s << " " << hf->info->curse->name;
+            s << " " << html_escape(DF2UTF(hf->info->curse->name));
         }
         for (auto it = hf->info->curse->active_effects.begin(); it != hf->info->curse->active_effects.end(); it++)
         {
@@ -628,7 +628,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
                         auto race_caste = find_creature_raws(transformation->race_str, transformation->caste_str);
                         if (race_caste.second)
                         {
-                            s << " " << race_caste.second->caste_name[0];
+                            s << " " << html_escape(DF2UTF(race_caste.second->caste_name[0]));
                         }
                     }
                 }
@@ -654,6 +654,15 @@ void categorize(std::ostream & s, df::world_region *region, bool, bool)
     {
         s << " region";
         return;
+    }
+
+    if (region->good)
+    {
+        s << " good";
+    }
+    if (region->evil)
+    {
+        s << " evil";
     }
 
     BEFORE_SWITCH(type, region->type);
@@ -704,7 +713,7 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
     {
         if (auto race = df::creature_raw::find(ent->race))
         {
-            s << " " << race->name[2];
+            s << " " << html_escape(DF2UTF(race->name[2]));
         }
     }
     else
@@ -728,7 +737,7 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         {
             if (auto race = df::creature_raw::find(ent->race))
             {
-                s << " " << race->name[2];
+                s << " " << html_escape(DF2UTF(race->name[2]));
             }
         }
     }
@@ -891,10 +900,7 @@ void simple_header_impl(Layout & l, T subject, bool sub = false)
         categorize(title, subject, true, true);
     }
     l.set_title(title.str());
-    if (sub)
-    {
-        l.set_base_path("..");
-    }
+    l.set_base_path(sub ? ".." : ".");
 
     if (name.has_name)
     {
@@ -902,7 +908,7 @@ void simple_header_impl(Layout & l, T subject, bool sub = false)
         std::string english = Translation::TranslateName(&name, true, false);
         if (native != english)
         {
-            title << ", “" << DF2UTF(english) << "”";
+            title << ", " LDQUO << DF2UTF(english) << RDQUO;
         }
     }
 
@@ -1341,28 +1347,6 @@ void born_died(std::ostream & s, df::historical_figure *hf)
         year(s, hf->died_year, hf->died_seconds);
     }
     s << ")";
-}
-
-void render_map_coords(std::ostream &s, const df::coord2d_path &coords, int32_t mul)
-{
-    s << "<svg width=\"100%\" class=\"map\" viewBox=\"0 0 " << (world->world_data->world_width * mul) << " " << (world->world_data->world_height * mul) << "\">";
-    for (size_t i = 0; i < coords.size(); i++)
-    {
-        int width = 1;
-        int height = 1;
-        while (i + 1 < coords.size() && coords.x.at(i) == coords.x.at(i + 1) && coords.y.at(i) + 1 == coords.y.at(i + 1))
-        {
-            height++;
-            i++;
-        }
-        while (i + height < coords.size() && coords.x.at(i) + 1 == coords.x.at(i + height) && coords.y.at(i) == coords.y.at(i + height))
-        {
-            width++;
-            i += height;
-        }
-        s << "<rect width=\"" << width << "\" height=\"" << height << "\" x=\"" << (coords.x.at(i) - width + 1) << "\" y=\"" << (coords.y.at(i) - height + 1) << "\"></rect>";
-    }
-    s << "</svg>";
 }
 
 std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::string & creature_id, const std::string & caste_id)

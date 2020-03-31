@@ -79,6 +79,7 @@ private:
 
     static bool is_world_loaded();
     static void render_home(Layout & l);
+    static void render_sidebar(Layout & l);
     static bool render_entity(Layout & l, int32_t id, int32_t page);
     static bool render_era(Layout & l, int32_t id, int32_t page);
     static bool render_eventcol(Layout & l, int32_t id, int32_t page);

@@ -1,6 +1,7 @@
 html {
     --text-color: #222;
     --faded-text-color: #444;
+    --bright-text-color: #000;
     --off-background-color: #f6f6f6;
     --background-color: #fff;
     --link-color: #0645ad;
@@ -11,6 +12,7 @@ html {
 }
 html, body {
     height: 100%;
+    min-width: 280px;
     margin: 0;
     padding: 0;
     font-family: sans-serif;
@@ -150,10 +152,90 @@ main {
     border-right-width: 0;
     margin-top: -1px;
 }
+main::after {
+    display: table;
+    clear: both;
+    content: '';
+}
+
+.map {
+    max-width: 300px;
+    border: 1px solid var(--border-color);
+    float: right;
+    fill: var(--text-color);
+    background-color: var(--off-background-color);
+}
+
+.map path {
+    fill-rule: evenodd;
+}
+
+.map .outline {
+    transition: fill-opacity 0.25s;
+    fill-opacity: 0.125;
+    stroke: var(--bright-text-color);
+    fill: var(--bright-text-color);
+    stroke-width: 0.25px;
+}
+
+.map:hover .outline {
+    fill-opacity: 0.75;
+}
+
+.biome-mountain                         { fill: #777; }
+.biome-glacier                          { fill: #fff; }
+.biome-tundra                           { fill: #fff; }
+.biome-swamp_temperate_freshwater       { fill: #470; }
+.biome-swamp_temperate_saltwater        { fill: #470; }
+.biome-marsh_temperate_freshwater       { fill: #470; }
+.biome-marsh_temperate_saltwater        { fill: #470; }
+.biome-swamp_tropical_freshwater        { fill: #470; }
+.biome-swamp_tropical_saltwater         { fill: #470; }
+.biome-swamp_mangrove                   { fill: #470; }
+.biome-marsh_tropical_freshwater        { fill: #470; }
+.biome-marsh_tropical_saltwater         { fill: #470; }
+.biome-forest_taiga                     { fill: #070; }
+.biome-forest_temperate_conifer         { fill: #070; }
+.biome-forest_temperate_broadleaf       { fill: #070; }
+.biome-forest_tropical_conifer          { fill: #070; }
+.biome-forest_tropical_dry_broadleaf    { fill: #070; }
+.biome-forest_tropical_moist_broadleaf  { fill: #070; }
+.biome-grassland_temperate              { fill: #7c0; }
+.biome-savanna_temperate                { fill: #7c0; }
+.biome-shrubland_temperate              { fill: #7c0; }
+.biome-grassland_tropical               { fill: #7c0; }
+.biome-savanna_tropical                 { fill: #7c0; }
+.biome-shrubland_tropical               { fill: #7c0; }
+.biome-desert_badland                   { fill: #ff0; }
+.biome-desert_rock                      { fill: #ff0; }
+.biome-desert_sand                      { fill: #ff0; }
+.biome-ocean_tropical                   { fill: #07c; }
+.biome-ocean_temperate                  { fill: #07c; }
+.biome-ocean_arctic                     { fill: #07c; }
+.biome-pool_temperate_freshwater        { fill: #07c; }
+.biome-pool_temperate_brackishwater     { fill: #07c; }
+.biome-pool_temperate_saltwater         { fill: #07c; }
+.biome-pool_tropical_freshwater         { fill: #07c; }
+.biome-pool_tropical_brackishwater      { fill: #07c; }
+.biome-pool_tropical_saltwater          { fill: #07c; }
+.biome-lake_temperate_freshwater        { fill: #07c; }
+.biome-lake_temperate_brackishwater     { fill: #07c; }
+.biome-lake_temperate_saltwater         { fill: #07c; }
+.biome-lake_tropical_freshwater         { fill: #07c; }
+.biome-lake_tropical_brackishwater      { fill: #07c; }
+.biome-lake_tropical_saltwater          { fill: #07c; }
+.biome-river_temperate_freshwater       { fill: #07c; }
+.biome-river_temperate_brackishwater    { fill: #07c; }
+.biome-river_temperate_saltwater        { fill: #07c; }
+.biome-river_tropical_freshwater        { fill: #07c; }
+.biome-river_tropical_brackishwater     { fill: #07c; }
+.biome-river_tropical_saltwater         { fill: #07c; }
+
 @media (prefers-color-scheme: dark) {
     html {
         --text-color: #ddd;
         --faded-text-color: #aaa;
+        --bright-text-color: #fff;
         --background-color: #000;
         --off-background-color: #0d0d0d;
         --link-color: #7998ca;
@@ -164,9 +246,53 @@ main {
     }
 }
 
-/* TODO */
-.map {
-    max-width: 500px;
-    border: 1px solid;
-    float: right;
+@media (max-width: 480px) {
+    header {
+        padding-left: 0;
+        height: auto;
+    }
+    header nav {
+        margin-top: 0;
+        float: none;
+    }
+    #logo, #logo a, #logo svg {
+        float: left;
+        width: 30px;
+        height: 2.5em;
+        margin: 0;
+    }
+    #logo svg path {
+        transform: translateY(1px);
+    }
+    #logo svg text {
+        display: none;
+    }
+    main {
+        margin-left: 0;
+        border-left: 0;
+    }
+    aside {
+        position: static;
+        width: auto;
+        padding-left: 0;
+    }
+}
+
+@media (max-width: 640px) {
+    .map {
+        max-width: none;
+        float: none;
+    }
+}
+
+@media (min-width: 960px) {
+    .multicol {
+        column-count: 2;
+    }
+}
+
+@media (min-width: 1200px) {
+    .multicol {
+        column-count: 3;
+    }
 }

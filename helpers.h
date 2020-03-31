@@ -10,6 +10,11 @@ namespace DFHack
     struct MaterialInfo;
 }
 
+#define LDQUO "\xE2\x80\x9C"
+#define RDQUO "\xE2\x80\x9D"
+#define LSQUO "\xE2\x80\x98"
+#define RSQUO "\xE2\x80\x99"
+
 #define WEBLEGENDS_TYPES \
     WEBLEGENDS_TYPE(abstract_building, structure) \
     WEBLEGENDS_TYPE(artifact_record, item) \
@@ -137,7 +142,7 @@ void spheres(std::ostream & s, df::historical_figure *hf);
 void year(std::ostream & s, int32_t year, int32_t tick);
 void born_died(std::ostream & s, df::historical_figure *hf);
 
-void render_map_coords(std::ostream &s, const df::coord2d_path &coords, int32_t mul = 1);
+void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_t mul = 1);
 
 std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::string & creature_id, const std::string & caste_id = std::string());
 
