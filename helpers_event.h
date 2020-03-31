@@ -88,33 +88,33 @@ inline void do_location_1_structure(std::ostream & s, const event_context & cont
 }
 
 template<typename T>
-inline void do_location_2(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
+inline void do_location_2(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
 {
     if (auto loc = df::world_site::find(event->site))
     {
-        if (loc != context.site)
+        if (loc != context.site || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }
     if (auto loc = df::world_region::find(event->region))
     {
-        if (loc != context.region)
+        if (loc != context.region || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }
     // TODO: df::coord2d region_pos;
     if (auto loc = df::world_underground_region::find(event->layer))
     {
-        if (loc != context.layer)
+        if (loc != context.layer || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }

@@ -49,5 +49,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(state);
     }
     AFTER_SWITCH(state, stl_sprintf("event-%d (CHANGE_HF_STATE)", event->id));
-    do_location_2(s, context, event, separator);
+    do_location_2(s, context, event, separator, true);
 }
