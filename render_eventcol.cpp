@@ -16,17 +16,20 @@ bool WebLegends::render_eventcol(Layout & l, int32_t id, int32_t page)
         return false;
     }
 
-    bool part_of_hierarchy = false;
     if (auto parent = df::history_event_collection::find(eventcol->getParent()))
     {
         std::string name;
         parent->getName(&name);
         l.add_header_link(stl_sprintf("eventcol-%d", parent->id), DF2UTF(name));
-        part_of_hierarchy = true;
     }
 
     simple_header(l, eventcol);
     // TODO
+
+    df::coord2d_path coords;
+    coords.push_back(df::coord2d());
+    eventcol->getRegionCoords(&coords.x.at(0), &coords.y.at(0));
+    render_map_coords(l.content, coords);
 
     bool first = true;
     for (auto child_id : eventcol->collections)
@@ -42,8 +45,6 @@ bool WebLegends::render_eventcol(Layout & l, int32_t id, int32_t page)
             l.content << "<li>";
             link(l.content, child);
             l.content << "</li>";
-
-            part_of_hierarchy = true;
         }
     }
     if (!first)
@@ -54,7 +55,7 @@ bool WebLegends::render_eventcol(Layout & l, int32_t id, int32_t page)
     int32_t last_page;
     if (!history(l.content, eventcol, page, last_page))
     {
-        return !part_of_hierarchy;
+        return !page;
     }
     pagination(l.content, stl_sprintf("eventcol-%d", id), "", "?page=", page, last_page);
     return true;
