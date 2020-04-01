@@ -67,7 +67,7 @@ static bool render_list(Layout & l, int32_t page, const std::string & prefix, co
     }
 
     l.set_title(stl_sprintf("%s, page %d", title.c_str(), page));
-    l.set_base_path(".");
+    l.set_base_path("./");
     l.add_header_link("", title, true);
     auto & s = l.content;
     for (auto it = begin + (page * items_per_page); it != get_vector<T>().end() && it != begin + ((page + 1) * items_per_page); it++)

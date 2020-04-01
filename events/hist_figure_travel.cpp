@@ -21,5 +21,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(reason);
     }
     AFTER_SWITCH(reason, stl_sprintf("event-%d (HIST_FIGURE_TRAVEL)", event->id));
-    do_location_2(s, context, event, prefix);
+    do_location_2(s, context, event, prefix, true);
 }

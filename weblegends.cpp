@@ -48,8 +48,13 @@ static command_result do_unload(color_ostream & out)
     return res;
 }
 
+void clear_region_map_cache();
 DFhackCExport command_result plugin_onstatechange(color_ostream & out, state_change_event sc)
 {
+    if (sc == SC_WORLD_LOADED || sc == SC_WORLD_UNLOADED)
+    {
+        clear_region_map_cache();
+    }
     if (sc == SC_BEGIN_UNLOAD)
     {
         return do_unload(out);

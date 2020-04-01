@@ -49,6 +49,8 @@ endforeach()
 
 file(WRITE events.h "${EVENT_HEADER_1}${EVENT_HEADER_2}\n")
 
+include_directories(thirdparty/lodepng)
+
 add_subdirectory(thirdparty/embed-resource EXCLUDE_FROM_ALL)
 
 SET(PROJECT_SRCS
@@ -72,6 +74,7 @@ SET(PROJECT_SRCS
     render_layer.cpp
     render_list.cpp
     debug.cpp
+    thirdparty/lodepng/lodepng.cpp
 )
 
 SET(PROJECT_HDRS
@@ -82,6 +85,7 @@ SET(PROJECT_HDRS
     events.h
     weblegends-plugin.h
     weblegends-git-describe.h
+    thirdparty/lodepng/lodepng.h
 )
 
 FILE(GLOB EVENT_SRCS events/*.cpp)

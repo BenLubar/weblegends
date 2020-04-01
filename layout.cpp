@@ -1,9 +1,13 @@
 #include "weblegends.h"
 #include "helpers.h"
+#include "lodepng.h"
 
+#include "modules/Gui.h"
 #include "modules/Maps.h"
 
 #include "df/coord2d_path.h"
+#include "df/viewscreen_export_graphical_mapst.h"
+#include "df/viewscreen_legendsst.h"
 #include "df/world.h"
 #include "df/world_data.h"
 #include "df/world_region.h"
@@ -56,7 +60,7 @@ void Layout::write_to(weblegends_handler_v1& handler) const
     handler.raw_out() << "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\"><head><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"faux-wikipedia.css\">";
     handler.raw_out() << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << head_content.str() << "</head>";
     handler.raw_out() << "<body><header><div id=\"logo\" role=\"banner\"><a href=\"\" title=\"Visit the main page\">";
-    handler.raw_out() << "<svg viewBox=\"0 0 20 29\"><path d=\"m3 1v2h-2v16h2v2h4v2h2v2h6v-4h2v-2h2v-16h-2v-2z\" fill=\"#000\"></path>";
+    handler.raw_out() << "<svg viewBox=\"0 0 20 29\" width=\"160\" height=\"160\"><path d=\"m3 1v2h-2v16h2v2h4v2h2v2h6v-4h2v-2h2v-16h-2v-2z\" fill=\"#000\"></path>";
     handler.raw_out() << "<path d=\"m4 2v2h12v-2zm12 2v6h2v-6zm-12 0h-2v6h2zm2 4v2h2v-2zm6 0v2h2v-2zm-4 6v2h4v-2z\" fill=\"#fff\"></path>";
     handler.raw_out() << "<path d=\"m2 10v8h2v2h4v2h2v2h4v-4h2v-2h2v-8h-2v2h-12v-2zm4 4h8v2h-8z\" fill=\"#c0c0c0\"></path>";
     handler.raw_out() << "<text y=\"28\" x=\"11\">WeblegendS</text></svg></a></div><nav><ul>" << header_nav.str() << "</ul></nav></header>";
@@ -287,32 +291,148 @@ static void render_coord_path(std::ostream & s, const std::string & className, c
     s << "\"></path>";
 }
 
-static void render_region_map(std::ostream & s)
+#pragma pack(push, 1)
+struct rgb_color
 {
-    FOR_ENUM_ITEMS(biome_type, biome)
+    uint8_t r;
+    uint8_t g;
+    uint8_t b;
+
+    bool operator<(const rgb_color & other) const
     {
-        df::coord2d_path biome_coords;
-        bool first = true;
-        for (uint16_t x = 0; x < world->world_data->world_width; x++)
-        {
-            for (uint16_t y = 0; y < world->world_data->world_height; y++)
-            {
-                if (Maps::GetBiomeType(x, y) == biome)
-                {
-                    biome_coords.push_back(df::coord2d(x, y));
-                }
-            }
-        }
-        render_coord_path(s, "biome-" + toLower(enum_item_key_str(biome)), biome_coords);
+        if (r != other.r)
+            return r < other.r;
+        if (g != other.g)
+            return g < other.g;
+        return b < other.b;
     }
+};
+#pragma pack(pop)
+
+static const std::map<rgb_color, df::biome_type> biome_type_colors =
+{
+    std::make_pair(rgb_color{128, 128, 128}, biome_type::MOUNTAIN),
+    std::make_pair(rgb_color{0, 224, 255}, biome_type::LAKE_TEMPERATE_FRESHWATER),
+    std::make_pair(rgb_color{0, 192, 255}, biome_type::LAKE_TEMPERATE_BRACKISHWATER),
+    std::make_pair(rgb_color{0, 160, 255}, biome_type::LAKE_TEMPERATE_SALTWATER),
+    std::make_pair(rgb_color{0, 96, 255}, biome_type::LAKE_TROPICAL_FRESHWATER),
+    std::make_pair(rgb_color{0, 64, 255}, biome_type::LAKE_TROPICAL_BRACKISHWATER),
+    std::make_pair(rgb_color{0, 32, 255}, biome_type::LAKE_TROPICAL_SALTWATER),
+    std::make_pair(rgb_color{0, 255, 255}, biome_type::OCEAN_ARCTIC),
+    std::make_pair(rgb_color{0, 0, 255}, biome_type::OCEAN_TROPICAL),
+    std::make_pair(rgb_color{0, 128, 255}, biome_type::OCEAN_TEMPERATE),
+    std::make_pair(rgb_color{64, 255, 255}, biome_type::GLACIER),
+    std::make_pair(rgb_color{128, 255, 255}, biome_type::TUNDRA),
+    std::make_pair(rgb_color{96, 192, 128}, biome_type::SWAMP_TEMPERATE_FRESHWATER),
+    std::make_pair(rgb_color{64, 192, 128}, biome_type::SWAMP_TEMPERATE_SALTWATER),
+    std::make_pair(rgb_color{96, 255, 128}, biome_type::MARSH_TEMPERATE_FRESHWATER),
+    std::make_pair(rgb_color{64, 255, 128}, biome_type::MARSH_TEMPERATE_SALTWATER),
+    std::make_pair(rgb_color{96, 192, 64}, biome_type::SWAMP_TROPICAL_FRESHWATER),
+    std::make_pair(rgb_color{64, 192, 64}, biome_type::SWAMP_TROPICAL_SALTWATER),
+    std::make_pair(rgb_color{64, 255, 96}, biome_type::SWAMP_MANGROVE),
+    std::make_pair(rgb_color{96, 255, 64}, biome_type::MARSH_TROPICAL_FRESHWATER),
+    std::make_pair(rgb_color{64, 255, 64}, biome_type::MARSH_TROPICAL_SALTWATER),
+    std::make_pair(rgb_color{0, 96, 64}, biome_type::FOREST_TAIGA),
+    std::make_pair(rgb_color{0, 96, 32}, biome_type::FOREST_TEMPERATE_CONIFER),
+    std::make_pair(rgb_color{0, 160, 32}, biome_type::FOREST_TEMPERATE_BROADLEAF),
+    std::make_pair(rgb_color{0, 96, 0}, biome_type::FOREST_TROPICAL_CONIFER),
+    std::make_pair(rgb_color{0, 128, 0}, biome_type::FOREST_TROPICAL_DRY_BROADLEAF),
+    std::make_pair(rgb_color{0, 160, 0}, biome_type::FOREST_TROPICAL_MOIST_BROADLEAF),
+    std::make_pair(rgb_color{0, 255, 32}, biome_type::GRASSLAND_TEMPERATE),
+    std::make_pair(rgb_color{0, 224, 32}, biome_type::SAVANNA_TEMPERATE),
+    std::make_pair(rgb_color{0, 192, 32}, biome_type::SHRUBLAND_TEMPERATE),
+    std::make_pair(rgb_color{255, 160, 0}, biome_type::GRASSLAND_TROPICAL),
+    std::make_pair(rgb_color{255, 176, 0}, biome_type::SAVANNA_TROPICAL),
+    std::make_pair(rgb_color{255, 192, 0}, biome_type::SHRUBLAND_TROPICAL),
+    std::make_pair(rgb_color{255, 96, 32}, biome_type::DESERT_BADLAND),
+    std::make_pair(rgb_color{255, 255, 0}, biome_type::DESERT_SAND),
+    std::make_pair(rgb_color{255, 128, 64}, biome_type::DESERT_ROCK),
+};
+
+static std::string cached_region_map;
+
+void clear_region_map_cache()
+{
+    CoreSuspender suspend;
+    cached_region_map.clear();
+}
+
+void render_region_map(std::ostream & s)
+{
+    CoreSuspender suspend;
+    if (!cached_region_map.empty())
+    {
+        s << cached_region_map;
+        return;
+    }
+
+    auto real_curview = Gui::getCurViewscreen(false);
+
+    // call up legends screen and immediately swap to export map screen
+    // this allows us to use the game's logic for generating the region details structures
+    auto legends = df::allocate<df::viewscreen_legendsst>();
+    real_curview->child = legends;
+    legends->parent = real_curview;
+    legends->feed_key(interface_key::LEGENDS_EXPORT_DETAILED_MAP);
+    real_curview->child = nullptr;
+    legends->parent = nullptr;
+    std::unique_ptr<df::viewscreen_export_graphical_mapst> exporter(static_cast<df::viewscreen_export_graphical_mapst *>(legends->child));
+    legends->child = nullptr;
+    exporter->parent = nullptr;
+    delete legends;
+
+    // we now have a map exporter screen that's not part of the UI hierarchy
+    // we're going to be very silly and manipulate it directly
+    int32_t width = world->world_data->world_width;
+    int32_t height = world->world_data->world_height;
+    exporter->in_select = false;
+    exporter->sel_type = export_map_type::biome;
+    exporter->x0 = 0;
+    exporter->y0 = 0;
+    exporter->x1 = int16_t(width - 1);
+    exporter->y1 = int16_t(height - 1);
+    exporter->cur_x = 0;
+    exporter->cur_y = 0;
+    exporter->map_width = width;
+    exporter->map_height = height;
+    width *= 16;
+    height *= 16;
+    exporter->numtiles_map_width = width;
+    exporter->numtiles_map_width = height;
+    auto rgb_buffer = new rgb_color[width * height];
+    exporter->rgb_buffer = rgb_buffer;
+
+    // each call to logic() renders one column of the image
+    while (exporter->breakdown_level != interface_breakdown_types::STOPSCREEN)
+    {
+        exporter->logic();
+    }
+
+    // the map exporter writes files in its destructor
+    // pretend we didn't get that far so we only clean up memory
+    exporter->rgb_buffer = nullptr;
+    exporter->in_select = true;
+
+    uint8_t *png_data;
+    size_t png_size;
+
+    lodepng_encode24(&png_data, &png_size, reinterpret_cast<uint8_t *>(rgb_buffer), unsigned(width), unsigned(height));
+
+    delete[] rgb_buffer;
+    cached_region_map = std::string(reinterpret_cast<char *>(png_data), png_size);
+    free(png_data);
+
+    s << cached_region_map;
 }
 
 void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_t mul)
 {
+    int32_t w = world->world_data->world_width;
+    int32_t h = world->world_data->world_height;
     int32_t x0 = 0;
     int32_t y0 = 0;
-    int32_t x1 = world->world_data->world_width * mul;
-    int32_t y1 = world->world_data->world_height * mul;
+    int32_t x1 = w * mul;
+    int32_t y1 = h * mul;
 
     int32_t minx = x1, maxx = x0;
     int32_t miny = y1, maxy = y0;
@@ -346,10 +466,10 @@ void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_
     y0 = std::max(y0, miny - dy);
     y1 = std::min(y1, maxy + dy);
 
-    s << "<svg width=\"100%\" class=\"map\" viewBox=\"" << x0 << " " << y0 << " " << (x1 - x0) << " " << (y1 - y0) << "\">";
-    s << "<g transform=\"scale(" << mul << ")\">";
-    render_region_map(s);
-    s << "</g>";
+    s << "<svg width=\"100\" height=\"100\" class=\"map\" viewBox=\"" << x0 << " " << y0 << " " << (x1 - x0) << " " << (y1 - y0) << "\">";
+    s << "<foreignObject x=\"0\" y=\"0\" width=\"" << w << "\" height=\"" << h << "\" transform=\"scale(" << mul << ")\">";
+    s << "<img src=\"region.svg\" width=\"" << w << "\" height=\"" << h << "\"/>";
+    s << "</foreignObject>";
     render_coord_path(s, "outline", coords);
     s << "</svg>";
 }

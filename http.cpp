@@ -282,6 +282,14 @@ bool WebLegends::request(weblegends_handler_v1 & response, const std::string & u
         return true;
     }
 
+    if (url == "/region.png")
+    {
+        void render_region_map(std::ostream & s);
+        response.headers()["Content-Type"] = "image/png";
+        render_region_map(response.raw_out());
+        return true;
+    }
+
     size_t pos = url.find_first_of("/?", 1);
 
     std::string prefix, rest;

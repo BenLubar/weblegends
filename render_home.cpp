@@ -18,15 +18,16 @@ void WebLegends::render_home(Layout & l)
     void simple_header(Layout &, df::world_data *);
     simple_header(l, world->world_data);
     auto & s = l.content;
-    s << "<table>";
-    s << "<tr><th><a href=\"eras-0\">Eras</a></th><td>" << world->history.eras.size() << "</td></tr>";
-    s << "<tr><th><a href=\"eventcols-0\">Event Collections</a></th><td>" << world->history.event_collections.all.size() << "</td></tr>";
-    s << "<tr><th><a href=\"figs-0\">Historical Figures</a></th><td>" << world->history.figures.size() << "</td></tr>";
-    s << "<tr><th><a href=\"sites-0\">Sites</a></th><td>" << world->world_data->sites.size() << "</td></tr>";
-    s << "<tr><th><a href=\"items-0\">Artifacts</a></th><td>" << world->artifacts.all.size() << "</td></tr>";
-    s << "<tr><th><a href=\"regions-0\">Regions</a></th><td>" << world->world_data->regions.size() << "</td></tr>";
-    s << "<tr><th><a href=\"layers-0\">Underground Regions</a></th><td>" << world->world_data->underground_regions.size() << "</td></tr>";
-    s << "<tr><th><a href=\"ents-0\">Civilizations and other entities</a></th><td>" << world->entities.all.size() << "</td></tr>";
+    s << "<img src=\"region.png\" width=\"100\" height=\"100\" class=\"map\">";
+    s << "<table class=\"home-links\">";
+    s << "<tr><th><a href=\"eras-0\">Eras</a></th><td>" << format_number(world->history.eras.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"eventcols-0\">Event Collections</a></th><td>" << format_number(world->history.event_collections.all.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"figs-0\">Historical Figures</a></th><td>" << format_number(world->history.figures.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"sites-0\">Sites</a></th><td>" << format_number(world->world_data->sites.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"items-0\">Artifacts</a></th><td>" << format_number(world->artifacts.all.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"regions-0\">Regions</a></th><td>" << format_number(world->world_data->regions.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"layers-0\">Underground Regions</a></th><td>" << format_number(world->world_data->underground_regions.size()) << "</td></tr>";
+    s << "<tr><th><a href=\"ents-0\">Civilizations and other entities</a></th><td>" << format_number(world->entities.all.size()) << "</td></tr>";
 
     auto handlers = get_handlers_v0();
     if (handlers != nullptr)
@@ -64,11 +65,16 @@ void WebLegends::render_sidebar(Layout & l)
     auto handlers = get_handlers_v0();
     if (handlers != nullptr)
     {
-        l.add_sidebar_section("Plugins");
+        bool first = true;
         for (auto & h : *handlers)
         {
             if (!h.second.first.empty())
             {
+                if (first)
+                {
+                    l.add_sidebar_section("Plugins");
+                    first = false;
+                }
                 l.add_sidebar_link(h.first, h.second.first);
             }
         }

@@ -900,7 +900,7 @@ void simple_header_impl(Layout & l, T subject, bool sub = false)
         categorize(title, subject, true, true);
     }
     l.set_title(title.str());
-    l.set_base_path(sub ? ".." : ".");
+    l.set_base_path(sub ? "../" : "./");
 
     if (name.has_name)
     {
@@ -1295,6 +1295,40 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
         }
         s << "</p></nav>";
     }
+}
+
+std::string format_number(uint64_t number)
+{
+    if (!number)
+    {
+        return "0";
+    }
+
+    // UINT64_MAX (for correct capacity)
+    char buf[] = "18,446,744,073,709,551,615";
+    // start pointing at null terminator
+    char *ptr = &buf[sizeof(buf) - 1];
+    while (number)
+    {
+        ptr--;
+        if (*ptr == ',')
+        {
+            ptr--;
+        }
+        *ptr = '0' + (number % 10);
+        number /= 10;
+    }
+
+    return ptr;
+}
+
+std::string format_number(int64_t number)
+{
+    if (number < 0)
+    {
+        return "-" + format_number(uint64_t(-number));
+    }
+    return format_number(uint64_t(number));
 }
 
 void spheres(std::ostream & s, df::historical_figure *hf)

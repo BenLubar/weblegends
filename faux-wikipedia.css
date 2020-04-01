@@ -158,7 +158,25 @@ main::after {
     content: '';
 }
 
+.home-links th {
+    text-align: left;
+    padding: 2px 4px 2px 8px;
+}
+.home-links td {
+    text-align: right;
+    padding: 2px 8px 2px 4px;
+}
+.home-links tr:hover {
+    background-color: var(--off-background-color);
+}
+
+svg {
+    shape-rendering: geometricprecision;
+}
+
 .map {
+    width: 100%;
+    height: auto;
     max-width: 300px;
     border: 1px solid var(--border-color);
     float: right;
@@ -166,7 +184,7 @@ main::after {
     background-color: var(--off-background-color);
 }
 
-.map path {
+.map path, #region path {
     fill-rule: evenodd;
 }
 
@@ -182,54 +200,42 @@ main::after {
     fill-opacity: 0.75;
 }
 
-.biome-mountain                         { fill: #777; }
-.biome-glacier                          { fill: #fff; }
-.biome-tundra                           { fill: #fff; }
-.biome-swamp_temperate_freshwater       { fill: #470; }
-.biome-swamp_temperate_saltwater        { fill: #470; }
-.biome-marsh_temperate_freshwater       { fill: #470; }
-.biome-marsh_temperate_saltwater        { fill: #470; }
-.biome-swamp_tropical_freshwater        { fill: #470; }
-.biome-swamp_tropical_saltwater         { fill: #470; }
-.biome-swamp_mangrove                   { fill: #470; }
-.biome-marsh_tropical_freshwater        { fill: #470; }
-.biome-marsh_tropical_saltwater         { fill: #470; }
-.biome-forest_taiga                     { fill: #070; }
-.biome-forest_temperate_conifer         { fill: #070; }
-.biome-forest_temperate_broadleaf       { fill: #070; }
-.biome-forest_tropical_conifer          { fill: #070; }
-.biome-forest_tropical_dry_broadleaf    { fill: #070; }
-.biome-forest_tropical_moist_broadleaf  { fill: #070; }
-.biome-grassland_temperate              { fill: #7c0; }
-.biome-savanna_temperate                { fill: #7c0; }
-.biome-shrubland_temperate              { fill: #7c0; }
-.biome-grassland_tropical               { fill: #7c0; }
-.biome-savanna_tropical                 { fill: #7c0; }
-.biome-shrubland_tropical               { fill: #7c0; }
-.biome-desert_badland                   { fill: #ff0; }
-.biome-desert_rock                      { fill: #ff0; }
-.biome-desert_sand                      { fill: #ff0; }
-.biome-ocean_tropical                   { fill: #07c; }
-.biome-ocean_temperate                  { fill: #07c; }
-.biome-ocean_arctic                     { fill: #07c; }
-.biome-pool_temperate_freshwater        { fill: #07c; }
-.biome-pool_temperate_brackishwater     { fill: #07c; }
-.biome-pool_temperate_saltwater         { fill: #07c; }
-.biome-pool_tropical_freshwater         { fill: #07c; }
-.biome-pool_tropical_brackishwater      { fill: #07c; }
-.biome-pool_tropical_saltwater          { fill: #07c; }
-.biome-lake_temperate_freshwater        { fill: #07c; }
-.biome-lake_temperate_brackishwater     { fill: #07c; }
-.biome-lake_temperate_saltwater         { fill: #07c; }
-.biome-lake_tropical_freshwater         { fill: #07c; }
-.biome-lake_tropical_brackishwater      { fill: #07c; }
-.biome-lake_tropical_saltwater          { fill: #07c; }
-.biome-river_temperate_freshwater       { fill: #07c; }
-.biome-river_temperate_brackishwater    { fill: #07c; }
-.biome-river_temperate_saltwater        { fill: #07c; }
-.biome-river_tropical_freshwater        { fill: #07c; }
-.biome-river_tropical_brackishwater     { fill: #07c; }
-.biome-river_tropical_saltwater         { fill: #07c; }
+.biome-mountain                         { fill: #808080; }
+.biome-glacier                          { fill: #40ffff; }
+.biome-tundra                           { fill: #80ffff; }
+.biome-swamp_temperate_freshwater       { fill: #60c080; }
+.biome-swamp_temperate_saltwater        { fill: #40c080; }
+.biome-marsh_temperate_freshwater       { fill: #60ff80; }
+.biome-marsh_temperate_saltwater        { fill: #40ff80; }
+.biome-swamp_tropical_freshwater        { fill: #60c040; }
+.biome-swamp_tropical_saltwater         { fill: #40c040; }
+.biome-swamp_mangrove                   { fill: #40ff60; }
+.biome-marsh_tropical_freshwater        { fill: #60ff40; }
+.biome-marsh_tropical_saltwater         { fill: #40ff40; }
+.biome-forest_taiga                     { fill: #006040; }
+.biome-forest_temperate_conifer         { fill: #006020; }
+.biome-forest_temperate_broadleaf       { fill: #00a020; }
+.biome-forest_tropical_conifer          { fill: #006000; }
+.biome-forest_tropical_dry_broadleaf    { fill: #008000; }
+.biome-forest_tropical_moist_broadleaf  { fill: #00a000; }
+.biome-grassland_temperate              { fill: #00ff20; }
+.biome-savanna_temperate                { fill: #00e020; }
+.biome-shrubland_temperate              { fill: #00c020; }
+.biome-grassland_tropical               { fill: #ffa000; }
+.biome-savanna_tropical                 { fill: #ffb000; }
+.biome-shrubland_tropical               { fill: #ffc000; }
+.biome-desert_badland                   { fill: #ff6020; }
+.biome-desert_rock                      { fill: #ff8040; }
+.biome-desert_sand                      { fill: #ffff00; }
+.biome-ocean_tropical                   { fill: #0000ff; }
+.biome-ocean_temperate                  { fill: #0080ff; }
+.biome-ocean_arctic                     { fill: #00ffff; }
+.biome-lake_temperate_freshwater        { fill: #00e0ff; }
+.biome-lake_temperate_brackishwater     { fill: #00c0ff; }
+.biome-lake_temperate_saltwater         { fill: #00a0ff; }
+.biome-lake_tropical_freshwater         { fill: #0060ff; }
+.biome-lake_tropical_brackishwater      { fill: #0040ff; }
+.biome-lake_tropical_saltwater          { fill: #0020ff; }
 
 @media (prefers-color-scheme: dark) {
     html {
