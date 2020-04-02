@@ -56,7 +56,8 @@ inline typename std::enable_if<std::is_same<typename df::enum_traits<E>::enum_ty
 inline constexpr const char *weblegends_basename(const char *p1, const char *p2)
 {
     // https://gist.github.com/rsms/a5fa779736ea4932be91
-    return *p2 == '\0' ? p1 : *p2 == '/' || *p2 == '\\' ? weblegends_basename(p2 + 1, p2 + 1) : weblegends_basename(p1, p2 + 1);
+    return *p2 == '\0' ? p1 : *p2 == '/' || *p2 == '\\' ?
+        weblegends_basename(p2 + 1, p2 + 1) : weblegends_basename(p1, p2 + 1);
 }
 
 #define BEFORE_SWITCH(var, expr) \

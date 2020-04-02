@@ -10,9 +10,12 @@ static std::ofstream weblegends_debug_stream;
 
 static void weblegends_debug_log_message()
 {
-    Core::getInstance().getConsole().color(COLOR_YELLOW);
-    Core::getInstance().getConsole().print("[weblegends] Debug messages have been written to weblegends_debug.log. Please send this file to https://github.com/BenLubar/weblegends\n");
-    Core::getInstance().getConsole().reset_color();
+    auto & console = Core::getInstance().getConsole();
+    console << COLOR_YELLOW;
+    console << "[weblegends] Debug messages have been written "
+        "to weblegends_debug.log. Please send this file to "
+        "https://github.com/BenLubar/weblegends" << std::endl;
+    console << COLOR_RESET;
 }
 
 std::ostream & weblegends_debug_log()

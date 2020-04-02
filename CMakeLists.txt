@@ -59,6 +59,7 @@ SET(PROJECT_SRCS
     http.cpp
     export.cpp
     layout.cpp
+    map.cpp
     helpers.cpp
     helpers_content.cpp
     helpers_event.cpp
