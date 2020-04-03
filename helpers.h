@@ -137,8 +137,20 @@ bool history(std::ostream & s, const event_context & context, int32_t page, int3
 void event(std::ostream & s, const event_context & context, df::history_event *event, int32_t & last_year, int32_t & last_seconds);
 void event_reverse(std::ostream & s, const event_context & context, df::history_event *event);
 void pagination(std::ostream & s, const std::string & base, const std::string & page_0, const std::string & page_prefix, int32_t current_page, int32_t last_page);
-std::string format_number(uint64_t number);
-std::string format_number(int64_t number);
+
+std::string format_number_u(uint64_t number);
+std::string format_number_s(int64_t number);
+
+template<typename N, typename std::enable_if<std::is_unsigned<N>::value, int>::type = 0>
+inline std::string format_number(N number)
+{
+    return format_number_u(number);
+}
+template<typename N, typename std::enable_if<std::is_integral<N>::value && std::is_signed<N>::value, int>::type = 0>
+inline std::string format_number(N number)
+{
+    return format_number_s(number);
+}
 
 void spheres(std::ostream & s, df::historical_figure *hf);
 void year(std::ostream & s, int32_t year, int32_t tick);

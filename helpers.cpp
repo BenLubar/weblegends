@@ -1295,7 +1295,7 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
     }
 }
 
-std::string format_number(uint64_t number)
+std::string format_number_u(uint64_t number)
 {
     if (!number)
     {
@@ -1320,13 +1320,13 @@ std::string format_number(uint64_t number)
     return ptr;
 }
 
-std::string format_number(int64_t number)
+std::string format_number_s(int64_t number)
 {
     if (number < 0)
     {
-        return "-" + format_number(uint64_t(-number));
+        return "-" + format_number_u(uint64_t(-number));
     }
-    return format_number(uint64_t(number));
+    return format_number_u(uint64_t(number));
 }
 
 void spheres(std::ostream & s, df::historical_figure *hf)
