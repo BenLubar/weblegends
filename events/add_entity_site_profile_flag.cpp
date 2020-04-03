@@ -7,7 +7,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     BEFORE_SWITCH(added_flags, event->added_flags.whole);
     switch (added_flags)
     {
-    case df::entity_site_link_flags::mask_declared_holy_city:
+    case df::entity_site_link_flags::mask_holy_city:
         event_link(s, context, df::historical_entity::find(event->entity));
         s << " declared ";
         event_link(s, context, df::world_site::find(event->site));
