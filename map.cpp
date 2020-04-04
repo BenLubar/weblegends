@@ -415,7 +415,7 @@ void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_
 
     s << "<svg width=\"100\" height=\"100\" class=\"map\" viewBox=\"" << x0 << " " << y0 << " " << (x1 - x0) << " " << (y1 - y0) << "\">";
     s << "<foreignObject x=\"0\" y=\"0\" width=\"" << w << "\" height=\"" << h << "\" transform=\"scale(" << mul << ")\">";
-    s << "<img src=\"region.svg\" width=\"" << w << "\" height=\"" << h << "\"/>";
+    s << "<img src=\"region.png\" width=\"" << w << "\" height=\"" << h << "\"/>";
     s << "</foreignObject>";
     render_coord_path(s, "outline", coords);
     s << "</svg>";
