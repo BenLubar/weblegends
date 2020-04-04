@@ -372,7 +372,7 @@ void render_region_map(std::ostream & s)
     s << cached_region_map;
 }
 
-void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_t mul)
+void render_map_coords(std::ostream & s, const df::coord2d_path & coords_flipped, int32_t mul)
 {
     int32_t w = world->world_data->world_width;
     int32_t h = world->world_data->world_height;
@@ -381,10 +381,15 @@ void render_map_coords(std::ostream & s, const df::coord2d_path & coords, int32_
     int32_t x1 = w * mul;
     int32_t y1 = h * mul;
 
+    df::coord2d_path coords;
+    coords.x = coords_flipped.x;
+    coords.y = coords_flipped.y;
+
     int32_t minx = x1, maxx = x0;
     int32_t miny = y1, maxy = y0;
     for (size_t i = 0; i < coords.size(); i++)
     {
+        coords.y.at(i) = y1 - 1 - coords.y.at(i);
         minx = std::min(minx, int32_t(coords.x.at(i)));
         miny = std::min(miny, int32_t(coords.y.at(i)));
         maxx = std::max(maxx, int32_t(coords.x.at(i)));
