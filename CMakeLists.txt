@@ -109,4 +109,9 @@ LIST(APPEND PROJECT_SRCS ${PROJECT_EMBEDDED_SRCS} ${PROJECT_EMBEDDED})
 
 LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread)
 
+if(WIN32)
+    # disable bit shift compile warning on third party code
+    set_source_file_properties(thirdparty/lodepng/lodepng.cpp PROPERTIES COMPILE_FLAGS /wd4334)
+endif()
+
 DFHACK_PLUGIN(weblegends ${PROJECT_SRCS} LINK_LIBRARIES ${PROJECT_LIBS} COMPILE_FLAGS_GCC "-Wall -Wextra -Werror" COMPILE_FLAGS_MSVC "/W3")
