@@ -51,5 +51,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (HIST_FIGURE_REVIVED)", event->id));
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

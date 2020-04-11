@@ -61,8 +61,6 @@ SET(PROJECT_SRCS
     layout.cpp
     map.cpp
     helpers.cpp
-    helpers_content.cpp
-    helpers_event.cpp
     render_home.cpp
     render_entity.cpp
     render_era.cpp
@@ -81,6 +79,7 @@ SET(PROJECT_SRCS
 SET(PROJECT_HDRS
     weblegends.h
     helpers.h
+    helpers_event.h
     debug.h
     resource.h
     events.h
@@ -89,8 +88,23 @@ SET(PROJECT_HDRS
     thirdparty/lodepng/lodepng.h
 )
 
+SET(HELPERS_SRCS
+    helpers/circumstance.cpp
+    helpers/event.cpp
+    helpers/identity.cpp
+    helpers/item.cpp
+    helpers/knowledge.cpp
+    helpers/location.cpp
+    helpers/profession.cpp
+    helpers/schedule.cpp
+    helpers/value.cpp
+    helpers/weapon.cpp
+    helpers/written_content.cpp
+)
+
 FILE(GLOB EVENT_SRCS events/*.cpp)
-LIST(APPEND PROJECT_SRCS ${EVENT_SRCS})
+LIST(APPEND PROJECT_SRCS ${HELPERS_SRCS} ${EVENT_SRCS})
+source_group("Source Files\\helpers" FILES ${HELPERS_SRCS})
 source_group("Source Files\\events" FILES ${EVENT_SRCS})
 
 SET_SOURCE_FILES_PROPERTIES( ${PROJECT_HDRS} PROPERTIES HEADER_FILE_ONLY TRUE)

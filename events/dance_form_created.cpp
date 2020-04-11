@@ -23,6 +23,6 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     {
         s << "[unknown dance form]";
     }
-    do_location_2(s, context, event);
+    do_location(s, context, event);
     do_circumstance_reason(s, context, event);
 }

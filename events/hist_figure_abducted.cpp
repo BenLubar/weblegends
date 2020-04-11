@@ -10,5 +10,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     event_link(s, context, target);
     s << " was abudcted by ";
     event_link(s, context, snatcher);
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

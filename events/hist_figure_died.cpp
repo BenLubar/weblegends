@@ -309,5 +309,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             s << " at only " << days << " days old";
         }
     }
-    do_location_1(s, context, event);
+    do_location(s, context, event);
 }

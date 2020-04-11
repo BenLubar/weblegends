@@ -9,7 +9,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     if (event->new_job != profession::STANDARD)
     {
         s << " became a " << profession_name(hf, event->new_job);
-        do_location_2(s, context, event);
+        do_location(s, context, event);
         if (event->old_job != profession::STANDARD)
         {
             s << ", leaving ";
@@ -46,6 +46,6 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             s << "its";
         }
         s << " job as a " << profession_name(hf, event->old_job);
-        do_location_2(s, context, event);
+        do_location(s, context, event);
     }
 }

@@ -39,5 +39,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     s << " as part of ";
     name_translated(s, occasion->name);
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

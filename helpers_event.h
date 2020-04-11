@@ -37,105 +37,34 @@ void do_event_missing(std::ostream & s, const event_context & context, df::histo
 std::string profession_name(int32_t race, int16_t caste, df::profession prof, bool plural = false);
 std::string profession_name(df::historical_figure *hf, df::profession prof, bool plural = false);
 
-template<typename T>
-inline void do_location_1(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
+void do_location(std::ostream & s, const event_context & context, int32_t site, int32_t region, int32_t layer, int32_t structure = -1, std::string separator = " in ", bool force = false);
+
+template<typename T, typename = int32_t>
+struct do_location_structure_helper
 {
-    if (auto loc = df::world_site::find(event->site))
-    {
-        if (loc != context.site)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
-    if (auto loc = df::world_region::find(event->subregion))
-    {
-        if (loc != context.region)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
-    if (auto loc = df::world_underground_region::find(event->feature_layer))
-    {
-        if (loc != context.layer)
-        {
-            s << separator;
-            link(s, loc);
-            separator = " in ";
-        }
-    }
+    do_location_structure_helper(T *) {}
+    operator int32_t() const { return -1; }
+};
+
+template<typename T>
+struct do_location_structure_helper<T, decltype(T::structure)>
+{
+    do_location_structure_helper(T *event) : event(event) {}
+    operator int32_t() const { return event->structure; }
+private:
+    T *event;
+};
+
+template<typename T>
+inline typename void_t<decltype(T::site), decltype(T::subregion), decltype(T::feature_layer)>::type do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
+{
+    do_location(s, context, event->site, event->subregion, event->feature_layer, do_location_structure_helper<T>(event), separator, force);
 }
 
 template<typename T>
-inline void do_location_1_structure(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
+inline typename void_t<decltype(T::site), decltype(T::region), decltype(T::layer)>::type do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
 {
-    if (auto site = df::world_site::find(event->site))
-    {
-        if (auto loc = binsearch_in_vector(site->buildings, event->structure))
-        {
-            if (loc != context.structure)
-            {
-                s << separator;
-                link(s, loc);
-                separator = " in ";
-            }
-        }
-    }
-    do_location_1(s, context, event, separator);
-}
-
-template<typename T>
-inline void do_location_2(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
-{
-    if (auto loc = df::world_site::find(event->site))
-    {
-        if (loc != context.site || force)
-        {
-            s << separator;
-            event_link(s, context, loc);
-            separator = " in ";
-        }
-    }
-    if (auto loc = df::world_region::find(event->region))
-    {
-        if (loc != context.region || force)
-        {
-            s << separator;
-            event_link(s, context, loc);
-            separator = " in ";
-        }
-    }
-    // TODO: df::coord2d region_pos;
-    if (auto loc = df::world_underground_region::find(event->layer))
-    {
-        if (loc != context.layer || force)
-        {
-            s << separator;
-            event_link(s, context, loc);
-            separator = " in ";
-        }
-    }
-}
-
-template<typename T>
-inline void do_location_2_structure(std::ostream & s, const event_context & context, T *event, std::string separator = " in ")
-{
-    if (auto site = df::world_site::find(event->site))
-    {
-        if (auto loc = binsearch_in_vector(site->buildings, event->structure))
-        {
-            if (loc != context.structure)
-            {
-                s << separator;
-                link(s, loc);
-                separator = " in ";
-            }
-        }
-    }
-    do_location_2(s, context, event, separator);
+    do_location(s, context, event->site, event->region, event->layer, do_location_structure_helper<T>(event), separator, force);
 }
 
 void do_item_description(std::ostream & s, const event_context & context, df::item *item);

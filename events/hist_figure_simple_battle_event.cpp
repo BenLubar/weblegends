@@ -57,5 +57,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     default:
         break;
     }
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

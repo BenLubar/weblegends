@@ -17,5 +17,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             out << "[unknown race]";
         }
     });
-    do_location_2(s, context, event, " of ");
+    do_location(s, context, event, " of ");
 }

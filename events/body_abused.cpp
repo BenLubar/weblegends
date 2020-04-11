@@ -145,5 +145,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (BODY_ABUSED)", event->id));
     // TODO: int32_t anon_1;
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

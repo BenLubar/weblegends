@@ -67,7 +67,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     s << " " << d_race->name[event->d_number == 1 ? 0 : 1];
 
-    do_location_1_structure(s, context, event);
+    do_location(s, context, event);
 
     if (event->d_slain > 0)
     {

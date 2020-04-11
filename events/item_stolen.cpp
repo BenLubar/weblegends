@@ -56,7 +56,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << " belonging to ";
         event_link(s, context, ent);
     }
-    do_location_2_structure(s, context, event, " from ");
+    do_location(s, context, event, " from ");
     if (auto site = df::world_site::find(event->anon_1))
     {
         s << " and brought it to ";

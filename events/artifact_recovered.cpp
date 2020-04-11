@@ -11,5 +11,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     s << " was recovered by ";
     event_link(s, context, histfig);
 
-    do_location_2_structure(s, context, event, " from ");
+    do_location(s, context, event, " from ");
 }

@@ -36,5 +36,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     AFTER_SWITCH(body_state, stl_sprintf("event-%d (CHANGE_HF_BODY_STATE)", event->id));
 
-    do_location_2_structure(s, context, event, separator);
+    do_location(s, context, event, separator);
 }

@@ -53,5 +53,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     AFTER_SWITCH(reason, stl_sprintf("event-%d (HF_RELATIONSHIP_DENIED)", event->id));
 
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }

@@ -11,5 +11,5 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     s << " recruited " << toLower(ENUM_ATTR(profession, caption, event->profession)) << "s into "; // XXX: plural
     event_link(s, context, entity);
 
-    do_location_2(s, context, event);
+    do_location(s, context, event);
 }
