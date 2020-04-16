@@ -39,6 +39,15 @@ std::string profession_name(df::historical_figure *hf, df::profession prof, bool
 
 void do_location(std::ostream & s, const event_context & context, int32_t site, int32_t region, int32_t layer, int32_t structure = -1, std::string separator = " in ", bool force = false);
 
+// a helper for SFINAE (Substitution Failire Is Not An Error)
+// typename sfinae_helper<T, ...>::type is equivalent to T if the remaining types can be determined
+// otherwise, the template fails to substitute
+template<typename T, typename ...>
+struct sfinae_helper
+{
+    typedef T type;
+};
+
 template<typename T, typename = int32_t>
 struct do_location_structure_helper
 {
@@ -55,22 +64,22 @@ private:
     T *event;
 };
 
-template<typename T>
-inline typename void_t<decltype(T::site), decltype(T::subregion), decltype(T::feature_layer)>::type do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
+template<typename T, typename sfinae_helper<int, decltype(T::site), decltype(T::subregion), decltype(T::feature_layer)>::type = 0>
+inline void do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
 {
     do_location(s, context, event->site, event->subregion, event->feature_layer, do_location_structure_helper<T>(event), separator, force);
 }
 
-template<typename T>
-inline typename void_t<decltype(T::site), decltype(T::region), decltype(T::layer)>::type do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
+template<typename T, typename sfinae_helper<short, decltype(T::site), decltype(T::region), decltype(T::layer)>::type = 0>
+inline void do_location(std::ostream & s, const event_context & context, T *event, std::string separator = " in ", bool force = false)
 {
     do_location(s, context, event->site, event->region, event->layer, do_location_structure_helper<T>(event), separator, force);
 }
 
 void do_item_description(std::ostream & s, const event_context & context, df::item *item);
 
-template<typename T>
-inline typename void_t<decltype(T::caste)>::type do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
+template<typename T, typename sfinae_helper<short, decltype(T::caste)>::type = 0>
+inline void do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
 {
     auto item = df::allocate<T>();
     item->race = mat_type;
@@ -133,8 +142,8 @@ inline void do_item_description(std::ostream & s, const event_context & context,
     delete item;
 }
 
-template<typename T>
-inline typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value, typename void_t<decltype(T::mat_type)>::type>::type do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
+template<typename T, typename sfinae_helper<typename std::enable_if<!std::is_base_of<df::item_constructed, T>::value, int>::type, decltype(T::mat_type)>::type = 0>
+inline void do_item_description(std::ostream & s, const event_context & context, int16_t, int16_t mat_type, int32_t mat_index)
 {
     auto item = df::allocate<T>();
     item->mat_type = mat_type;
