@@ -298,12 +298,6 @@ static const std::map<rgb_color, df::biome_type> biome_type_colors =
 
 static std::string cached_region_map;
 
-void clear_region_map_cache()
-{
-    CoreSuspender suspend;
-    cached_region_map.clear();
-}
-
 void render_region_map(std::ostream & s)
 {
     CoreSuspender suspend;
@@ -370,6 +364,18 @@ void render_region_map(std::ostream & s)
     free(png_data);
 
     s << cached_region_map;
+}
+
+void clear_region_map_cache(bool render_new_immediately)
+{
+    CoreSuspender suspend;
+    cached_region_map.clear();
+
+    if (render_new_immediately)
+    {
+        std::fstream dummy;
+        render_region_map(dummy);
+    }
 }
 
 void render_map_coords(std::ostream & s, const df::coord2d_path & coords_flipped, int32_t mul)
