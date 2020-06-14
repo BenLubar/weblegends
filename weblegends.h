@@ -173,6 +173,8 @@ class Layout : public weblegends_layout_v1
 public:
     std::ostringstream header_nav;
     std::ostringstream sidebar_nav;
+    std::string title_html;
+    std::string base_html;
     bool in_sidebar_section{};
 
     void set_title(const std::string & title);

@@ -3,12 +3,12 @@
 
 void Layout::set_title(const std::string & title)
 {
-    head_content << "<title>" << html_escape(title) << "</title>";
+    title_html = "<title>" + html_escape(title) + "</title>";
 }
 
 void Layout::set_base_path(const std::string & url)
 {
-    head_content << "<base href=\"" << html_escape(url) << "\">";
+    base_html = "<base href=\"" + html_escape(url) + "\">";
 }
 
 void Layout::add_header_link(const std::string & url, const std::string & label, bool current)
@@ -45,8 +45,9 @@ void Layout::write_to(weblegends_handler_v1& handler) const
 {
     handler.headers()["Content-Type"] = "text/html; charset=utf-8";
     auto & s = handler.raw_out();
-    s << "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\"><head><meta charset=\"utf-8\"><link rel=\"stylesheet\" href=\"faux-wikipedia.css\">";
-    s << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << head_content.str() << "</head>";
+    s << "<!DOCTYPE html><html dir=\"ltr\" lang=\"en\"><head><meta charset=\"utf-8\">" << title_html;
+    s << "<meta name=\"viewport\" content=\"width=device-width, initial-scale=1\">" << base_html;
+    s << "<link rel=\"stylesheet\" href=\"faux-wikipedia.css\">" << head_content.str() << "</head>";
     s << "<body><header><div id=\"logo\" role=\"banner\"><a href=\"\" title=\"Visit the main page\">";
     s << "<svg viewBox=\"0 0 20 29\" width=\"160\" height=\"160\"><path d=\"m3 1v2h-2v16h2v2h4v2h2v2h6v-4h2v-2h2v-16h-2v-2z\" fill=\"#000\"></path>";
     s << "<path d=\"m4 2v2h12v-2zm12 2v6h2v-6zm-12 0h-2v6h2zm2 4v2h2v-2zm6 0v2h2v-2zm-4 6v2h4v-2z\" fill=\"#fff\"></path>";
