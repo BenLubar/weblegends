@@ -158,8 +158,9 @@ public:
     virtual void write_to(weblegends_handler_v1 & handler) const = 0;
 };
 
-class weblegends_handler_v1_dummy : public weblegends_handler_v1
+class weblegends_layout_v1_dummy : public weblegends_layout_v1
 {
+public:
     void set_title(const std::string &) {}
     void set_base_path(const std::string &) {}
     void add_header_link(const std::string &, const std::string &, bool) {}
@@ -179,7 +180,7 @@ static inline std::unique_ptr<weblegends_layout_v1> weblegends_allocate_layout()
     allocate_layout_fn *ptr = static_cast<allocate_layout_fn *>(Core::getInstance().GetData(WEBLEGENDS_ALLOCATE_LAYOUT_V1));
     if (!ptr)
     {
-        return dts::make_unique<weblegends_handler_v1_dummy>();
+        return dts::make_unique<weblegends_layout_v1_dummy>();
     }
     return (*ptr)();
 }
