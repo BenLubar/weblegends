@@ -142,11 +142,7 @@ class weblegends_layout_v1
 {
 public:
     std::ostringstream head_content;
-    std::ostringstream header_nav;
-    std::ostringstream sidebar_nav;
     std::ostringstream content;
-
-    bool in_sidebar_section{};
 
     virtual ~weblegends_layout_v1() {}
     virtual void set_title(const std::string & title) = 0;
