@@ -12,9 +12,15 @@ static std::function<void(std::ostream &, df::history_event *)> weblegends_descr
     event(out, event_context(), e, last_year, last_seconds);
 };
 
+static std::function<std::unique_ptr<weblegends_layout_v1>()> weblegends_allocate_layout_v1 = []() -> std::unique_ptr<weblegends_layout_v1>
+{
+    return dts::make_unique<Layout>();
+};
+
 command_result WebLegends::init(color_ostream & out)
 {
     Core::getInstance().RegisterData(&weblegends_describe_event_v0, WEBLEGENDS_DESCRIBE_EVENT_V0);
+    Core::getInstance().RegisterData(&weblegends_allocate_layout_v1, WEBLEGENDS_ALLOCATE_LAYOUT_V1);
 
     for (uint16 port = 5080; port < 5090; port++)
     {
@@ -47,6 +53,7 @@ command_result WebLegends::shutdown(color_ostream & out)
     }
 
     Core::getInstance().RegisterData(nullptr, WEBLEGENDS_DESCRIBE_EVENT_V0);
+    Core::getInstance().RegisterData(nullptr, WEBLEGENDS_ALLOCATE_LAYOUT_V1);
 
     out << "weblegends cleaning up..." << std::endl;
     std::cerr << "weblegends sending shutdown request" << std::endl;

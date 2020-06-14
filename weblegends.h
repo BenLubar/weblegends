@@ -168,16 +168,9 @@ protected:
     friend class WebLegends;
 };
 
-class Layout
+class Layout : public weblegends_layout_v1
 {
 public:
-    std::ostringstream head_content;
-    std::ostringstream header_nav;
-    std::ostringstream sidebar_nav;
-    std::ostringstream content;
-
-    bool in_sidebar_section{};
-
     void set_title(const std::string & title);
     void set_base_path(const std::string & url);
     void add_header_link(const std::string & url, const std::string & label, bool current = false);

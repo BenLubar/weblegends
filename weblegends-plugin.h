@@ -2,6 +2,7 @@
 
 #include <functional>
 #include <map>
+#include <memory>
 #include <sstream>
 #include <string>
 #include <utility>
@@ -14,6 +15,7 @@
 #define WEBLEGENDS_PLUGIN_HANDLERS_V0 "weblegends-plugin-handlers.0"
 #define WEBLEGENDS_PLUGIN_HANDLERS_V1 "weblegends-plugin-handlers.1"
 #define WEBLEGENDS_DESCRIBE_EVENT_V0 "weblegends-describe-event.0"
+#define WEBLEGENDS_ALLOCATE_LAYOUT_V1 "weblegends-allocate-layout.1"
 
 using weblegends_handler_v0_t = std::function<bool(std::ostringstream &, const std::string &)>;
 using weblegends_handlers_v0_t = std::map<std::string, std::pair<std::string, weblegends_handler_v0_t>>;
@@ -134,4 +136,50 @@ static inline void weblegends_describe_event(std::ostream & out, df::history_eve
         return;
     }
     (*ptr)(out, event);
+}
+
+class weblegends_layout_v1
+{
+public:
+    std::ostringstream head_content;
+    std::ostringstream header_nav;
+    std::ostringstream sidebar_nav;
+    std::ostringstream content;
+
+    bool in_sidebar_section{};
+
+    virtual ~weblegends_layout_v1() {}
+    virtual void set_title(const std::string & title) = 0;
+    virtual void set_base_path(const std::string & url) = 0;
+    virtual void add_header_link(const std::string & url, const std::string & label, bool current = false) = 0;
+    virtual void add_sidebar_section(const std::string & title) = 0;
+    virtual void add_sidebar_link(const std::string & url, const std::string & label) = 0;
+
+    virtual void write_to(weblegends_handler_v1 & handler) const = 0;
+};
+
+class weblegends_handler_v1_dummy : public weblegends_handler_v1
+{
+    void set_title(const std::string &) {}
+    void set_base_path(const std::string &) {}
+    void add_header_link(const std::string &, const std::string &, bool) {}
+    void add_sidebar_section(const std::string &) {}
+    void add_sidebar_link(const std::string &, const std::string &) {}
+
+    void write_to(weblegends_handler_v1 & handler) const
+    {
+        handler.raw_out() << "<p>Warning! Outdated weblegends version!</p>";
+        handler.raw_out() << content.str();
+    }
+};
+
+static inline std::unique_ptr<weblegends_layout_v1> weblegends_allocate_layout()
+{
+    using allocate_layout_fn = std::function<std::unique_ptr<weblegends_layout_v1>()>;
+    allocate_layout_fn *ptr = static_cast<allocate_layout_fn *>(Core::getInstance().GetData(WEBLEGENDS_ALLOCATE_LAYOUT_V1));
+    if (!ptr)
+    {
+        return dts::make_unique<weblegends_handler_v1_dummy>();
+    }
+    return (*ptr)();
 }
