@@ -172,6 +172,9 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
                     }
                 }
                 BREAK(type);
+            case improvement_type::IMAGE_SET:
+                s << "IMAGE_SET"; // TODO
+                BREAK(type);
             }
             AFTER_SWITCH(type, stl_sprintf("item-%d", id));
             s << "</p>";
