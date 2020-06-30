@@ -20,40 +20,36 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << " ruled from ";
         BREAK(type);
     case histfig_site_link_type::HANGOUT:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
+        s << " started hanging out at ";
         BREAK(type);
     case histfig_site_link_type::HOME_SITE_ABSTRACT_BUILDING:
         s << " took up residence in ";
         BREAK(type);
     case histfig_site_link_type::HOME_SITE_REALIZATION_BUILDING:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
+    case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
+    case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
+        s << " took up residence ";
         BREAK(type);
     case histfig_site_link_type::LAIR:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
-        BREAK(type);
-    case histfig_site_link_type::HOME_SITE_REALIZATION_SUL:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
-        BREAK(type);
-    case histfig_site_link_type::HOME_SITE_SAVED_CIVZONE:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
+        s << " laired within ";
         BREAK(type);
     case histfig_site_link_type::PRISON_ABSTRACT_BUILDING:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
-        BREAK(type);
     case histfig_site_link_type::PRISON_SITE_BUILDING_PROFILE:
-        do_event_missing(s, context, event, __FILE__, __LINE__);
+        s << " was imprisoned in ";
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_SITE_LINK)", event->id));
-    event_link(s, context, structure);
-    if (civ)
+
+    if (event->structure != -1)
     {
-        s << " of ";
-        event_link(s, context, civ);
+        event_link(s, context, structure);
+        if (event->civ != -1)
+        {
+            s << " of ";
+            event_link(s, context, civ);
+        }
     }
-    if (civ)
-    {
-        s << " in ";
-        event_link(s, context, site);
-    }
+
+    s << " in ";
+    event_link(s, context, site);
 }
