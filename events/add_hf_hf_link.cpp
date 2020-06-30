@@ -2,7 +2,7 @@
 
 #include "df/history_event_add_hf_hf_linkst.h"
 
-static std::string spouse_name(historical_figure *hf)
+static std::string spouse_name(df::historical_figure *hf)
 {
    if (hf && hf->sex == pronoun_type::she)
         return "wife";

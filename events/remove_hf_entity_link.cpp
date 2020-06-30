@@ -88,7 +88,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         pos = binsearch_in_vector(ent->positions.own, event->position_id);
         event_link(s, context, hf);
         s << " relinquished ";
-        if (auto pronoun = hf ? ENUM_ATTR(pronoun_type, posessive, hf->sex) : null)
+        if (auto pronoun = hf ? ENUM_ATTR(pronoun_type, posessive, hf->sex) : nullptr)
             s << pronoun;
         else
             s << "their";

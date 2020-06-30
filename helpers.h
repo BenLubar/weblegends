@@ -3,6 +3,7 @@
 #include <functional>
 
 #include "df/profession.h"
+#include "df/pronoun_type.h"
 #include "df/value_type.h"
 
 namespace DFHack
