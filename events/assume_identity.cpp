@@ -13,21 +13,10 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     event_link(s, context, target);
     s << " into thinking ";
 
-    BEFORE_SWITCH(sex, trickster ? trickster->sex : -1);
-    switch (sex)
-    {
-    case -1:
-        s << "it";
-        BREAK(sex);
-    case 0:
-        s << "she";
-        BREAK(sex);
-    case 1:
-        s << "he";
-        BREAK(sex);
-    }
-    AFTER_SWITCH(sex, stl_sprintf("event-%d (ASSUME_IDENTITY)", event->id));
+    if (auto pronoun = trickster ? ENUM_ATTR(pronoun_type, subject, trickster->sex) : nullptr)
+        s << pronoun << " was ";
+    else
+        s << " they were ";
 
-    s << " was ";
     do_identity(s, context, trickster, identity);
 }

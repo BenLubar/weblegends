@@ -573,18 +573,11 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
             }
         }
 
-        if (name == race->name[0] && hf->sex != -1)
-        {
-            if (hf->sex == 0)
-            {
-                s << " female";
-            }
-            else if (hf->sex == 1)
-            {
-                s << " male";
-            }
-        }
         s << " " << html_escape(DF2UTF(name)) << suffix;
+        if (auto sym = name == race->name[0] ? ENUM_ATTR(pronoun_type, symbol, hf->sex) : nullptr)
+        {
+            s << " (" << html_escape(DF2UTF(name)) << ")";
+        }
 
         if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
         {

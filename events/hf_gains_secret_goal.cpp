@@ -44,20 +44,12 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << " began dreaming of seeing the great natural wonders of the world";
         BREAK(goal);
     case goal_type::IMMORTALITY:
-        BEFORE_SWITCH(sex, histfig ? histfig->sex : -1);
-        switch (sex)
         {
-        case -1:
-            s << " became obsessed with its own mortality and sought to extend its life by any means";
-            BREAK(sex);
-        case 0:
-            s << " became obsessed with her own mortality and sought to extend her life by any means";
-            BREAK(sex);
-        case 1:
-            s << " became obsessed with his own mortality and sought to extend his life by any means";
-            BREAK(sex);
+            auto pronoun = histfig ? ENUM_ATTR(pronoun_type, posessive, histfig->sex) : nullptr;
+            if (!pronoun)
+                pronoun = "their";
+            s << " became obsessed with " << pronoun << " own mortality and sought to extend " << pronoun << " life by any means";
         }
-        AFTER_SWITCH(sex, stl_sprintf("event-%d (HF_GAINS_SECRET_GOAL:IMMORTALITY)", event->id));
         BREAK(goal);
     case goal_type::MAKE_A_GREAT_DISCOVERY:
         s << " began dreaming of making a great discovery";

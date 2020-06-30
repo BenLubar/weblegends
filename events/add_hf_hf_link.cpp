@@ -26,7 +26,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(type);
     case histfig_hf_link_type::CHILD:
         event_link(s, context, hf);
-        if (hf->sex == 1)
+        if (hf->sex == pronoun_type::he)
         {
             s << " fathered ";
         }

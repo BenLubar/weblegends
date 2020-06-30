@@ -107,11 +107,11 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
                     s << ", father";
                     BREAK(link_type);
                 case histfig_hf_link_type::SPOUSE:
-                    if (target->sex == 0)
+                    if (target->sex == pronoun_type::she)
                     {
                         s << ", wife";
                     }
-                    else if (target->sex == 1)
+                    else if (target->sex == pronoun_type::he)
                     {
                         s << ", husband";
                     }
@@ -121,11 +121,11 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
                     }
                     BREAK(link_type);
                 case histfig_hf_link_type::CHILD:
-                    if (target->sex == 0)
+                    if (target->sex == pronoun_type::she)
                     {
                         s << ", daughter";
                     }
-                    else if (target->sex == 1)
+                    else if (target->sex == pronoun_type::he)
                     {
                         s << ", son";
                     }

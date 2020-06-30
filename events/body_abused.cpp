@@ -96,19 +96,16 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << " and stretched ";
         if (event->bodies.size() == 1)
         {
-            auto hf = df::historical_figure::find(event->bodies.at(0));
-            if (hf->sex == 0)
+            if (auto hf = df::historical_figure::find(event->bodies.at(0)))
             {
-                s << "her skin";
-            }
-            else if (hf->sex == 1)
-            {
-                s << "his skin";
+                s << ENUM_ATTR(pronoun_type, posessive, hf->sex);
             }
             else
             {
-                s << "its skin";
+                // better than nothing
+                s << "their";
             }
+            s << " skin";
         }
         else
         {

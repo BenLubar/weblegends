@@ -177,17 +177,17 @@ static inline std::string html_escape(const std::string & str)
 }
 
 template<typename HF, typename T>
-inline const std::string& sex_name(HF *hf, T *t)
+inline const std::string& sex_name(HF *hf, T *t, size_t idx = 0)
 {
-    if (hf->sex == 0 && !t->name_female[0].empty())
+    if (hf->sex == pronoun_type::she && !t->name_female[idx].empty())
     {
-        return t->name_female[0];
+        return t->name_female[idx];
     }
-    if (hf->sex == 1 && !t->name_male[0].empty())
+    if (hf->sex == pronoun_type::he && !t->name_male[idx].empty())
     {
-        return t->name_male[0];
+        return t->name_male[idx];
     }
-    return t->name[0];
+    return t->name[idx];
 }
 
 #undef WEBLEGENDS_TYPES

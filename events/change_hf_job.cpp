@@ -13,38 +13,20 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         if (event->old_job != profession::STANDARD)
         {
             s << ", leaving ";
-            if (hf->sex == 0)
-            {
-                s << "her";
-            }
-            else if (hf->sex == 1)
-            {
-                s << "his";
-            }
+            if (auto pronoun = hf ? ENUM_ATTR(pronoun_type, posessive, hf->sex) : nullptr)
+                s << pronoun;
             else
-            {
-                ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
-                s << "its";
-            }
+                s << "their";
             s << " previous job as a " << profession_name(hf, event->old_job);
         }
     }
     else
     {
         s << " left ";
-        if (hf->sex == 0)
-        {
-            s << "her";
-        }
-        else if (hf->sex == 1)
-        {
-            s << "his";
-        }
+        if (auto pronoun = hf ? ENUM_ATTR(pronoun_type, posessive, hf->sex) : nullptr)
+            s << pronoun;
         else
-        {
-            ASSUME_EQUAL(hf->sex, -1, stl_sprintf("hf-%d sex", hf->id));
-            s << "its";
-        }
+            s << "their";
         s << " job as a " << profession_name(hf, event->old_job);
         do_location(s, context, event);
     }
