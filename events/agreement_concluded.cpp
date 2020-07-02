@@ -91,13 +91,16 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
                 BEFORE_SWITCH(crime, details->data.PlotConviction->crime);
                 switch (crime)
                 {
+                case crime_type::NONE:
+                    do_event_missing(s, context, event, __FILE__, __LINE__);
+                    break;
                 case crime_type::Bribery:
                     s << "bribery";
                     BREAK(crime);
                 case crime_type::anon_1:
                     do_event_missing(s, context, event, __FILE__, __LINE__);
                     break;
-                case crime_type::Treason:
+                case crime_type::Corruption:
                     s << "corruption";
                     BREAK(crime);
                 case crime_type::Embezzlement:
