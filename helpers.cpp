@@ -576,7 +576,7 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
         s << " " << html_escape(DF2UTF(name)) << suffix;
         if (auto sym = name == race->name[0] ? ENUM_ATTR(pronoun_type, symbol, hf->sex) : nullptr)
         {
-            s << " (" << html_escape(DF2UTF(name)) << ")";
+            s << " (" << html_escape(DF2UTF(sym)) << ")";
         }
 
         if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
