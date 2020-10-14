@@ -54,10 +54,10 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     case goal_type::MAKE_A_GREAT_DISCOVERY:
         s << " began dreaming of making a great discovery";
         BREAK(goal);
-    case goal_type::ATTAINING_RANK_IN_SOCIETY:
+    case goal_type::ATTAIN_RANK_IN_SOCIETY:
         do_event_missing(s, context, event, __FILE__, __LINE__);
         BREAK(goal);
-    case goal_type::BATHING_THE_WORLD_IN_CHAOS:
+    case goal_type::BATHE_WORLD_IN_CHAOS:
         do_event_missing(s, context, event, __FILE__, __LINE__);
         BREAK(goal);
     }

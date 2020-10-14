@@ -97,7 +97,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
                 case crime_type::Bribery:
                     s << "bribery";
                     BREAK(crime);
-                case crime_type::anon_1:
+                case crime_type::BringIntoNetwork:
                     do_event_missing(s, context, event, __FILE__, __LINE__);
                     break;
                 case crime_type::Corruption:
