@@ -45,7 +45,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(type);
     case histfig_entity_link_type::POSITION:
         s << " became ";
-        s << (pos->number == 1 ? "the" : "a");
+        s << (pos->number == 1 ? "the " : "a ");
         s << sex_name(hf, pos);
         s << " of ";
         BREAK(type);
@@ -78,6 +78,13 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         BREAK(type);
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
+
+    if (ent)
+    {
+        s << "the";
+        categorize(s, ent);
+        s << " ";
+    }
 
     event_link(s, context, ent);
 
