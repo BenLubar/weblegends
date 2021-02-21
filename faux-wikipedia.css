@@ -170,6 +170,12 @@ main::after {
     background-color: var(--off-background-color);
 }
 
+thead th, tfoot th {
+    position: sticky;
+    top: 0;
+    background-color: var(--background-color);
+}
+
 svg {
     shape-rendering: geometricprecision;
 }
