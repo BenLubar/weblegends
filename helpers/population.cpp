@@ -8,7 +8,7 @@
 #include "df/plant_raw.h"
 #include "df/world_population.h"
 
-void render_world_populations(std::ostream & s, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *type, int32_t id)
+void render_world_populations(std::ostream & s, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *page_type, int32_t id)
 {
     if (population.empty())
     {
@@ -73,7 +73,7 @@ void render_world_populations(std::ostream & s, const df::language_name & region
         {
             ss << "[" << enum_item_key_str(pop->type) << "]";
         }
-        AFTER_SWITCH(type, stl_sprintf("%s-%d population", type, id));
+        AFTER_SWITCH(type, stl_sprintf("%s-%d population", page_type, id));
         ss << "</li>";
     }
     auto uncountable_str = uncountable.str();
