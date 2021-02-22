@@ -56,7 +56,7 @@ void do_extra<df::historical_figure>(std::ostream & s, df::historical_figure *ta
 }
 
 template<typename T>
-static bool render_list(Layout & l, int32_t page, const std::string & prefix, const std::string & title)
+static bool render_list(Layout & l, int32_t page, const std::string & prefix, const std::string & title, bool translate = true)
 {
     auto begin = get_first<T>();
 
@@ -73,7 +73,7 @@ static bool render_list(Layout & l, int32_t page, const std::string & prefix, co
     for (auto it = begin + (page * items_per_page); it != get_vector<T>().end() && it != begin + ((page + 1) * items_per_page); it++)
     {
         s << "<li>";
-        link(s, *it);
+        link(s, *it, translate);
         categorize(s, *it);
         do_extra(s, *it);
         s << "</li>";
@@ -89,11 +89,11 @@ bool WebLegends::render_entity_list(Layout & l, int32_t page)
 }
 bool WebLegends::render_era_list(Layout & l, int32_t page)
 {
-    return render_list<df::history_era>(l, page, "eras-", "History Eras");
+    return render_list<df::history_era>(l, page, "eras-", "History Eras", false);
 }
 bool WebLegends::render_eventcol_list(Layout & l, int32_t page)
 {
-    return render_list<df::history_event_collection>(l, page, "eventcols-", "History Event Collections");
+    return render_list<df::history_event_collection>(l, page, "eventcols-", "History Event Collections", false);
 }
 bool WebLegends::render_figure_list(Layout & l, int32_t page)
 {
@@ -101,7 +101,7 @@ bool WebLegends::render_figure_list(Layout & l, int32_t page)
 }
 bool WebLegends::render_item_list(Layout & l, int32_t page)
 {
-    return render_list<df::artifact_record>(l, page, "items-", "Artifacts");
+    return render_list<df::artifact_record>(l, page, "items-", "Artifacts", false);
 }
 bool WebLegends::render_region_list(Layout & l, int32_t page)
 {
@@ -113,5 +113,5 @@ bool WebLegends::render_site_list(Layout & l, int32_t page)
 }
 bool WebLegends::render_layer_list(Layout & l, int32_t page)
 {
-    return render_list<df::world_underground_region>(l, page, "layers-", "Underground Regions");
+    return render_list<df::world_underground_region>(l, page, "layers-", "Underground Regions", false);
 }

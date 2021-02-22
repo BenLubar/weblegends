@@ -1,11 +1,14 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "df/creature_raw.h"
 #include "df/entity_site_link.h"
 #include "df/historical_entity.h"
+#include "df/nemesis_record.h"
 #include "df/world.h"
 #include "df/world_data.h"
 #include "df/world_site.h"
+#include "df/world_site_inhabitant.h"
 
 REQUIRE_GLOBAL(world);
 
@@ -35,6 +38,50 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
     s << "<p>";
     categorize(s, site);
     s << "</p>";
+
+    render_world_populations(s, site->name, site->unk_1.animals, "site", site->id);
+
+    if (!site->unk_1.nemesis.empty() || !site->unk_1.inhabitants.empty())
+    {
+        s << "<h3>Inhabitants</h3><ul class=\"multicol\">";
+        for (auto id : site->unk_1.nemesis)
+        {
+            auto nemesis = df::nemesis_record::find(id);
+            if (!nemesis)
+            {
+                s << "<li>(unknown)</li>";
+                continue;
+            }
+
+            s << "<li>";
+            link(s, nemesis->figure);
+            s << ",";
+            categorize(s, nemesis->figure);
+            s << "</li>";
+        }
+        for (auto inhabitant : site->unk_1.inhabitants)
+        {
+            auto creature = df::creature_raw::find(inhabitant->race);
+            s << "<li>" << inhabitant->count << " ";
+            s << creature->name[inhabitant->count == 1 ? 0 : 1];
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
+
+    if (!site->unk_1.artifacts.empty())
+    {
+        s << "<h3>Artifacts</h3><ul class=\"multicol\">";
+        for (auto art : site->unk_1.artifacts)
+        {
+            s << "<li>";
+            link(s, art);
+            s << ",";
+            categorize(s, art);
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
 
     if (!site->entity_links.empty())
     {

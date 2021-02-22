@@ -146,7 +146,7 @@ const df::language_name & get_name(df::world_data *world_data)
 }
 
 template<typename T>
-static void link_name(std::ostream & s, const std::string & prefix, T *target)
+static void link_name(std::ostream & s, const std::string & prefix, T *target, bool translate)
 {
     int32_t id = get_id(target);
     const df::language_name & name = get_name(target);
@@ -155,7 +155,12 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
     {
         s << "<a href=\"" << prefix << id << "\" title=\"" << html_escape(DF2UTF(Translation::TranslateName(&name, true, false))) << ",";
         categorize(s, target, true, true);
-        s << "\">" << html_escape(DF2UTF(Translation::TranslateName(&name, false, false))) << "</a>";
+        s << "\">" << html_escape(DF2UTF(Translation::TranslateName(&name, false, false)));
+        if (translate)
+        {
+            s << ", " << LDQUO << html_escape(DF2UTF(Translation::TranslateName(&name, true, false))) << RDQUO;
+        }
+        s << "</a>";
     }
     else if (id == -1)
     {
@@ -171,42 +176,42 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target)
     }
 }
 
-void link(std::ostream & s, df::abstract_building *structure)
+void link(std::ostream & s, df::abstract_building *structure, bool translate)
 {
     std::string prefix = structure ? stl_sprintf("site-%d/bld-", structure->site_id) : "";
-    link_name(s, prefix, structure);
+    link_name(s, prefix, structure, translate);
 }
-void link(std::ostream & s, df::artifact_record *item)
+void link(std::ostream & s, df::artifact_record *item, bool translate)
 {
-    link_name(s, "item-", item);
+    link_name(s, "item-", item, translate);
 }
-void link(std::ostream & s, df::historical_entity *ent)
+void link(std::ostream & s, df::historical_entity *ent, bool translate)
 {
-    link_name(s, "ent-", ent);
+    link_name(s, "ent-", ent, translate);
 }
-void link(std::ostream & s, df::history_era *era)
+void link(std::ostream & s, df::history_era *era, bool translate)
 {
-    link_name(s, "era-", era);
+    link_name(s, "era-", era, translate);
 }
-void link(std::ostream & s, df::history_event_collection *eventcol)
+void link(std::ostream & s, df::history_event_collection *eventcol, bool translate)
 {
-    link_name(s, "eventcol-", eventcol);
+    link_name(s, "eventcol-", eventcol, translate);
 }
-void link(std::ostream & s, df::historical_figure *hf)
+void link(std::ostream & s, df::historical_figure *hf, bool translate)
 {
-    link_name(s, "fig-", hf);
+    link_name(s, "fig-", hf, translate);
 }
-void link(std::ostream & s, df::world_region *region)
+void link(std::ostream & s, df::world_region *region, bool translate)
 {
-    link_name(s, "region-", region);
+    link_name(s, "region-", region, translate);
 }
-void link(std::ostream & s, df::world_site *site)
+void link(std::ostream & s, df::world_site *site, bool translate)
 {
-    link_name(s, "site-", site);
+    link_name(s, "site-", site, translate);
 }
-void link(std::ostream & s, df::world_underground_region *layer)
+void link(std::ostream & s, df::world_underground_region *layer, bool translate)
 {
-    link_name(s, "layer-", layer);
+    link_name(s, "layer-", layer, translate);
 }
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last)
@@ -700,6 +705,11 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         return;
     }
 
+    if (site->flags.is_set(world_site_flags::Undiscovered))
+    {
+        s << " undiscovered";
+    }
+
     if (auto ent = df::historical_entity::find(site->cur_owner_id))
     {
         if (auto race = df::creature_raw::find(ent->race))
@@ -744,6 +754,10 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         BREAK(type);
     case world_site_type::Cave:
         s << " cave";
+        if (site->flags.is_set(world_site_flags::CaveCapital))
+        {
+            s << " capital";
+        }
         BREAK(type);
     case world_site_type::MountainHalls:
         s << " mountain hall";

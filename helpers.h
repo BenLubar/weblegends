@@ -1,6 +1,7 @@
 #pragma once
 
 #include <functional>
+#include <vector>
 
 #include "df/profession.h"
 #include "df/pronoun_type.h"
@@ -41,6 +42,7 @@ namespace df
     struct item;
     struct knowledge_scholar_category_flag;
     struct language_name;
+    struct world_population;
     struct written_content;
 }
 
@@ -74,7 +76,7 @@ void name_translated(std::ostream & s, const df::language_name & name, bool only
 #define WEBLEGENDS_TYPE(type, name) \
 int32_t get_id(df::type *name); \
 const df::language_name & get_name(df::type *name); \
-void link(std::ostream & s, df::type *name); \
+void link(std::ostream & s, df::type *name, bool translate = false); \
 void event_link(std::ostream & s, const event_context & context, df::type *name); \
 void categorize(std::ostream & s, df::type *name, bool in_link = false, bool in_attr = false); \
 void simple_header(Layout & l, df::type *name);
@@ -178,7 +180,7 @@ static inline std::string html_escape(const std::string & str)
 }
 
 template<typename HF, typename T>
-inline const std::string& sex_name(HF *hf, T *t, size_t idx = 0)
+inline const std::string & sex_name(HF *hf, T *t, size_t idx = 0)
 {
     if (hf->sex == pronoun_type::she && !t->name_female[idx].empty())
     {
@@ -190,5 +192,7 @@ inline const std::string& sex_name(HF *hf, T *t, size_t idx = 0)
     }
     return t->name[idx];
 }
+
+void render_world_populations(std::ostream &, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *type, int32_t id);
 
 #undef WEBLEGENDS_TYPES

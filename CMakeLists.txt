@@ -95,6 +95,7 @@ SET(HELPERS_SRCS
     helpers/item.cpp
     helpers/knowledge.cpp
     helpers/location.cpp
+    helpers/population.cpp
     helpers/profession.cpp
     helpers/schedule.cpp
     helpers/value.cpp
