@@ -28,6 +28,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         switch (rep2)
         {
         case reputation_type::Buddy:
+        case reputation_type::Friendly:
             before = " formed a false friendship with ";
             after = " in order to extract information";
             BREAK(rep2);

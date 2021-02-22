@@ -1,6 +1,7 @@
 #include "../helpers_event.h"
 
 #include "df/history_event_hf_preachst.h"
+#include "df/reputation_type.h"
 
 void do_event(std::ostream & s, const event_context & context, df::history_event_hf_preachst *event)
 {
@@ -10,10 +11,10 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     BEFORE_SWITCH(topic, event->topic);
     switch (topic)
     {
-        case 11:
+        case reputation_type::RespectedGroup:
             s << ", inveighing against ";
             BREAK(topic);
-        case 12:
+        case reputation_type::HatedGroup:
             s << ", urging love to be shown to ";
             BREAK(topic);
         default:
