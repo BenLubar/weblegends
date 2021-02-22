@@ -64,6 +64,12 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
             auto creature = df::creature_raw::find(inhabitant->race);
             s << "<li>" << inhabitant->count << " ";
             s << creature->name[inhabitant->count == 1 ? 0 : 1];
+            if (auto outcast = df::historical_entity::find(inhabitant->outcast_id))
+            {
+                s << " (";
+                link(s, outcast);
+                s << ")";
+            }
             s << "</li>";
         }
         s << "</ul>";

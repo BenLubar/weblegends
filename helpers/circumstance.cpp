@@ -52,6 +52,9 @@ void do_circumstance_reason(std::ostream & s, const event_context & context, df:
     case unit_thought_type::Nightmare:
         s << " after a nightmare";
         BREAK(circumstance_type);
+    case unit_thought_type::FromAfar:
+        s << " from afar";
+        BREAK(circumstance_type);
     default:
         do_event_missing(s, context, event, __FILE__, __LINE__);
         break;

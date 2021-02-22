@@ -10,6 +10,11 @@
 
 void render_world_populations(std::ostream & s, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *type, int32_t id)
 {
+    if (population.empty())
+    {
+        return;
+    }
+
     s << "<h3>Population</h3><ul class=\"multicol\">";
     std::ostringstream uncountable;
     for (auto pop : population)

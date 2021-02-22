@@ -468,7 +468,28 @@ void categorize(std::ostream & s, df::artifact_record *item, bool in_link, bool 
 
     s << " ";
     material(s, event_context(), item->item, in_link, in_attr);
-    s << " " << html_escape(DF2UTF(ItemTypeInfo(item->item).toString()));
+    switch (item->item->getType())
+    {
+        case item_type::SLAB:
+            BEFORE_SWITCH(slab_type, item->item->getSlabEngravingType());
+            switch (slab_type)
+            {
+                case slab_engraving_type::Secrets:
+                    s << " secret slab";
+                    BREAK(slab_type);
+                case slab_engraving_type::DemonIdentity:
+                    s << " demonic binding slab";
+                    BREAK(slab_type);
+                default:
+                    s << " slab";
+                    break;
+            }
+            AFTER_SWITCH(slab_type, stl_sprintf("slab (artifact-%d)", item->id));
+            break;
+        default:
+            s << " " << html_escape(DF2UTF(ItemTypeInfo(item->item).toString()));
+            break;
+    }
 }
 void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
 {

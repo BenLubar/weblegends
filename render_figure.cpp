@@ -49,7 +49,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
     categorize(s, hf);
     spheres(s, hf);
     born_died(s, hf);
-    if (caste)
+    if (caste && !hf->flags.is_set(histfig_flags::deity))
     {
         s << "<br>" << caste->description;
     }

@@ -64,11 +64,11 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
             s << " created by " << race->name[1];
         }
     }
+    s << "</p>";
     if (auto slab = virtual_cast<df::item_slabst>(item->item))
     {
-        s << "<br>" << slab->description;
+        s << "<blockquote><p>" << slab->description << "</p></blockquote>";
     }
-    s << "</p>";
     if (auto constructed = virtual_cast<df::item_constructed>(item->item))
     {
         for (auto it = constructed->improvements.begin(); it != constructed->improvements.end(); it++)
