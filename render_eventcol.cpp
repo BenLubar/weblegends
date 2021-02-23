@@ -29,7 +29,10 @@ bool WebLegends::render_eventcol(Layout & l, int32_t id, int32_t page)
     df::coord2d_path coords;
     coords.push_back(df::coord2d());
     eventcol->getRegionCoords(&coords.x.at(0), &coords.y.at(0));
-    render_map_coords(l.content, coords);
+    if (coords.x.at(0) != -1 && coords.y.at(0) != -1)
+    {
+        render_map_coords(l.content, coords);
+    }
 
     bool first = true;
     for (auto child_id : eventcol->collections)

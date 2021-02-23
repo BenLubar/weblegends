@@ -27,6 +27,23 @@ std::vector<df::history_era *> & get_vector<df::history_era>()
     return world->history.eras;
 }
 
+template<>
+std::vector<df::history_event_collection *> & get_vector<df::history_event_collection>()
+{
+    static std::vector<df::history_event_collection *> filtered;
+    filtered.clear();
+
+    for (auto col : df::history_event_collection::get_vector())
+    {
+        if (col->getParent() == -1)
+        {
+            filtered.push_back(col);
+        }
+    }
+
+    return filtered;
+}
+
 template<typename T>
 static typename std::vector<T *>::iterator get_first()
 {
