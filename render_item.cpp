@@ -13,6 +13,7 @@
 #include "df/item_slabst.h"
 #include "df/itemimprovement.h"
 #include "df/itemimprovement_bandsst.h"
+#include "df/itemimprovement_coveredst.h"
 #include "df/itemimprovement_itemspecificst.h"
 #include "df/itemimprovement_pagesst.h"
 #include "df/itemimprovement_writingst.h"
@@ -82,11 +83,18 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
                 BREAK(type);
             case improvement_type::COVERED:
                 s << "Covered in ";
-                if (auto imp = virtual_cast<df::itemimprovement_bandsst>(*it))
+                if (auto imp = virtual_cast<df::itemimprovement_coveredst>(*it))
                 {
                     if (auto shape = df::descriptor_shape::find(imp->shape))
                     {
-                        s << " " << shape->name << " of ";
+                        if (shape->gems_use.bits.adj)
+                        {
+                            s << *shape->adj.at(0) << " ";
+                        }
+                        else
+                        {
+                            s << " " << shape->name_plural << " of ";
+                        }
                     }
                 }
                 material(s, item, MaterialInfo(*it));
