@@ -9,7 +9,7 @@ void do_location(std::ostream & s, const event_context & context, int32_t site, 
             if (bld != context.structure || force)
             {
                 s << separator;
-                link(s, bld);
+                event_link(s, context, bld);
                 separator = " in ";
             }
         }
@@ -17,7 +17,7 @@ void do_location(std::ostream & s, const event_context & context, int32_t site, 
         if (loc != context.site || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }
@@ -27,7 +27,7 @@ void do_location(std::ostream & s, const event_context & context, int32_t site, 
         if (loc != context.region || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }
@@ -37,7 +37,7 @@ void do_location(std::ostream & s, const event_context & context, int32_t site, 
         if (loc != context.layer || force)
         {
             s << separator;
-            link(s, loc);
+            event_link(s, context, loc);
             separator = " in ";
         }
     }

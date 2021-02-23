@@ -90,7 +90,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
 
     if (!hf->histfig_links.empty())
     {
-        s << "<h2 id=\"related-figures\">Related Figures</h2><ul>";
+        s << "<h2 id=\"related-figures\">Related Figures</h2><ul class=\"multicol\">";
         for (auto it = hf->histfig_links.begin(); it != hf->histfig_links.end(); it++)
         {
             if (auto target = df::historical_figure::find((*it)->target_hf))
@@ -210,7 +210,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
     }
     if (!hf->entity_links.empty())
     {
-        s << "<h2 id=\"related-entities\">Related Entities</h2><ul>";
+        s << "<h2 id=\"related-entities\">Related Entities</h2><ul class=\"multicol\">";
         for (auto it = hf->entity_links.begin(); it != hf->entity_links.end(); it++)
         {
             if (auto ent = df::historical_entity::find((*it)->entity_id))
@@ -420,7 +420,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
     }
     if (!hf->site_links.empty())
     {
-        s << "<h2 id=\"related-sites\">Related Sites</h2><ul>";
+        s << "<h2 id=\"related-sites\">Related Sites</h2><ul class=\"multicol\">";
         for (auto it = hf->site_links.begin(); it != hf->site_links.end(); it++)
         {
             auto site = df::world_site::find((*it)->site);

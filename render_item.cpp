@@ -81,7 +81,15 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
                 s << "ART_IMAGE"; // TODO
                 BREAK(type);
             case improvement_type::COVERED:
-                s << "COVERED"; // TODO
+                s << "Covered in ";
+                if (auto imp = virtual_cast<df::itemimprovement_bandsst>(*it))
+                {
+                    if (auto shape = df::descriptor_shape::find(imp->shape))
+                    {
+                        s << " " << shape->name << " of ";
+                    }
+                }
+                material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::RINGS_HANGING:
                 s << "Adorned with hanging rings of ";
@@ -100,7 +108,7 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
                 material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::SPIKES:
-                s << "Studded with ";
+                s << "Menaces with spikes of ";
                 material(s, item, MaterialInfo(*it));
                 BREAK(type);
             case improvement_type::ITEMSPECIFIC:
