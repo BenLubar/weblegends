@@ -21,6 +21,15 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << ", desecrating " << format_number(event->shrines_destroyed) << (event->shrines_destroyed == 1 ? " shrine" : " shrines");
     }
 
+    if (!event->property_confiscated_from_hfs.empty())
+    {
+        s << ", confiscating the property of ";
+        list<int32_t>(s, event->property_confiscated_from_hfs, [&](std::ostream & out, int32_t id)
+            {
+                event_link(out, context, df::historical_figure::find(id));
+            });
+    }
+
     if (!event->expelled_hfs.empty() || !event->expelled_populations.empty())
     {
         if (event->shrines_destroyed > 0)
@@ -62,7 +71,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
 
     do_location(s, context, event->site, -1, -1, -1, separator);
 
-    if (!event->property_confiscated_from_hfs.empty() || !event->destroyed_structures.empty())
+    if (!event->destroyed_structures.empty())
     {
         do_event_missing(s, context, event, __FILE__, __LINE__);
     }

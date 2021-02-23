@@ -13,6 +13,7 @@
 #include "df/historical_figure.h"
 #include "df/squad.h"
 #include "df/world_site.h"
+#include "df/world_site_inhabitant.h"
 
 bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
 {
@@ -77,6 +78,7 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
         }
         s << "</ul>";
     }
+    bool any_residence = false;
     if (!ent->site_links.empty())
     {
         s << "<h2 id=\"related-sites\">Related Sites</h2><ul class=\"multicol\">";
@@ -84,6 +86,10 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
         {
             if (auto target = df::world_site::find(site_link->target))
             {
+                if (site_link->flags.bits.residence)
+                {
+                    any_residence = true;
+                }
                 s << "<li>";
                 link(s, target);
                 s << ",";
@@ -121,7 +127,7 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
         }
         s << "</ul>";
     }
-    if (!ent->hist_figures.empty() || !ent->populations.empty())
+    if (!ent->hist_figures.empty() || !ent->populations.empty() || any_residence)
     {
         s << "<h2>Members</h2><ul class=\"multicol\">";
         for (auto hf : ent->hist_figures)
@@ -142,6 +148,33 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
                     s << "<li>" << format_number(pop->counts.at(i)) << " ";
                     s << creature->name[pop->counts.at(i) == 1 ? 0 : 1];
                     s << "</li>";
+                }
+            }
+        }
+        for (auto site_link : ent->site_links)
+        {
+            if (!site_link->flags.bits.residence)
+            {
+                continue;
+            }
+            if (auto site = df::world_site::find(site_link->target))
+            {
+                for (auto inh : site->unk_1.inhabitants)
+                {
+                    if (inh->outcast_id == ent->id)
+                    {
+                        auto creature = df::creature_raw::find(inh->race);
+                        s << "<li>" << format_number(inh->count) << " ";
+                        s << creature->name[inh->count == 1 ? 0 : 1];
+                        s << " (";
+                        link(s, site);
+                        if (auto pop = df::entity_population::find(inh->population_id))
+                        {
+                            s << ", ";
+                            link(s, df::historical_entity::find(pop->civ_id));
+                        }
+                        s << ")</li>";
+                    }
                 }
             }
         }
