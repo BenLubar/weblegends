@@ -2,6 +2,7 @@
 #include "helpers.h"
 
 #include "df/creature_raw.h"
+#include "df/entity_population.h"
 #include "df/entity_site_link.h"
 #include "df/historical_entity.h"
 #include "df/nemesis_record.h"
@@ -43,7 +44,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
 
     if (!site->unk_1.nemesis.empty() || !site->unk_1.inhabitants.empty())
     {
-        s << "<h3>Inhabitants</h3><ul class=\"multicol\">";
+        s << "<h2>Inhabitants</h2><ul class=\"multicol\">";
         for (auto id : site->unk_1.nemesis)
         {
             auto nemesis = df::nemesis_record::find(id);
@@ -64,10 +65,24 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
             auto creature = df::creature_raw::find(inhabitant->race);
             s << "<li>" << inhabitant->count << " ";
             s << creature->name[inhabitant->count == 1 ? 0 : 1];
-            if (auto outcast = df::historical_entity::find(inhabitant->outcast_id))
+
+            auto pop = df::entity_population::find(inhabitant->population_id);
+            auto outcast = df::historical_entity::find(inhabitant->outcast_id);
+            if (pop || outcast)
             {
                 s << " (";
-                link(s, outcast);
+                if (outcast)
+                {
+                    link(s, outcast);
+                    if (pop)
+                    {
+                        s << ", ";
+                    }
+                }
+                if (pop)
+                {
+                    link(s, df::historical_entity::find(pop->civ_id));
+                }
                 s << ")";
             }
             s << "</li>";
@@ -77,7 +92,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
 
     if (!site->unk_1.artifacts.empty())
     {
-        s << "<h3>Artifacts</h3><ul class=\"multicol\">";
+        s << "<h2>Artifacts</h2><ul class=\"multicol\">";
         for (auto art : site->unk_1.artifacts)
         {
             s << "<li>";
@@ -91,7 +106,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
 
     if (!site->entity_links.empty())
     {
-        s << "<h2 id=\"related-entities\">Related Entities</h2><ul>";
+        s << "<h2 id=\"related-entities\">Related Entities</h2><ul class=\"multicol\">";
         for (auto l : site->entity_links)
         {
             auto entity = df::historical_entity::find(l->entity_id);
@@ -106,7 +121,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
 
     if (!site->buildings.empty())
     {
-        s << "<h2 id=\"structures\">Structures</h2><ul>";
+        s << "<h2 id=\"structures\">Structures</h2><ul class=\"multicol\">";
         for (auto b : site->buildings)
         {
             s << "<li>";

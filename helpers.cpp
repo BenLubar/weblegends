@@ -450,7 +450,9 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
         s << " counting house";
         BREAK(type);
     case abstract_building_type::GUILDHALL:
-        s << " guild hall";
+        s << " ";
+        s << html_escape(DF2UTF(toLower(ENUM_ATTR(profession, caption, structure->getContents()->profession))));
+        s << " guildhall";
         BREAK(type);
     case abstract_building_type::TOWER:
         s << " tower";
@@ -491,17 +493,29 @@ void categorize(std::ostream & s, df::artifact_record *item, bool in_link, bool 
             break;
     }
 }
-void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
+void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool in_attr)
+{
+    categorize(s, ent, in_link, in_attr, -1);
+}
+void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool in_attr, int32_t ignore_race)
 {
     if (!ent)
     {
-        s << " entity";
+        s << " group";
         return;
     }
 
-    if (auto race = df::creature_raw::find(ent->race))
+    if (ent->type == historical_entity_type::Outcast)
     {
-        s << " " << html_escape(DF2UTF(race->name[2]));
+        s << " collection of";
+    }
+
+    if (ent->race != ignore_race && !ent->flags.bits.unspecific_race)
+    {
+        if (auto race = df::creature_raw::find(ent->race))
+        {
+            s << " " << html_escape(DF2UTF(race->name[2]));
+        }
     }
 
     BEFORE_SWITCH(type, ent->type);
@@ -511,8 +525,32 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
         s << " civilization";
         BREAK(type);
     case historical_entity_type::SiteGovernment:
-        s << " site government";
+    {
+        bool found = false;
+        for (auto site : ent->site_links)
+        {
+            if (site->type == entity_site_link_type::Claim)
+            {
+                s << " government of ";
+                if (in_link || in_attr)
+                {
+                    s << html_escape(DF2UTF(Translation::TranslateName(&get_name(df::world_site::find(site->target)), false)));
+                }
+                else
+                {
+                    link(s, df::world_site::find(site->target));
+                }
+
+                found = true;
+                break;
+            }
+        }
+        if (!found)
+        {
+            s << " site government";
+        }
         BREAK(type);
+    }
     case historical_entity_type::VesselCrew:
         s << " vessel crew";
         BREAK(type);
@@ -520,16 +558,58 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
         s << " migrating group";
         BREAK(type);
     case historical_entity_type::NomadicGroup:
-        s << " nomadic group";
+        s << " bandit gang";
         BREAK(type);
     case historical_entity_type::Religion:
         s << " religion";
+        if (!ent->relations.deities.empty())
+        {
+            s << " worshipping ";
+            list<int32_t>(s, ent->relations.deities, [&](std::ostream & out, int32_t id)
+                {
+                    if (in_link || in_attr)
+                    {
+                        out << html_escape(DF2UTF(Translation::TranslateName(&get_name(df::historical_figure::find(id)), false)));
+                    }
+                    else
+                    {
+                        link(out, df::historical_figure::find(id));
+                    }
+                });
+        }
         BREAK(type);
     case historical_entity_type::MilitaryUnit:
-        s << " military unit";
+        if (ent->resources.values[value_type::CUNNING] > 10)
+        {
+            if (ent->resources.values[value_type::MARTIAL_PROWESS] > 10)
+            {
+                s << " versatile mercenary";
+            }
+            else
+            {
+                s << " shadowy military";
+            }
+        }
+        else
+        {
+            s << " mercenary";
+        }
+
+        if (!ent->honors.empty())
+        {
+            s << " order";
+        }
+        else if (ent->resources.values[value_type::MARTIAL_PROWESS] > 10)
+        {
+            s << " company";
+        }
+        else
+        {
+            s << " band";
+        }
         BREAK(type);
     case historical_entity_type::Outcast:
-        s << " outcast group";
+        s << " outcasts";
         BREAK(type);
     case historical_entity_type::PerformanceTroupe:
         s << " performance troupe";
@@ -538,6 +618,23 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool, bool)
         s << " merchant company";
         BREAK(type);
     case historical_entity_type::Guild:
+        s << " ";
+        list<df::historical_entity::T_guild_professions *>(s, ent->guild_professions, [&](std::ostream & out, df::historical_entity::T_guild_professions *prof)
+            {
+                auto creature = df::creature_raw::find(ent->race);
+                if (creature && !creature->profession_name.singular[prof->profession].empty())
+                {
+                    out << html_escape(DF2UTF(toLower(creature->profession_name.singular[prof->profession])));
+                }
+                else
+                {
+                    out << html_escape(DF2UTF(toLower(ENUM_ATTR(profession, caption, prof->profession))));
+                }
+            });
+        if (ent->guild_professions.empty())
+        {
+            s << "craft";
+        }
         s << " guild";
         BREAK(type);
     }
@@ -600,14 +697,28 @@ void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
         }
 
         s << " " << html_escape(DF2UTF(name)) << suffix;
-        if (auto sym = name == race->name[0] ? ENUM_ATTR(pronoun_type, symbol, hf->sex) : nullptr)
-        {
-            s << " (" << html_escape(DF2UTF(sym)) << ")";
-        }
 
         if (hf->flags.is_set(histfig_flags::deity) || hf->flags.is_set(histfig_flags::skeletal_deity) || hf->flags.is_set(histfig_flags::rotting_deity))
         {
-            s << " deity";
+            switch (hf->sex)
+            {
+                case pronoun_type::she:
+                    s << " goddess";
+                    break;
+                case pronoun_type::he:
+                    s << " god";
+                    break;
+                default:
+                    s << " deity";
+                    break;
+            }
+        }
+        else
+        {
+            if (auto sym = name == race->name[0] ? ENUM_ATTR(pronoun_type, symbol, hf->sex) : nullptr)
+            {
+                s << " (" << html_escape(DF2UTF(sym)) << ")";
+            }
         }
     }
     else if (hf->flags.is_set(histfig_flags::force))

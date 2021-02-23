@@ -304,7 +304,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
                 s << "&frac14;";
             }
         }
-        else
+        else if (days > 0)
         {
             s << " at only " << days << " days old";
         }

@@ -79,7 +79,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 
-    if (ent)
+    if (ent && context.ent != ent)
     {
         s << "the";
         categorize(s, ent);

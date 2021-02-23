@@ -83,6 +83,7 @@ void simple_header(Layout & l, df::type *name);
 WEBLEGENDS_TYPES
 #undef WEBLEGENDS_TYPE
 
+void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool in_attr, int32_t ignore_race);
 df::artifact_record *get_artifact(df::item *item);
 
 template<typename T>
@@ -182,13 +183,16 @@ static inline std::string html_escape(const std::string & str)
 template<typename HF, typename T>
 inline const std::string & sex_name(HF *hf, T *t, size_t idx = 0)
 {
-    if (hf->sex == pronoun_type::she && !t->name_female[idx].empty())
+    if (hf)
     {
-        return t->name_female[idx];
-    }
-    if (hf->sex == pronoun_type::he && !t->name_male[idx].empty())
-    {
-        return t->name_male[idx];
+        if (hf->sex == pronoun_type::she && !t->name_female[idx].empty())
+        {
+            return t->name_female[idx];
+        }
+        if (hf->sex == pronoun_type::he && !t->name_male[idx].empty())
+        {
+            return t->name_male[idx];
+        }
     }
     return t->name[idx];
 }

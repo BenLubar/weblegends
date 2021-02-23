@@ -1,9 +1,17 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "modules/Translation.h"
+
+#include "df/creature_raw.h"
 #include "df/entity_entity_link.h"
+#include "df/entity_population.h"
+#include "df/entity_position.h"
+#include "df/entity_position_assignment.h"
 #include "df/entity_site_link.h"
 #include "df/historical_entity.h"
+#include "df/historical_figure.h"
+#include "df/squad.h"
 #include "df/world_site.h"
 
 bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
@@ -23,17 +31,47 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
     categorize(s, ent);
     s << "</p>";
 
+    if (!ent->positions.assignments.empty())
+    {
+        s << "<h2>Administrative Positions</h2><ul class=\"multicol\">";
+        for (auto asn : ent->positions.assignments)
+        {
+            s << "<li>";
+
+            auto assigned = df::historical_figure::find(asn->histfig);
+            if (asn->histfig == -1)
+            {
+                s << "(vacant)";
+            }
+            else
+            {
+                link(s, assigned);
+            }
+
+            auto pos = binsearch_in_vector(ent->positions.own, asn->position_id);
+            s << ", " << sex_name(assigned, pos);
+
+            if (auto squad = df::squad::find(asn->squad_id))
+            {
+                s << " of " << html_escape(DF2UTF(Translation::TranslateName(&squad->name)));
+            }
+
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
+
     if (!ent->entity_links.empty())
     {
-        s << "<h2 id=\"related-entities\">Related Entities</h2><ul>";
-        for (auto it = ent->entity_links.begin(); it != ent->entity_links.end(); it++)
+        s << "<h2 id=\"related-entities\">Related Entities</h2><ul class=\"multicol\">";
+        for (auto ent_link : ent->entity_links)
         {
-            if (auto target = df::historical_entity::find((*it)->target))
+            if (auto target = df::historical_entity::find(ent_link->target))
             {
                 s << "<li>";
                 link(s, target);
                 s << ",";
-                categorize(s, target);
+                categorize(s, target, false, false, ent->race);
                 s << "</li>";
             }
         }
@@ -41,17 +79,70 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
     }
     if (!ent->site_links.empty())
     {
-        s << "<h2 id=\"related-sites\">Related Sites</h2><ul>";
-        for (auto it = ent->site_links.begin(); it != ent->site_links.end(); it++)
+        s << "<h2 id=\"related-sites\">Related Sites</h2><ul class=\"multicol\">";
+        for (auto site_link : ent->site_links)
         {
-            if (auto target = df::world_site::find((*it)->target))
+            if (auto target = df::world_site::find(site_link->target))
             {
                 s << "<li>";
                 link(s, target);
                 s << ",";
                 categorize(s, target);
-                // TODO: type
+                if (site_link->flags.bits.primary_criminal_gang)
+                {
+                    s << " (primary criminal gang)";
+                }
+                else if (site_link->flags.bits.criminal_gang)
+                {
+                    s << " (criminal gang)";
+                }
+                else if (site_link->flags.bits.residence)
+                {
+                    s << " (residence)";
+                }
+                else if (site_link->flags.bits.capital)
+                {
+                    s << " (capital)";
+                }
+                else if (site_link->flags.bits.base_of_operation)
+                {
+                    s << " (base of operation)";
+                }
+                else if (site_link->flags.bits.holy_city)
+                {
+                    s << " (holy city)";
+                }
+                else if (site_link->flags.bits.monument)
+                {
+                    s << " (monument)";
+                }
                 s << "</li>";
+            }
+        }
+        s << "</ul>";
+    }
+    if (!ent->hist_figures.empty() || !ent->populations.empty())
+    {
+        s << "<h2>Members</h2><ul class=\"multicol\">";
+        for (auto hf : ent->hist_figures)
+        {
+            s << "<li>";
+            link(s, hf);
+            s << ",";
+            categorize(s, hf);
+            s << "</li>";
+        }
+        for (auto id : ent->populations)
+        {
+            if (auto pop = df::entity_population::find(id))
+            {
+                for (size_t i = 0; i < pop->races.size(); i++)
+                {
+                    auto creature = df::creature_raw::find(pop->races.at(i));
+                    s << "<li>" << format_number(pop->counts.at(i)) << " ";
+                    s << creature->name[pop->counts.at(i) == 1 ? 0 : 1];
+                    s << "</li>";
+                }
             }
         }
         s << "</ul>";

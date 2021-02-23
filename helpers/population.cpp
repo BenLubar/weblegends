@@ -5,17 +5,18 @@
 #include "modules/Translation.h"
 
 #include "df/creature_raw.h"
+#include "df/historical_entity.h"
 #include "df/plant_raw.h"
 #include "df/world_population.h"
 
-void render_world_populations(std::ostream & s, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *page_type, int32_t id)
+void render_world_populations(std::ostream & s, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *region_type, int32_t id)
 {
     if (population.empty())
     {
         return;
     }
 
-    s << "<h3>Population</h3><ul class=\"multicol\">";
+    s << "<h2>Population</h2><ul class=\"multicol\">";
     std::ostringstream uncountable;
     for (auto pop : population)
     {
@@ -29,7 +30,7 @@ void render_world_populations(std::ostream & s, const df::language_name & region
             {
                 ss << "+ ";
             }
-            else if (pop->count_min != pop->count_max)
+            else if (pop->count_min < pop->count_max)
             {
                 ss << "-" << format_number(pop->count_max) << " ";
             }
@@ -73,15 +74,23 @@ void render_world_populations(std::ostream & s, const df::language_name & region
         {
             ss << "[" << enum_item_key_str(pop->type) << "]";
         }
-        AFTER_SWITCH(type, stl_sprintf("%s-%d population", page_type, id));
+        AFTER_SWITCH(type, stl_sprintf("%s-%d population", region_type, id));
+
+        if (auto owner = df::historical_entity::find(pop->owner))
+        {
+            ss << " (";
+            link(s, owner);
+            ss << ")";
+        }
+
         ss << "</li>";
     }
     auto uncountable_str = uncountable.str();
     if (!uncountable_str.empty())
     {
-        s << "</ul><h3>Also commonly found in ";
+        s << "</ul><h2>Also commonly found in ";
         s << html_escape(DF2UTF(Translation::TranslateName(&region_name, false)));
-        s << "</h3><ul class=\"multicol\">";
+        s << "</h2><ul class=\"multicol\">";
         s << uncountable_str;
     }
     s << "</ul>";
