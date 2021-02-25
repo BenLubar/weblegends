@@ -49,8 +49,6 @@ endforeach()
 
 file(WRITE events.h "${EVENT_HEADER_1}${EVENT_HEADER_2}\n")
 
-include_directories(thirdparty/lodepng)
-
 add_subdirectory(thirdparty/embed-resource EXCLUDE_FROM_ALL)
 
 SET(PROJECT_SRCS
@@ -73,7 +71,6 @@ SET(PROJECT_SRCS
     render_layer.cpp
     render_list.cpp
     debug.cpp
-    thirdparty/lodepng/lodepng.cpp
 )
 
 SET(PROJECT_HDRS
@@ -85,7 +82,6 @@ SET(PROJECT_HDRS
     events.h
     weblegends-plugin.h
     weblegends-git-describe.h
-    thirdparty/lodepng/lodepng.h
 )
 
 SET(HELPERS_SRCS
@@ -122,11 +118,6 @@ SET_SOURCE_FILES_PROPERTIES( ${PROJECT_EMBEDDED_SRCS} PROPERTIES GENERATED TRUE)
 
 LIST(APPEND PROJECT_SRCS ${PROJECT_EMBEDDED_SRCS} ${PROJECT_EMBEDDED})
 
-LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread)
-
-if(WIN32)
-    # disable bit shift compile warning on third party code
-    set_source_files_properties(thirdparty/lodepng/lodepng.cpp PROPERTIES COMPILE_FLAGS /wd4334)
-endif()
+LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread dfhack-lodepng)
 
 DFHACK_PLUGIN(weblegends ${PROJECT_SRCS} LINK_LIBRARIES ${PROJECT_LIBS} COMPILE_FLAGS_GCC "-Wall -Wextra -Werror" COMPILE_FLAGS_MSVC "/W3")

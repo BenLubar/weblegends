@@ -2,6 +2,3 @@
 	path = thirdparty/embed-resource
 	url = ../../CogentEmbedded/embed-resource.git
 	branch = cpp_11_compatibility
-[submodule "thirdparty/lodepng"]
-	path = thirdparty/lodepng
-	url = ../../lvandeve/lodepng.git
