@@ -19,6 +19,7 @@
 #include "df/historical_figure.h"
 #include "df/historical_figure_info.h"
 #include "df/history_era.h"
+#include "df/history_event_change_hf_statest.h"
 #include "df/history_event_collection.h"
 #include "df/interaction_effect_add_syndromest.h"
 #include "df/interaction_effect_animatest.h"
@@ -1135,7 +1136,7 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
     }
     AFTER_SWITCH(type, stl_sprintf("site-%d", site->id));
 }
-void categorize(std::ostream & s, df::world_underground_region *layer, bool, bool)
+void categorize(std::ostream & s, df::world_underground_region *layer, bool in_link, bool in_attr)
 {
     if (!layer)
     {
@@ -1148,6 +1149,25 @@ void categorize(std::ostream & s, df::world_underground_region *layer, bool, boo
     {
     case df::world_underground_region::T_type::Cavern:
         s << " cavern";
+        for (auto event : world->history.events)
+        {
+            auto change_state = virtual_cast<df::history_event_change_hf_statest>(event);
+            if (change_state && change_state->year < 0 && change_state->layer == layer->index && change_state->state == df::history_event_change_hf_statest::Wandering)
+            {
+                auto beast = df::historical_figure::find(change_state->hfid);
+                s << ", origin of ";
+                if (in_link || in_attr)
+                {
+                    s << escape_name(get_name(beast));
+                }
+                else
+                {
+                    link(s, beast);
+                }
+
+                break;
+            }
+        }
         BREAK(type);
     case df::world_underground_region::T_type::MagmaSea:
         s << " magma sea";

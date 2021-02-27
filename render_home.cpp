@@ -77,7 +77,6 @@ void WebLegends::render_sidebar(Layout & l)
         return;
     }
 
-    l.add_sidebar_link("eras-0", "Eras");
     l.add_sidebar_link("eventcols-0", "Event Collections");
     l.add_sidebar_link("figs-0", "Historical Figures");
     l.add_sidebar_link("sites-0", "Sites");
