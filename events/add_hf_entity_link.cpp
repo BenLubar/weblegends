@@ -79,14 +79,13 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     }
     AFTER_SWITCH(type, stl_sprintf("event-%d (ADD_HF_ENTITY_LINK)", event->id));
 
+    event_link(s, context, ent);
+
     if (ent && context.ent != ent)
     {
-        s << "the";
+        s << ", the";
         categorize(s, ent);
-        s << " ";
     }
-
-    event_link(s, context, ent);
 
     if (auto appointer = df::historical_figure::find(event->appointer_hfid))
     {
