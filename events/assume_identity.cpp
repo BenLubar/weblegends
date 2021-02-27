@@ -9,14 +9,22 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     auto target = df::historical_entity::find(event->target);
 
     event_link(s, context, trickster);
-    s << " tricked ";
-    event_link(s, context, target);
-    s << " into thinking ";
 
-    if (auto pronoun = trickster ? ENUM_ATTR(pronoun_type, subject, trickster->sex) : nullptr)
-        s << pronoun << " was ";
+    if (event->target == -1)
+    {
+        s << " assumed the identity of ";
+    }
     else
-        s << " they were ";
+    {
+        s << " tricked ";
+        event_link(s, context, target);
+        s << " into thinking ";
+
+        if (auto pronoun = trickster ? ENUM_ATTR(pronoun_type, subject, trickster->sex) : nullptr)
+            s << pronoun << " was ";
+        else
+            s << " they were ";
+    }
 
     do_identity(s, context, trickster, identity);
 }
