@@ -183,3 +183,5 @@ inline void do_circumstance_reason(std::ostream & s, const event_context & conte
 {
     do_circumstance_reason(s, context, event, event->circumstance, event->reason);
 }
+
+void do_account_shift(std::ostream & s, int32_t shift);

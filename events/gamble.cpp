@@ -6,28 +6,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
 {
     event_link(s, context, df::historical_figure::find(event->hf));
 
-    int32_t earnings = event->account_after - event->account_before;
-
-    if (earnings >= 5000)
-    {
-        s << " made a fortune";
-    }
-    else if (earnings <= -5000)
-    {
-        s << " lost a fortune";
-    }
-    else if (earnings >= 1000)
-    {
-        s << " did well";
-    }
-    else if (earnings <= -1000)
-    {
-        s << " did poorly";
-    }
-    else
-    {
-        s << " broke even";
-    }
+    do_account_shift(s, event->account_after - event->account_before);
 
     s << " gambling";
 

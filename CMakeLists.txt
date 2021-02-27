@@ -85,6 +85,7 @@ SET(PROJECT_HDRS
 )
 
 SET(HELPERS_SRCS
+    helpers/account.cpp
     helpers/circumstance.cpp
     helpers/event.cpp
     helpers/identity.cpp
