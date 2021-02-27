@@ -344,8 +344,8 @@ void link(std::ostream & s, df::world_underground_region *layer, bool translate)
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last)
 {
-    std::string native = escape_name(name);
-    std::string english = escape_name(name, true);
+    std::string native = escape_name(name, false, only_last);
+    std::string english = escape_name(name, true, only_last);
     if (native != english)
     {
         s << "<abbr title=\"" << english << "\">" << native << "</abbr>";
@@ -1721,8 +1721,8 @@ std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::str
     return std::make_pair(race, caste);
 }
 
-std::string escape_name(const df::language_name & name, bool in_english)
+std::string escape_name(const df::language_name & name, bool in_english, bool only_last)
 {
-    auto translated = Translation::TranslateName(&name, in_english);
+    auto translated = Translation::TranslateName(&name, in_english, only_last);
     return html_escape(DF2UTF(translated));
 }

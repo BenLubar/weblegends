@@ -198,7 +198,7 @@ inline const std::string & sex_name(HF *hf, T *t, size_t idx = 0)
     return t->name[idx];
 }
 
-std::string escape_name(const df::language_name & name, bool in_english = false);
+std::string escape_name(const df::language_name & name, bool in_english = false, bool only_last = false);
 
 void render_world_populations(std::ostream &, const df::language_name & region_name, const std::vector<df::world_population *> & population, const char *type, int32_t id);
 
