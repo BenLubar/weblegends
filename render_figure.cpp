@@ -51,7 +51,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
     born_died(s, hf);
     if (caste && !hf->flags.is_set(histfig_flags::deity))
     {
-        s << "<br>" << caste->description;
+        s << "<br>" << html_escape(DF2UTF(caste->description));
     }
     if (hf->info && hf->info->curse)
     {
@@ -79,7 +79,7 @@ bool WebLegends::render_figure(Layout & l, int32_t id, int32_t page)
                         auto race_caste = find_creature_raws(transformation->race_str, transformation->caste_str);
                         if (race_caste.second != nullptr)
                         {
-                            s << "<br>" << race_caste.second->description;
+                            s << "<br>" << html_escape(DF2UTF(race_caste.second->description));
                         }
                     }
                 }

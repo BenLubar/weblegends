@@ -68,7 +68,7 @@ bool WebLegends::render_item(Layout & l, int32_t id, int32_t page)
     s << "</p>";
     if (auto slab = virtual_cast<df::item_slabst>(item->item))
     {
-        s << "<blockquote><p>" << slab->description << "</p></blockquote>";
+        s << "<blockquote><p>" << html_escape(DF2UTF(slab->description)) << "</p></blockquote>";
     }
     if (auto constructed = virtual_cast<df::item_constructed>(item->item))
     {

@@ -1518,7 +1518,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
 {
     if (!mat.isCreature())
     {
-        s << mat.toString();
+        s << html_escape(DF2UTF(mat.toString()));
         return;
     }
     if (unique_creature_name(s, context, mat.creature, in_link, in_attr))
@@ -1530,7 +1530,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
                 state = matter_state::Liquid;
             if (10015 >= mat.material->heat.boiling_point)
                 state = matter_state::Gas;
-            s << " " << mat.material->state_name[state];
+            s << " " << html_escape(DF2UTF(mat.material->state_name[state]));
         }
         else
         {
@@ -1538,7 +1538,7 @@ void material(std::ostream & s, const event_context & context, MaterialInfo mat,
         }
         return;
     }
-    s << mat.toString();
+    s << html_escape(DF2UTF(mat.toString()));
 }
 
 bool unique_creature_name(std::ostream & s, const event_context & context, df::creature_raw *creature, bool in_link, bool in_attr)
