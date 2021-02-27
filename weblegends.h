@@ -90,7 +90,6 @@ private:
     static bool render_structure(Layout & l, int32_t site_id, int32_t id, int32_t page);
     static bool render_layer(Layout & l, int32_t id, int32_t page);
     static bool render_entity_list(Layout & l, int32_t page);
-    static bool render_era_list(Layout & l, int32_t page);
     static bool render_eventcol_list(Layout & l, int32_t page);
     static bool render_figure_list(Layout & l, int32_t page);
     static bool render_item_list(Layout & l, int32_t page);

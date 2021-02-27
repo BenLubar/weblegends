@@ -138,6 +138,7 @@ void pagination(std::ostream & s, const std::string & base, const std::string & 
 
 std::string format_number_u(uint64_t number);
 std::string format_number_s(int64_t number);
+std::string get_ordinal(int32_t number, bool shorten = false);
 
 template<typename N, typename std::enable_if<std::is_unsigned<N>::value, int>::type = 0>
 inline std::string format_number(N number)

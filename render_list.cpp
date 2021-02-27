@@ -22,12 +22,6 @@ static typename std::vector<T *> & get_vector()
 }
 
 template<>
-std::vector<df::history_era *> & get_vector<df::history_era>()
-{
-    return world->history.eras;
-}
-
-template<>
 std::vector<df::history_event_collection *> & get_vector<df::history_event_collection>()
 {
     static std::vector<df::history_event_collection *> filtered;
@@ -103,10 +97,6 @@ static bool render_list(Layout & l, int32_t page, const std::string & prefix, co
 bool WebLegends::render_entity_list(Layout & l, int32_t page)
 {
     return render_list<df::historical_entity>(l, page, "ents-", "Civilizations and other entities");
-}
-bool WebLegends::render_era_list(Layout & l, int32_t page)
-{
-    return render_list<df::history_era>(l, page, "eras-", "History Eras", false);
 }
 bool WebLegends::render_eventcol_list(Layout & l, int32_t page)
 {

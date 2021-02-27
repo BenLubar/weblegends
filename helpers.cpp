@@ -35,6 +35,114 @@ REQUIRE_GLOBAL(cur_year);
 REQUIRE_GLOBAL(cur_year_tick);
 REQUIRE_GLOBAL(world);
 
+std::string get_ordinal(int32_t number, bool shorten)
+{
+    std::ostringstream s;
+
+    if (shorten)
+    {
+        if (number < 0)
+        {
+            number = -number;
+            s << "-";
+        }
+
+        s << number;
+        switch (number % 10)
+        {
+        case 1:
+            s << (number % 100 == 11 ? "th" : "st");
+            break;
+        case 2:
+            s << (number % 100 == 12 ? "th" : "nd");
+            break;
+        case 3:
+            s << (number % 100 == 13 ? "th" : "rd");
+            break;
+        default:
+            s << "th";
+            break;
+        }
+
+        return s.str();
+    }
+
+    if (number < 0)
+    {
+        number = -number;
+        s << "Negative ";
+    }
+
+    switch (number)
+    {
+    case 0:
+        s << "Zeroth";
+        break;
+    case 1:
+        s << "First";
+        break;
+    case 2:
+        s << "Second";
+        break;
+    case 3:
+        s << "Third";
+        break;
+    case 4:
+        s << "Fourth";
+        break;
+    case 5:
+        s << "Fifth";
+        break;
+    case 6:
+        s << "Sixth";
+        break;
+    case 7:
+        s << "Seventh";
+        break;
+    case 8:
+        s << "Eighth";
+        break;
+    case 9:
+        s << "Ninth";
+        break;
+    case 10:
+        s << "Tenth";
+        break;
+    case 11:
+        s << "Eleventh";
+        break;
+    case 12:
+        s << "Twelfth";
+        break;
+    case 13:
+        s << "Thirteenth";
+        break;
+    case 14:
+        s << "Fourteenth";
+        break;
+    case 15:
+        s << "Fifteenth";
+        break;
+    case 16:
+        s << "Sixteenth";
+        break;
+    case 17:
+        s << "Seventeenth";
+        break;
+    case 18:
+        s << "Eighteenth";
+        break;
+    case 19:
+        s << "Nineteenth";
+        break;
+    default:
+        s << get_ordinal(number, true);
+        break;
+    }
+
+    return s.str();
+}
+
 int32_t get_id(df::abstract_building *structure)
 {
     return structure ? structure->id : -1;
@@ -110,7 +218,17 @@ const df::language_name & get_name(df::world_underground_region *layer)
 const df::language_name & get_name(df::history_era *era)
 {
     static df::language_name name;
-    name.first_name = era ? era->title.name : "";
+    name.first_name = "";
+    if (era)
+    {
+        name.first_name = "The ";
+        if (era->title.ordinal)
+        {
+            name.first_name += get_ordinal(era->title.ordinal);
+            name.first_name += " ";
+        }
+        name.first_name += era->title.name;
+    }
     name.has_name = !name.first_name.empty();
     name.nickname = "";
     name.words[0] = -1;
