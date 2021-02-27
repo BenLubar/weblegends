@@ -1,10 +1,13 @@
 #include "weblegends.h"
 #include "helpers.h"
 
+#include "modules/Materials.h"
 #include "modules/Translation.h"
 
 #include "df/abstract_building.h"
 #include "df/abstract_building_entombed.h"
+#include "df/abstract_building_libraryst.h"
+#include "df/artifact_record.h"
 #include "df/creature_raw.h"
 #include "df/entity_population.h"
 #include "df/historical_entity.h"
@@ -39,6 +42,10 @@ bool WebLegends::render_structure(Layout & l, int32_t site_id, int32_t id, int32
 
     auto & s = l.content;
     s << "<p>";
+    if (structure->unk1)
+    {
+        s << html_escape(DF2UTF(MaterialInfo(structure->unk1).toString())) << " ";
+    }
     categorize(s, structure);
     s << "</p>";
 
@@ -52,6 +59,21 @@ bool WebLegends::render_structure(Layout & l, int32_t site_id, int32_t id, int32
             link(s, child);
             s << ",";
             categorize(s, child);
+            s << "</li>";
+        }
+        s << "</ul>";
+    }
+
+    if (!structure->inhabitants.empty())
+    {
+        s << "<h2>Inhabitants</h2><ul class=\"multicol\">";
+        for (auto inhabitant : structure->inhabitants)
+        {
+            auto hf = df::historical_figure::find(inhabitant->histfig_id);
+            s << "<li>";
+            link(s, hf);
+            s << ",";
+            categorize(s, hf);
             s << "</li>";
         }
         s << "</ul>";
@@ -83,6 +105,21 @@ bool WebLegends::render_structure(Layout & l, int32_t site_id, int32_t id, int32
             s << ")</li>";
         }
         s << "</ul>";
+    }
+
+    if (auto library = virtual_cast<df::abstract_building_libraryst>(structure))
+    {
+        if (!library->copied_artifacts.empty())
+        {
+            s << "<h2>Copied Books</h2><ul class=\"multicol\">";
+            for (int32_t art_id : library->copied_artifacts)
+            {
+                s << "<li>";
+                link(s, df::artifact_record::find(art_id));
+                s << "</li>";
+            }
+            s << "</ul>";
+        }
     }
 
     int32_t last_page;
