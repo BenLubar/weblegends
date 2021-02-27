@@ -16,6 +16,7 @@ void render_world_populations(std::ostream & s, const df::language_name & region
         return;
     }
 
+    bool any_countable = false;
     s << "<h2>Population</h2><ul class=\"multicol\">";
     std::ostringstream uncountable;
     for (auto pop : population)
@@ -29,6 +30,7 @@ void render_world_populations(std::ostream & s, const df::language_name & region
         ss << "<li>";
         if (pop->count_min != 10000001)
         {
+            any_countable = true;
             ss << format_number(pop->count_min);
 
             if (pop->count_max == 10000001)
@@ -93,9 +95,19 @@ void render_world_populations(std::ostream & s, const df::language_name & region
     auto uncountable_str = uncountable.str();
     if (!uncountable_str.empty())
     {
-        s << "</ul><h2>Also commonly found in ";
-        s << escape_name(region_name);
-        s << "</h2><ul class=\"multicol\">";
+        if (any_countable)
+        {
+            s << "</ul><h2>Also commonly found in ";
+            if (region_name.has_name)
+            {
+                s << escape_name(region_name);
+            }
+            else
+            {
+                s << "this area";
+            }
+            s << "</h2><ul class=\"multicol\">";
+        }
         s << uncountable_str;
     }
     s << "</ul>";
