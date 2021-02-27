@@ -319,6 +319,14 @@ void link(std::ostream & s, df::history_event_collection *eventcol, bool transla
 }
 void link(std::ostream & s, df::historical_figure *hf, bool translate)
 {
+    if (hf && hf->info && hf->info->curse && hf->info->curse->original_histfig_id != -1)
+    {
+        s << "<a href=\"fig-" << hf->id << "\" title=\"zombie,";
+        categorize(s, hf, true, true);
+        s << "\">zombie</a>";
+        return;
+    }
+
     link_name(s, "fig-", hf, translate);
 }
 void link(std::ostream & s, df::world_region *region, bool translate)
@@ -776,11 +784,32 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool
     }
     AFTER_SWITCH(type, stl_sprintf("ent-%d", ent->id));
 }
-void categorize(std::ostream & s, df::historical_figure *hf, bool, bool)
+void categorize(std::ostream & s, df::historical_figure *hf, bool in_link, bool in_attr)
 {
     if (!hf)
     {
         s << " figure";
+        return;
+    }
+
+    if (hf->info && hf->info->curse && hf->info->curse->original_histfig_id != -1)
+    {
+        if (!hf->info->curse->name.empty())
+        {
+            s << " " << html_escape(DF2UTF(hf->info->curse->name));
+        }
+        s << " corpse of ";
+
+        auto corpse = df::historical_figure::find(hf->info->curse->original_histfig_id);
+        if (in_link || in_attr)
+        {
+            s << escape_name(get_name(corpse));
+        }
+        else
+        {
+            link(s, corpse);
+        }
+
         return;
     }
 
