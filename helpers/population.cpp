@@ -20,6 +20,11 @@ void render_world_populations(std::ostream & s, const df::language_name & region
     std::ostringstream uncountable;
     for (auto pop : population)
     {
+        if (pop->count_min == 0 && (pop->count_max == 0 || pop->count_max == 10000001))
+        {
+            continue;
+        }
+
         std::ostream & ss = pop->count_min == 10000001 ? uncountable : s;
         ss << "<li>";
         if (pop->count_min != 10000001)

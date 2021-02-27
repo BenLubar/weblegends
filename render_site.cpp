@@ -23,6 +23,8 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
         return false;
     }
 
+    auto owner = df::historical_entity::find(site->cur_owner_id);
+
     simple_header(l, site);
 
     auto & s = l.content;
@@ -62,6 +64,11 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
         }
         for (auto inhabitant : site->unk_1.inhabitants)
         {
+            if (inhabitant->count == 0)
+            {
+                continue;
+            }
+
             auto creature = df::creature_raw::find(inhabitant->race);
             s << "<li>" << inhabitant->count << " ";
             s << creature->name[inhabitant->count == 1 ? 0 : 1];
@@ -113,7 +120,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
             s << "<li>";
             link(s, entity);
             s << ",";
-            categorize(s, entity);
+            categorize(s, entity, false, false, owner ? owner->race : -1);
             s << "</li>";
         }
         s << "</ul>";

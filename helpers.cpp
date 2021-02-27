@@ -8,6 +8,7 @@
 #include "df/abstract_building.h"
 #include "df/abstract_building_dungeonst.h"
 #include "df/abstract_building_templest.h"
+#include "df/abstract_building_tombst.h"
 #include "df/artifact_record.h"
 #include "df/caste_raw.h"
 #include "df/creature_interaction_effect_body_transformationst.h"
@@ -531,6 +532,22 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
         BREAK(type);
     case abstract_building_type::TOMB:
         s << " tomb";
+        if (auto tomb = virtual_cast<df::abstract_building_tombst>(structure))
+        {
+            if (tomb->entombed.histfigs.size() == 1)
+            {
+                auto hf = df::historical_figure::find(tomb->entombed.histfigs.at(0));
+                s << " of ";
+                if (in_attr)
+                {
+                    s << escape_name(get_name(hf));
+                }
+                else
+                {
+                    link(s, hf);
+                }
+            }
+        }
         BREAK(type);
     case abstract_building_type::DUNGEON:
         if (auto dungeon = virtual_cast<df::abstract_building_dungeonst>(structure))
@@ -1016,7 +1033,14 @@ void categorize(std::ostream & s, df::world_site *site, bool, bool)
         s << " forest retreat";
         BREAK(type);
     case world_site_type::Town:
-        s << " town";
+        if (site->flags.is_set(world_site_flags::Town))
+        {
+            s << " town";
+        }
+        else
+        {
+            s << " hamlet";
+        }
         BREAK(type);
     case world_site_type::ImportantLocation:
         s << " important location";

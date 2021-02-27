@@ -144,6 +144,11 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
             {
                 for (size_t i = 0; i < pop->races.size(); i++)
                 {
+                    if (pop->counts.at(i) == 0)
+                    {
+                        continue;
+                    }
+
                     auto creature = df::creature_raw::find(pop->races.at(i));
                     s << "<li>" << format_number(pop->counts.at(i)) << " ";
                     s << creature->name[pop->counts.at(i) == 1 ? 0 : 1];
@@ -163,6 +168,11 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
                 {
                     if (inh->outcast_id == ent->id)
                     {
+                        if (inh->count == 0)
+                        {
+                            continue;
+                        }
+
                         auto creature = df::creature_raw::find(inh->race);
                         s << "<li>" << format_number(inh->count) << " ";
                         s << creature->name[inh->count == 1 ? 0 : 1];
