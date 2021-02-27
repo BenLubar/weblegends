@@ -89,7 +89,7 @@ void render_world_populations(std::ostream & s, const df::language_name & region
     if (!uncountable_str.empty())
     {
         s << "</ul><h2>Also commonly found in ";
-        s << html_escape(DF2UTF(Translation::TranslateName(&region_name, false)));
+        s << escape_name(region_name);
         s << "</h2><ul class=\"multicol\">";
         s << uncountable_str;
     }

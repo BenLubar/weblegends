@@ -153,12 +153,12 @@ static void link_name(std::ostream & s, const std::string & prefix, T *target, b
 
     if (name.has_name)
     {
-        s << "<a href=\"" << prefix << id << "\" title=\"" << html_escape(DF2UTF(Translation::TranslateName(&name, true, false))) << ",";
+        s << "<a href=\"" << prefix << id << "\" title=\"" << escape_name(name, true) << ",";
         categorize(s, target, true, true);
-        s << "\">" << html_escape(DF2UTF(Translation::TranslateName(&name, false, false)));
+        s << "\">" << escape_name(name);
         if (translate)
         {
-            s << ", " << LDQUO << html_escape(DF2UTF(Translation::TranslateName(&name, true, false))) << RDQUO;
+            s << ", " << LDQUO << escape_name(name, true) << RDQUO;
         }
         s << "</a>";
     }
@@ -216,8 +216,8 @@ void link(std::ostream & s, df::world_underground_region *layer, bool translate)
 
 void name_translated(std::ostream & s, const df::language_name & name, bool only_last)
 {
-    std::string native = html_escape(DF2UTF(Translation::TranslateName(&name, false, only_last)));
-    std::string english = html_escape(DF2UTF(Translation::TranslateName(&name, true, only_last)));
+    std::string native = escape_name(name);
+    std::string english = escape_name(name, true);
     if (native != english)
     {
         s << "<abbr title=\"" << english << "\">" << native << "</abbr>";
@@ -360,7 +360,7 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                             s << " of ";
                             if (in_attr)
                             {
-                                s << html_escape(DF2UTF(Translation::TranslateName(&name, false)));
+                                s << escape_name(name);
                             }
                             else
                             {
@@ -386,7 +386,7 @@ void categorize(std::ostream & s, df::abstract_building *structure, bool in_link
                             s << " of ";
                             if (in_attr)
                             {
-                                s << html_escape(DF2UTF(Translation::TranslateName(&name, false)));
+                                s << escape_name(name);
                             }
                             else
                             {
@@ -534,7 +534,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool
                 s << " government of ";
                 if (in_link || in_attr)
                 {
-                    s << html_escape(DF2UTF(Translation::TranslateName(&get_name(df::world_site::find(site->target)), false)));
+                    s << escape_name(get_name(df::world_site::find(site->target)));
                 }
                 else
                 {
@@ -569,7 +569,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool
                 {
                     if (in_link || in_attr)
                     {
-                        out << html_escape(DF2UTF(Translation::TranslateName(&get_name(df::historical_figure::find(id)), false)));
+                        out << escape_name(get_name(df::historical_figure::find(id)));
                     }
                     else
                     {
@@ -1528,4 +1528,10 @@ std::pair<df::creature_raw *, df::caste_raw *> find_creature_raws(const std::str
     auto caste = race ? vector_get(race->caste, caste_idx) : nullptr;
 
     return std::make_pair(race, caste);
+}
+
+std::string escape_name(const df::language_name & name, bool in_english)
+{
+    auto translated = Translation::TranslateName(&name, in_english);
+    return html_escape(DF2UTF(translated));
 }

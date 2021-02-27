@@ -54,7 +54,7 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
 
             if (auto squad = df::squad::find(asn->squad_id))
             {
-                s << " of " << html_escape(DF2UTF(Translation::TranslateName(&squad->name)));
+                s << " of " << escape_name(squad->name, true);
             }
 
             s << "</li>";
