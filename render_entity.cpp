@@ -37,6 +37,25 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
         s << "<h2>Administrative Positions</h2><ul class=\"multicol\">";
         for (auto asn : ent->positions.assignments)
         {
+            auto pos = binsearch_in_vector(ent->positions.own, asn->position_id);
+            df::entity_site_link *linked_site = nullptr;
+            if (pos->land_holder)
+            {
+                for (auto site_link : ent->site_links)
+                {
+                    if (site_link->land_holder == asn->id)
+                    {
+                        linked_site = site_link;
+                        break;
+                    }
+                }
+
+                if (asn->histfig == -1 && !linked_site)
+                {
+                    continue;
+                }
+            }
+
             s << "<li>";
 
             auto assigned = df::historical_figure::find(asn->histfig);
@@ -49,12 +68,17 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
                 link(s, assigned);
             }
 
-            auto pos = binsearch_in_vector(ent->positions.own, asn->position_id);
             s << ", " << sex_name(assigned, pos);
 
             if (auto squad = df::squad::find(asn->squad_id))
             {
                 s << " of " << escape_name(squad->name, true);
+            }
+
+            if (linked_site)
+            {
+                s << " of ";
+                link(s, df::world_site::find(linked_site->target));
             }
 
             s << "</li>";
