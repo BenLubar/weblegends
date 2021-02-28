@@ -2,7 +2,10 @@
 
 #include "df/agreement.h"
 #include "df/agreement_details.h"
+#include "df/agreement_details_data_citizenship.h"
+#include "df/agreement_details_data_demonic_binding.h"
 #include "df/agreement_details_data_join_party.h"
+#include "df/agreement_details_data_residency.h"
 #include "df/agreement_party.h"
 #include "df/history_event_agreement_formedst.h"
 #include "df/intrigue.h"
@@ -57,7 +60,6 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         do_agreement_party(s, context, agreement, details->data.JoinParty->member);
         s << " joined with ";
         do_agreement_party(s, context, agreement, details->data.JoinParty->party);
-
 
         BEFORE_SWITCH(reason, details->data.JoinParty->reason);
         switch (reason) {
@@ -116,6 +118,79 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             break;
         }
         AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) JoinParty", event->id));
+
+        BREAK(type);
+    case agreement_details_type::DemonicBinding:
+        do_agreement_party(s, context, agreement, details->data.DemonicBinding->summoner);
+        s << " aided ";
+        do_agreement_party(s, context, agreement, details->data.DemonicBinding->demon);
+        s << " in becoming a permanent part of the living world";
+
+        {
+            df::history_event_circumstance_info circumstance;
+            df::history_event_reason_info reason;
+            reason.type = details->data.DemonicBinding->reason;
+            *(int32_t *)(&reason.data) = int32_t(details->data.DemonicBinding->sphere);
+            do_circumstance_reason(s, context, event, circumstance, reason);
+        }
+
+        if (details->data.DemonicBinding->site != -1)
+        {
+            s << ". The ritual took place in ";
+            event_link(s, context, df::world_site::find(details->data.DemonicBinding->site));
+
+            if (details->data.DemonicBinding->artifact != -1)
+            {
+                s << " using ";
+                event_link(s, context, df::artifact_record::find(details->data.DemonicBinding->artifact));
+            }
+        }
+        else if (details->data.DemonicBinding->artifact != -1)
+        {
+            s << ". The ritual involved ";
+            event_link(s, context, df::artifact_record::find(details->data.DemonicBinding->artifact));
+        }
+ 
+        BREAK(type);
+    case agreement_details_type::Residency:
+        do_agreement_party(s, context, agreement, details->data.Residency->applicant);
+        s << " made an agreement with ";
+        do_agreement_party(s, context, agreement, details->data.Residency->government);
+
+        if (details->data.Residency->site != -1)
+        {
+            s << ", becoming a resident of ";
+            event_link(s, context, df::world_site::find(details->data.Residency->site));
+        }
+
+        BEFORE_SWITCH(reason, details->data.Residency->reason);
+        switch (reason)
+        {
+        case history_event_reason::eradicate_beasts:
+            s << " to eradicate monsters";
+            BREAK(reason);
+        case history_event_reason::entertain_people:
+            s << " to entertain the citizenry";
+            BREAK(reason);
+        case history_event_reason::make_a_living_as_a_warrior:
+            s << " to work as a mercenary";
+            BREAK(reason);
+        case history_event_reason::study:
+            s << " to study";
+            BREAK(reason);
+        default:
+            break;
+        }
+        AFTER_SWITCH(reason, stl_sprintf("event-%d (AGREEMENT_FORMED) Residency", event->id));
+
+        BREAK(type);
+    case agreement_details_type::Citizenship:
+        do_agreement_party(s, context, agreement, details->data.Citizenship->applicant);
+        s << " made an agreement with ";
+        do_agreement_party(s, context, agreement, details->data.Citizenship->government);
+
+        s << ", becoming a citizen of ";
+        event_link(s, context, df::world_site::find(details->data.Citizenship->site));
 
         BREAK(type);
     default:
