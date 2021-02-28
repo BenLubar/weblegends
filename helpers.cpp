@@ -675,7 +675,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool
         {
             if (site->type == entity_site_link_type::Claim)
             {
-                s << " government of ";
+                s << " population of ";
                 if (in_link || in_attr)
                 {
                     s << escape_name(get_name(df::world_site::find(site->target)));
@@ -691,7 +691,7 @@ void categorize(std::ostream & s, df::historical_entity *ent, bool in_link, bool
         }
         if (!found)
         {
-            s << " site government";
+            s << " site population";
         }
         BREAK(type);
     }
