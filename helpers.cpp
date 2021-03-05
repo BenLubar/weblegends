@@ -1430,23 +1430,30 @@ bool history(std::ostream & s, const event_context & context, int32_t page, int3
         if (!it->empty())
         {
             int32_t year = (it - relevant.events.begin());
-            int32_t cur_month = 12;
+            int32_t cur_week = -1;
             s << "<p id=\"history-" << year;
             if (year != 0 && it->size() > 20)
             {
-                cur_month = it->at(0)->seconds < 0 ? -1 : std::max(0, it->at(0)->seconds / 1200 / 28);
-                s << "-" << (cur_month + 1);
+                cur_week = it->at(0)->seconds < 0 ? -1 : std::max(0, it->at(0)->seconds / 1200 / 7);
+                s << "-" << (cur_week + 1);
             }
             s << "\">";
+            size_t paragraph_event_count = 0;
             for (auto e : *it)
             {
-                if (e->seconds >= 0 && cur_month < e->seconds / 1200 / 28)
+                if (e->seconds >= 0 && cur_week < e->seconds / 1200 / 7)
                 {
-                    cur_month = e->seconds / 1200 / 28;
-                    s << "</p><p id=\"history-" << year << "-" << (cur_month + 1) << "\">";
+                    int32_t next_week = e->seconds / 1200 / 7;
+                    if (cur_week / 4 < next_week / 4 || paragraph_event_count > 5)
+                    {
+                        s << "</p><p id=\"history-" << year << "-" << (next_week + 1) << "\">";
+                        paragraph_event_count = 0;
+                    }
+                    cur_week = next_week;
                 }
 
                 event(s, context, e, last_year, last_seconds);
+                paragraph_event_count++;
             }
             s << "</p>";
 
