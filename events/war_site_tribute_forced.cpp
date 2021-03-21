@@ -30,22 +30,25 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         s << ", to be delivered from ";
         event_link(s, context, site);
         s << " every ";
-        BEFORE_SWITCH(season, event->season);
-        switch (season)
+        BEFORE_SWITCH(seas, event->season);
+        switch (seas)
         {
-        case 0:
+        case season::None:
+            s << "season";
+            BREAK(seas);
+        case season::Spring:
             s << "Spring";
-            BREAK(season);
-        case 1:
+            BREAK(seas);
+        case season::Summer:
             s << "Summer";
-            BREAK(season);
-        case 2:
+            BREAK(seas);
+        case season::Autumn:
             s << "Autumn";
-            BREAK(season);
-        case 3:
+            BREAK(seas);
+        case season::Winter:
             s << "Winter";
-            BREAK(season);
+            BREAK(seas);
         }
-        AFTER_SWITCH(season, stl_sprintf("event-%d (WAR_SITE_TRIBUTE_FORCED)", event->id));
+        AFTER_SWITCH(seas, stl_sprintf("event-%d (WAR_SITE_TRIBUTE_FORCED)", event->id));
     }
 }
