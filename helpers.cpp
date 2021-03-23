@@ -1181,7 +1181,7 @@ void categorize(std::ostream & s, df::world_underground_region *layer, bool in_l
         for (auto event : world->history.events)
         {
             auto change_state = virtual_cast<df::history_event_change_hf_statest>(event);
-            if (change_state && change_state->year < 0 && change_state->layer == layer->index && change_state->state == df::history_event_change_hf_statest::Wandering)
+            if (change_state && change_state->year < 0 && change_state->layer == layer->index && change_state->state == whereabouts_type::wanderer)
             {
                 auto beast = df::historical_figure::find(change_state->hfid);
                 s << ", origin of ";

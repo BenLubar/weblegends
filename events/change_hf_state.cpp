@@ -10,7 +10,9 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
     BEFORE_SWITCH(state, event->state);
     switch (state)
     {
-    case df::history_event_change_hf_statest::T_state::Wandering:
+    case whereabouts_type::NONE:
+        break;
+    case whereabouts_type::wanderer:
         BEFORE_SWITCH(reason, event->reason);
         switch (reason)
         {
@@ -26,7 +28,7 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
         }
         AFTER_SWITCH(reason, stl_sprintf("event-%d (CHANGE_HF_STATE) Wandering", event->id));
         BREAK(state);
-    case df::history_event_change_hf_statest::T_state::Settled:
+    case whereabouts_type::settler:
         if (hf->born_year == event->year && event->seconds <= hf->born_seconds)
         {
             s << " was born";
@@ -36,14 +38,14 @@ void do_event(std::ostream & s, const event_context & context, df::history_event
             s << " settled";
         }
         BREAK(state);
-    case df::history_event_change_hf_statest::T_state::Refugee:
+    case whereabouts_type::refugee:
         s << " became a refugee";
         BREAK(state);
-    case df::history_event_change_hf_statest::T_state::anon_1:
+    case whereabouts_type::army_died:
         break;
-    case df::history_event_change_hf_statest::T_state::anon_2:
+    case whereabouts_type::army_survived:
         break;
-    case df::history_event_change_hf_statest::T_state::Visiting:
+    case whereabouts_type::visitor:
         s << " visited";
         separator = " ";
         BREAK(state);
