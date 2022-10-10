@@ -190,7 +190,7 @@ bool WebLegends::render_entity(Layout & l, int32_t id, int32_t page)
             {
                 for (auto inh : site->unk_1.inhabitants)
                 {
-                    if (inh->outcast_id == ent->id)
+                    if (inh->entity_id == ent->id)
                     {
                         if (inh->count == 0)
                         {

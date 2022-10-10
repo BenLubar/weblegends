@@ -1668,11 +1668,10 @@ std::string format_number_s(int64_t number)
 
 void spheres(std::ostream & s, df::historical_figure *hf)
 {
-    // TODO: get rid of anon_1 naming ASAP
-    if (hf->info && hf->info->spheres && !hf->info->spheres->anon_1.empty())
+    if (hf->info && hf->info->spheres && !hf->info->spheres->spheres.empty())
     {
         s << " associated with ";
-        list<df::sphere_type>(s, hf->info->spheres->anon_1, [](std::ostream & out, df::sphere_type t)
+        list<df::sphere_type>(s, hf->info->spheres->spheres, [](std::ostream & out, df::sphere_type t)
         {
             out << toLower(enum_item_key_str(t));
         });

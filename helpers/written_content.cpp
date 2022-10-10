@@ -338,7 +338,7 @@ void written_content(std::ostream & s, const event_context & context, df::writte
             case general_ref_type::LANGUAGE:
                 if (auto r = virtual_cast<df::general_ref_languagest>(ref))
                 {
-                    if (auto lang = df::language_translation::find(r->anon_1))
+                    if (auto lang = df::language_translation::find(r->unk_1))
                     {
                         s << ". The writing concerns the " << Translation::capitalize(toLower(lang->name)) << " language";
                     }

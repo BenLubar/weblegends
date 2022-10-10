@@ -29,7 +29,7 @@ endif()
 execute_process(COMMAND ${CMAKE_COMMAND} -E copy_if_different
     ${git_describe_tmp_h} ${git_describe_h})
 
-file(READ ../../library/xml/df.history.xml EVENT_TYPES)
+file(READ ${dfhack_SOURCE_DIR}/library/xml/df.history.xml EVENT_TYPES)
 string(REGEX MATCH "<enum-type type-name='history_event_type'(<[^/]|[^<])*</enum-type>" EVENT_TYPES "${EVENT_TYPES}")
 string(REGEX MATCHALL "<enum-item[^>]* name='[^']*" EVENT_TYPES "${EVENT_TYPES}")
 string(REGEX REPLACE "[^;']*'" "" EVENT_TYPES "${EVENT_TYPES}")
@@ -121,4 +121,4 @@ LIST(APPEND PROJECT_SRCS ${PROJECT_EMBEDDED_SRCS} ${PROJECT_EMBEDDED})
 
 LIST(APPEND PROJECT_LIBS clsocket dfhack-tinythread dfhack-lodepng)
 
-DFHACK_PLUGIN(weblegends ${PROJECT_SRCS} LINK_LIBRARIES ${PROJECT_LIBS} COMPILE_FLAGS_GCC "-Wall -Wextra -Werror" COMPILE_FLAGS_MSVC "/W3")
+DFHACK_PLUGIN(weblegends ${PROJECT_SRCS} LINK_LIBRARIES ${PROJECT_LIBS} COMPILE_FLAGS_GCC "-Wall -Wextra -Werror -Wno-unused-parameter" COMPILE_FLAGS_MSVC "/W3")

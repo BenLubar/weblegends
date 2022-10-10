@@ -74,7 +74,7 @@ bool WebLegends::render_site(Layout & l, int32_t id, int32_t page)
             s << creature->name[inhabitant->count == 1 ? 0 : 1];
 
             auto pop = df::entity_population::find(inhabitant->population_id);
-            auto outcast = df::historical_entity::find(inhabitant->outcast_id);
+            auto outcast = df::historical_entity::find(inhabitant->entity_id);
             if (pop || outcast)
             {
                 s << " (";
